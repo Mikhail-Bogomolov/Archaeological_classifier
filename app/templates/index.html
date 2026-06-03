@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Археологический классификатор</title>
+    <link rel="stylesheet" href="/static/small-screen.css">
+</head>
+<body class="small-screen bg-gray-50">
+
+<header class="page-pad flex items-center gap-2 border-b border-gray-200 bg-white">
+    <span style="font-size:20px">🏺</span>
+    <h1 class="title-app flex-1">Археологический классификатор</h1>
+</header>
+
+<div class="page-pad">
+    <input type="text" placeholder="Поиск..." class="input-search" disabled>
+</div>
+
+<section class="page-pad card">
+    <h2 class="title-section page-pad" style="padding-bottom:0">
+        Отснятые объекты ({{ total_count }})
+    </h2>
+
+    <div class="page-pad" style="padding-top:8px; display:flex; flex-direction:column; gap:8px;">
+        <a href="/scan" class="btn-primary">Начать сканирование</a>
+        <a href="/export/csv" class="btn-secondary">Экспорт CSV</a>
+    </div>
+
+    {% for obj in objects %}
+    <a href="/object/{{ obj.id }}" class="object-row">
+        <img
+            src="/object/{{ obj.id }}/thumbnail?size=48"
+            width="44"
+            height="36"
+            alt=""
+            class="thumb"
+            loading="lazy"
+        >
+        <div class="object-meta">
+            <h3>{{ obj.name }}</h3>
+            <p>{{ obj.category }} · {{ obj.confidence }}%</p>
+            <p>{{ obj.date }}</p>
+        </div>
+        <span style="color:#9ca3af;font-size:14px">›</span>
+    </a>
+    {% else %}
+    <p class="page-pad" style="color:#6b7280;text-align:center">
+        Объектов нет. Нажмите «Начать сканирование».
+    </p>
+    {% endfor %}
+
+    {% if total_pages > 1 %}
+    <div class="pager">
+        {% if has_prev %}
+        <a href="/?page={{ prev_page }}">←</a>
+        {% else %}
+        <span class="disabled">←</span>
+        {% endif %}
+        <span>{{ page }}/{{ total_pages }}</span>
+        {% if has_next %}
+        <a href="/?page={{ next_page }}">→</a>
+        {% else %}
+        <span class="disabled">→</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+
+</body>
+</html>

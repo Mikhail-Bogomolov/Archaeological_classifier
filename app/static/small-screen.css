@@ -1,0 +1,152 @@
+/* Целевой экран: 2.4–3" (~240–480 px по ширине) */
+:root {
+    --touch-min: 40px;
+    --text-xs: 10px;
+    --text-sm: 11px;
+    --text-base: 12px;
+    --text-lg: 14px;
+    --text-xl: 16px;
+    --pad: 8px;
+    --gap: 6px;
+    --thumb-w: 44px;
+    --thumb-h: 36px;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body.small-screen {
+    font-size: var(--text-base);
+    line-height: 1.35;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.small-screen .page-pad {
+    padding: var(--pad);
+}
+
+.small-screen .title-app {
+    font-size: var(--text-xl);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.small-screen .title-section {
+    font-size: var(--text-lg);
+    font-weight: 700;
+}
+
+.small-screen .btn-primary,
+.small-screen .btn-secondary {
+    display: block;
+    width: 100%;
+    min-height: var(--touch-min);
+    padding: 10px 12px;
+    font-size: var(--text-base);
+    font-weight: 600;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.small-screen .btn-primary {
+    background: #0f172a;
+    color: #fff;
+}
+
+.small-screen .btn-secondary {
+    background: #fff;
+    color: #0f172a;
+    border: 1px solid #e5e7eb;
+}
+
+.small-screen .input-search {
+    width: 100%;
+    min-height: var(--touch-min);
+    padding: 8px 10px;
+    font-size: var(--text-base);
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.small-screen .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.small-screen .object-row {
+    display: flex;
+    gap: var(--gap);
+    padding: var(--pad);
+    border-bottom: 1px solid #f3f4f6;
+    text-decoration: none;
+    color: inherit;
+}
+
+.small-screen .object-row:active {
+    background: #f9fafb;
+}
+
+.small-screen .thumb {
+    width: var(--thumb-w);
+    height: var(--thumb-h);
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    flex-shrink: 0;
+}
+
+.small-screen .object-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.small-screen .object-meta h3 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.small-screen .object-meta p {
+    font-size: var(--text-xs);
+    color: #6b7280;
+    margin: 2px 0 0;
+}
+
+.small-screen .pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap);
+    padding: var(--pad);
+    font-size: var(--text-sm);
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+.small-screen .pager a,
+.small-screen .pager span {
+    min-height: 36px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.small-screen .pager a {
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    text-decoration: none;
+    color: #111;
+}
+
+.small-screen .pager span.disabled {
+    color: #d1d5db;
+    border: 1px solid #f3f4f6;
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Сканирование</title>
+    <link rel="stylesheet" href="/static/small-screen.css">
+</head>
+<body class="small-screen bg-gray-50 min-h-screen">
+
+<header class="page-pad bg-white border-b border-gray-200">
+    <a href="/" style="font-size:var(--text-sm);color:#6b7280;text-decoration:none">← Список</a>
+    <h1 class="title-section" style="margin-top:6px">Сканирование</h1>
+</header>
+
+{% if scan %}
+<div class="page-pad" style="display:flex;flex-direction:column;gap:8px">
+    <div class="card page-pad">
+        <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 6px">Снимок</p>
+        <img src="{{ scan.image_url }}" alt="" style="width:100%;max-height:180px;object-fit:contain;border-radius:8px;background:#f3f4f6">
+    </div>
+
+    <div class="card page-pad">
+        <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 4px">Нейросеть</p>
+        <p style="font-weight:700;margin:0;font-size:var(--text-base)">{{ scan.name }}</p>
+        <p style="margin:6px 0 0;font-size:var(--text-sm)">{{ scan.description }}</p>
+        <p style="margin:6px 0 0"><b>{{ scan.category }}</b> · {{ scan.confidence }}%</p>
+        {% if scan.features %}
+        <ul style="margin:8px 0 0;padding-left:16px;font-size:var(--text-xs)">
+            {% for feature in scan.features %}
+            <li>{{ feature }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <form action="/scan/rescan" method="POST">
+        <button type="submit" class="btn-secondary" style="border:none;width:100%">Повторное сканирование</button>
+    </form>
+    <form action="/scan/add" method="POST">
+        <button type="submit" class="btn-primary" style="border:none;width:100%">Добавить</button>
+    </form>
+</div>
+
+{% else %}
+<div class="page-pad card" style="margin:var(--pad)">
+    <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 10px">
+        Загрузите фото с установки. После проверки нажмите «Добавить».
+    </p>
+    <form action="/scan" method="POST" enctype="multipart/form-data">
+        <label style="font-size:var(--text-sm);display:block;margin-bottom:4px">Название (необяз.)</label>
+        <input type="text" name="object_name" class="input-search" style="margin-bottom:8px">
+        <label style="font-size:var(--text-sm);display:block;margin-bottom:4px">Фото</label>
+        <input type="file" name="file" accept="image/*" required style="width:100%;font-size:var(--text-xs);margin-bottom:10px">
+        <button type="submit" class="btn-primary" style="border:none;width:100%">Начать сканирование</button>
+    </form>
+</div>
+{% endif %}
+
+</body>
+</html>
