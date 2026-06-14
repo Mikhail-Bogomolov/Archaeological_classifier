@@ -17,15 +17,54 @@
     <input type="text" placeholder="Поиск..." class="input-search" disabled>
 </div>
 
-<section class="page-pad card">
-    <h2 class="title-section page-pad" style="padding-bottom:0">
-        Отснятые объекты ({{ total_count }})
-    </h2>
-
-    <div class="page-pad" style="padding-top:8px; display:flex; flex-direction:column; gap:8px;">
-        <a href="/scan" class="btn-primary">Начать сканирование</a>
-        <a href="/export/csv" class="btn-secondary">Экспорт CSV</a>
+<section class="card">
+    <div class="page-pad" style="padding-bottom:0">
+        <h2 class="title-section">Отснятые объекты ({{ total_count }})</h2>
     </div>
+
+    <div class="action-bar" style="padding-bottom:0">
+        <a href="/scan" class="btn-primary">Начать сканирование</a>
+    </div>
+
+    <form
+        class="export-form"
+        action="/export/csv"
+        method="GET"
+        data-show-loader
+        data-loader-message="Подготовка выгрузки…"
+    >
+        <p class="export-form-title">Экспорт CSV за период</p>
+        <div class="export-dates">
+            <div class="export-date-row">
+                <label for="date_from">С</label>
+                <input
+                    type="date"
+                    id="date_from"
+                    name="date_from"
+                    class="input-search input-date"
+                    {% if export_min_date %}min="{{ export_min_date }}"{% endif %}
+                    {% if export_max_date %}max="{{ export_max_date }}"{% endif %}
+                >
+            </div>
+            <div class="export-date-row">
+                <label for="date_to">До</label>
+                <input
+                    type="date"
+                    id="date_to"
+                    name="date_to"
+                    class="input-search input-date"
+                    {% if export_min_date %}min="{{ export_min_date }}"{% endif %}
+                    {% if export_max_date %}max="{{ export_max_date }}"{% endif %}
+                >
+            </div>
+        </div>
+        <button type="submit" class="btn-secondary" style="border:1px solid #e5e7eb;width:100%">
+            Скачать CSV
+        </button>
+        <p style="font-size:var(--text-xs);color:#9ca3af;margin:0">
+            Оставьте оба поля пустыми, чтобы выгрузить все объекты.
+        </p>
+    </form>
 
     {% for obj in objects %}
     <a href="/object/{{ obj.id }}" class="object-row">
@@ -42,7 +81,7 @@
             <p>{{ obj.category }} · {{ obj.confidence }}%</p>
             <p>{{ obj.date }}</p>
         </div>
-        <span style="color:#9ca3af;font-size:14px">›</span>
+        <span style="color:#9ca3af;font-size:14px;flex-shrink:0">›</span>
     </a>
     {% else %}
     <p class="page-pad" style="color:#6b7280;text-align:center">
@@ -67,5 +106,10 @@
     {% endif %}
 </section>
 
+<div id="app-loader" class="loader-overlay" hidden>
+    <div class="loader-spinner" aria-hidden="true"></div>
+    <p class="loader-text">Подготовка выгрузки…</p>
+</div>
+<script src="/static/app.js"></script>
 </body>
 </html>

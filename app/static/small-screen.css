@@ -1,4 +1,8 @@
-/* Целевой экран: 2.4–3" (~240–480 px по ширине) */
+/* Целевой экран: 2.4–3" (~240–480 px) */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 :root {
     --touch-min: 40px;
     --text-xs: 10px;
@@ -14,13 +18,16 @@
 
 html {
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
 }
 
 body.small-screen {
     font-size: var(--text-base);
     line-height: 1.35;
+    width: 100%;
     max-width: 480px;
     margin: 0 auto;
+    overflow-x: hidden;
 }
 
 .small-screen .page-pad {
@@ -31,29 +38,34 @@ body.small-screen {
     font-size: var(--text-xl);
     font-weight: 800;
     line-height: 1.2;
+    margin: 0;
 }
 
 .small-screen .title-section {
     font-size: var(--text-lg);
     font-weight: 700;
+    margin: 0;
 }
 
 .small-screen .btn-primary,
 .small-screen .btn-secondary {
     display: block;
     width: 100%;
+    max-width: 100%;
     min-height: var(--touch-min);
-    padding: 10px 12px;
+    padding: 10px 8px;
     font-size: var(--text-base);
     font-weight: 600;
     border-radius: 10px;
     text-align: center;
     text-decoration: none;
+    box-sizing: border-box;
 }
 
 .small-screen .btn-primary {
     background: #0f172a;
     color: #fff;
+    border: none;
 }
 
 .small-screen .btn-secondary {
@@ -62,13 +74,23 @@ body.small-screen {
     border: 1px solid #e5e7eb;
 }
 
+.small-screen .action-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: var(--pad);
+    width: 100%;
+}
+
 .small-screen .input-search {
     width: 100%;
+    max-width: 100%;
     min-height: var(--touch-min);
     padding: 8px 10px;
     font-size: var(--text-base);
     border: 1px solid #e5e7eb;
     border-radius: 10px;
+    box-sizing: border-box;
 }
 
 .small-screen .card {
@@ -76,6 +98,8 @@ body.small-screen {
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     overflow: hidden;
+    width: calc(100% - 2 * var(--pad));
+    margin: 0 var(--pad) var(--pad);
 }
 
 .small-screen .object-row {
@@ -85,6 +109,7 @@ body.small-screen {
     border-bottom: 1px solid #f3f4f6;
     text-decoration: none;
     color: inherit;
+    width: 100%;
 }
 
 .small-screen .object-row:active {
@@ -149,4 +174,86 @@ body.small-screen {
 .small-screen .pager span.disabled {
     color: #d1d5db;
     border: 1px solid #f3f4f6;
+}
+
+.small-screen .export-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 var(--pad) var(--pad);
+}
+
+.small-screen .export-form-title {
+    font-size: var(--text-sm);
+    color: #9ca3af;
+    margin: 0;
+    font-weight: 500;
+}
+
+.small-screen .export-dates {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.small-screen .export-date-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.small-screen .export-date-row label {
+    flex: 0 0 18px;
+    font-size: var(--text-sm);
+    color: #6b7280;
+    margin: 0;
+    font-weight: 600;
+}
+
+.small-screen .export-date-row .input-date {
+    flex: 1;
+    min-width: 0;
+    min-height: var(--touch-min);
+    padding: 8px 6px;
+    font-size: var(--text-sm);
+}
+
+.small-screen .loader-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
+}
+
+.small-screen .loader-overlay[hidden] {
+    display: none;
+}
+
+.small-screen .loader-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #0f172a;
+    border-radius: 50%;
+    animation: loader-spin 0.8s linear infinite;
+}
+
+.small-screen .loader-text {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    padding: 0 16px;
+}
+
+@keyframes loader-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }

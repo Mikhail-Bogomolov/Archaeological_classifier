@@ -1,54 +1,70 @@
 """
-Схема классов и признаков (заглушка до появления датасета).
-При появлении данных — правьте списки и перезапустите обучение.
+Схема классов и признаков — Канск 2023.
 """
 
 from dataclasses import dataclass
 
-# --- Сеть 1: тип объекта (multiclass, one-hot на выходе обучения) ---
+# --- Сеть 1: тип объекта (multiclass) ---
 OBJECT_CLASSES: list[str] = [
-    "керамика",
-    "металл",
-    "кость",
-    "стекло",
-    "камень",
-    "неопределено",
+    "кельты",
+    "ножи",
+    "удила",
+    "наконечники стрел",
+    "накладки",
 ]
 
-# --- Сеть 2: признаки зависят от типа объекта (multi-label) ---
+# --- Сеть 2: признаки (multi-label), у каждого типа свой набор ---
 FEATURE_SCHEMA: dict[str, list[str]] = {
-    "керамика": [
-        "орнамент_есть",
-        "глазурь",
-        "скол_края",
-        "фрагмент_донышко",
-        "фрагмент_горлышко",
+    "кельты": [
+        "материал",
+        "сохранность",
+        "форма",
+        "тулья",
+        "ушки",
+        "орнамент",
     ],
-    "металл": [
-        "коррозия",
-        "патина",
-        "слой_окисла",
-        "сохранность_высокая",
+    "ножи": [
+        "материал",
+        "сохранность",
+        "тип",
+        "рукоять",
+        "орнамент",
     ],
-    "кость": [
-        "окраска",
-        "трещины",
-        "обработка_края",
+    "удила": [
+        "материал",
+        "сохранность",
+        "тип_окончания",
+        "шарнирность",
     ],
-    "стекло": [
-        "прозрачность",
-        "пузыри_в_массе",
-        "скол",
+    "наконечники стрел": [
+        "материал",
+        "сохранность",
+        "тип_насадки",
+        "форма_лезвия",
+        "сечение",
+        "ребра",
     ],
-    "камень": [
-        "шлифовка",
-        "сколы",
-        "отложения",
+    "накладки": [
+        "материал",
+        "сохранность",
+        "форма",
+        "крепление",
+        "орнамент",
     ],
-    "неопределено": [],
 }
 
-INPUT_SIZE = (224, 224)  # MobileNet standard
+# Путь к датасету Канск 2023
+KANSK_DATASET_DIR = "data/perdataset/kansk_2023"
+KANSK_PHOTOS_DIR = f"{KANSK_DATASET_DIR}/photos"
+KANSK_TABLES_DIR = f"{KANSK_DATASET_DIR}/tables"
+
+# Колонки шаблона разметки / экспорта
+MARKUP_COLUMNS: list[str] = ["номер", "название"] + [
+    f"признак {i}" for i in range(1, 6)
+]
+
+INPUT_SIZE = (224, 224)
+CV_TARGET_SHAPE = 50  # размер каналов после CV-предобработки (5, 50, 50)
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
 
@@ -56,11 +72,17 @@ MODELS_DIR = "models/archaeology"
 OBJECT_MODEL_FILE = "object_classifier.pt"
 FEATURE_MODEL_FILE = "feature_classifier.pt"
 
+MARKUP_TEMPLATE_PATH = "data/templates/markup_template.xlsx"
+
+# Тестовые изображения в корне проекта
+TEST_IMAGE_PATHS: list[str] = [
+    "test_img_02.jpg",
+    "test_img_10.jpg",
+]
+
 
 @dataclass(frozen=True)
 class FeatureIndex:
-    """Глобальный индекс multi-label вектора признаков."""
-
     name: str
     object_class: str
     local_index: int
@@ -68,7 +90,6 @@ class FeatureIndex:
 
 
 def build_feature_index() -> tuple[list[str], list[FeatureIndex], dict[str, list[int]]]:
-    """Плоский список признаков и индексы по классу объекта."""
     flat: list[str] = []
     meta: list[FeatureIndex] = []
     by_class: dict[str, list[int]] = {c: [] for c in OBJECT_CLASSES}

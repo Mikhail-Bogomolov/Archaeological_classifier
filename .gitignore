@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
+# Virtual environment
+venv/
+
+# Local runtime data
+app/data.sqlite3
+
+# Source datasets (not for repo)
+General_data/
+data/perdataset/
+siberiana-hakaton/
+
+# Temp files
+kansk_probe*.txt
+
+# IDE
+.vscode/

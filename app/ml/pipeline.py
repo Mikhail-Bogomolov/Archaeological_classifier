@@ -27,7 +27,7 @@ from app.ml.encoders import (
     one_hot_from_name,
 )
 from app.ml.models import FeatureClassifierNet, ObjectClassifierNet
-from app.ml.preprocess import cv_preprocess
+from app.ml.preprocess import classifier_preprocess, cv_preprocess
 
 
 @dataclass
@@ -48,7 +48,8 @@ class ArchaeologyClassifierPipeline:
         self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
         self.object_net = ObjectClassifierNet().to(self.device)
         self.feature_net = FeatureClassifierNet().to(self.device)
-        self._weights_loaded = False
+        self._object_weights_loaded = False
+        self._feature_weights_loaded = False
         self._load_weights_if_present()
         self.object_net.eval()
         self.feature_net.eval()
@@ -60,42 +61,47 @@ class ArchaeologyClassifierPipeline:
             self.object_net.load_state_dict(
                 torch.load(obj_path, map_location=self.device, weights_only=True)
             )
-            self._weights_loaded = True
+            self._object_weights_loaded = True
         if feat_path.is_file():
             self.feature_net.load_state_dict(
                 torch.load(feat_path, map_location=self.device, weights_only=True)
             )
+            self._feature_weights_loaded = True
 
     @property
     def ready(self) -> bool:
-        return self._weights_loaded
+        return self._object_weights_loaded
 
     @torch.no_grad()
     def predict(self, image_bytes: bytes, object_name: str | None = None) -> PredictionResult:
-        tensor, _preview, meta = cv_preprocess(image_bytes)
+        is_demo = not self._object_weights_loaded
+        if self._object_weights_loaded:
+            tensor, _preview, meta = classifier_preprocess(image_bytes)
+        else:
+            tensor, _preview, meta = cv_preprocess(image_bytes)
         tensor = tensor.to(self.device)
 
         obj_logits = self.object_net(tensor)
         object_class, object_conf = decode_object_class(obj_logits, OBJECT_CLASSES)
 
-        obj_oh = one_hot_from_name(object_class, OBJECT_CLASSES).to(self.device)
-        feat_logits = self.feature_net(tensor, obj_oh)
-        decoded = decode_features(feat_logits, FEATURE_LABELS, threshold=0.5)
-
-        # Оставляем только признаки, относящиеся к предсказанному классу
-        allowed = set(FEATURE_INDICES_BY_CLASS.get(object_class, []))
         feature_lines: list[str] = []
-        for label, prob in decoded:
-            global_idx = FEATURE_LABELS.index(label)
-            if global_idx in allowed:
-                short = label.split(":", 1)[-1]
-                feature_lines.append(f"{short}: {prob:.0%}")
-
-        is_demo = not self.ready
-        if is_demo:
-            feature_lines.insert(
-                0,
+        if self._feature_weights_loaded:
+            obj_oh = one_hot_from_name(object_class, OBJECT_CLASSES).to(self.device)
+            feat_logits = self.feature_net(tensor, obj_oh)
+            decoded = decode_features(feat_logits, FEATURE_LABELS, threshold=0.5)
+            allowed = set(FEATURE_INDICES_BY_CLASS.get(object_class, []))
+            for label, prob in decoded:
+                global_idx = FEATURE_LABELS.index(label)
+                if global_idx in allowed:
+                    short = label.split(":", 1)[-1]
+                    feature_lines.append(f"{short}: {prob:.0%}")
+        elif is_demo:
+            feature_lines.append(
                 "Модель не обучена — результат демонстрационный (случайные веса)",
+            )
+        else:
+            feature_lines.append(
+                "Признаки: Сеть 2 ещё не обучена",
             )
 
         display_name = object_name.strip() if object_name and object_name.strip() else "Новый объект"
@@ -105,6 +111,8 @@ class ArchaeologyClassifierPipeline:
             f"Тип: {object_class}. "
             + ("Ожидается обучение на вашем датасете." if is_demo else "Классификатор обучен.")
         )
+        if not is_demo and object_conf < 0.55:
+            description += " Низкая уверенность — результат может быть неточным."
 
         return PredictionResult(
             name=display_name,

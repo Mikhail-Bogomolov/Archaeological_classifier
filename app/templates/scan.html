@@ -47,7 +47,13 @@
     <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 10px">
         Загрузите фото с установки. После проверки нажмите «Добавить».
     </p>
-    <form action="/scan" method="POST" enctype="multipart/form-data">
+    <form
+        action="/scan"
+        method="POST"
+        enctype="multipart/form-data"
+        data-show-loader
+        data-loader-message="Обработка изображения…"
+    >
         <label style="font-size:var(--text-sm);display:block;margin-bottom:4px">Название (необяз.)</label>
         <input type="text" name="object_name" class="input-search" style="margin-bottom:8px">
         <label style="font-size:var(--text-sm);display:block;margin-bottom:4px">Фото</label>
@@ -57,5 +63,10 @@
 </div>
 {% endif %}
 
+<div id="app-loader" class="loader-overlay" hidden>
+    <div class="loader-spinner" aria-hidden="true"></div>
+    <p class="loader-text">Обработка изображения…</p>
+</div>
+<script src="/static/app.js"></script>
 </body>
 </html>

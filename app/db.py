@@ -1,6 +1,7 @@
 import json
 import math
 import sqlite3
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -92,7 +93,7 @@ def list_objects_paginated(page: int = 1, per_page: int = PAGE_SIZE) -> list[dic
 
 
 def list_objects() -> list[dict[str, Any]]:
-    """Все объекты (для экспорта CSV)."""
+    """Все объекты (краткий список)."""
     with _connect() as conn:
         rows = conn.execute(
             """
@@ -102,6 +103,72 @@ def list_objects() -> list[dict[str, Any]]:
             """
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def parse_object_date(date_str: str) -> datetime | None:
+    for fmt in ("%d.%m.%Y %H:%M", "%d.%m.%Y"):
+        try:
+            return datetime.strptime(str(date_str).strip(), fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def _object_in_date_range(obj: dict[str, Any], date_from: date | None, date_to: date | None) -> bool:
+    if date_from is None and date_to is None:
+        return True
+    parsed = parse_object_date(str(obj.get("date") or ""))
+    if parsed is None:
+        return False
+    obj_date = parsed.date()
+    if date_from is not None and obj_date < date_from:
+        return False
+    if date_to is not None and obj_date > date_to:
+        return False
+    return True
+
+
+def list_objects_for_export(
+    date_from: date | None = None,
+    date_to: date | None = None,
+) -> list[dict[str, Any]]:
+    """Объекты с признаками для экспорта; опционально — фильтр по дате сканирования."""
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT id, name, description, category, confidence, date, features_json
+            FROM objects
+            ORDER BY id DESC
+            """
+        ).fetchall()
+        result = []
+        for row in rows:
+            obj = dict(row)
+            try:
+                obj["features"] = json.loads(obj.get("features_json") or "[]")
+            except Exception:
+                obj["features"] = []
+            obj.pop("features_json", None)
+            if _object_in_date_range(obj, date_from, date_to):
+                result.append(obj)
+        return result
+
+
+def get_export_date_bounds() -> dict[str, str | None]:
+    """Минимальная и максимальная дата объектов в формате YYYY-MM-DD для полей ввода."""
+    with _connect() as conn:
+        rows = conn.execute("SELECT date FROM objects").fetchall()
+    dates: list[date] = []
+    for row in rows:
+        parsed = parse_object_date(str(row["date"]))
+        if parsed is not None:
+            dates.append(parsed.date())
+    if not dates:
+        return {"min_date": None, "max_date": None}
+    return {
+        "min_date": min(dates).isoformat(),
+        "max_date": max(dates).isoformat(),
+    }
 
 
 def pagination_meta(page: int, per_page: int = PAGE_SIZE) -> dict[str, int]:
