@@ -1,8 +1,4 @@
-"""
-Двухэтапный инференс:
-  1) ObjectClassifierNet → класс объекта
-  2) FeatureClassifierNet(image, one_hot(class)) → признаки
-"""
+"""Сначала тип объекта, потом признаки (когда сеть 2 будет готова)."""
 
 from __future__ import annotations
 
@@ -20,6 +16,7 @@ from app.ml.config import (
     MODELS_DIR,
     OBJECT_CLASSES,
     OBJECT_MODEL_FILE,
+    USE_TEXTURE_FEATURES,
 )
 from app.ml.encoders import (
     decode_features,
@@ -46,7 +43,7 @@ class PredictionResult:
 class ArchaeologyClassifierPipeline:
     def __init__(self, device: str | None = None):
         self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
-        self.object_net = ObjectClassifierNet().to(self.device)
+        self.object_net = ObjectClassifierNet(use_texture=USE_TEXTURE_FEATURES).to(self.device)
         self.feature_net = FeatureClassifierNet().to(self.device)
         self._object_weights_loaded = False
         self._feature_weights_loaded = False
@@ -58,9 +55,11 @@ class ArchaeologyClassifierPipeline:
         obj_path = Path(MODELS_DIR) / OBJECT_MODEL_FILE
         feat_path = Path(MODELS_DIR) / FEATURE_MODEL_FILE
         if obj_path.is_file():
-            self.object_net.load_state_dict(
-                torch.load(obj_path, map_location=self.device, weights_only=True)
-            )
+            state = torch.load(obj_path, map_location=self.device, weights_only=True)
+            has_texture = any(k.startswith("texture_mlp") for k in state)
+            if USE_TEXTURE_FEATURES and not has_texture:
+                self.object_net = ObjectClassifierNet(use_texture=False).to(self.device)
+            self.object_net.load_state_dict(state, strict=False)
             self._object_weights_loaded = True
         if feat_path.is_file():
             self.feature_net.load_state_dict(
@@ -76,12 +75,21 @@ class ArchaeologyClassifierPipeline:
     def predict(self, image_bytes: bytes, object_name: str | None = None) -> PredictionResult:
         is_demo = not self._object_weights_loaded
         if self._object_weights_loaded:
-            tensor, _preview, meta = classifier_preprocess(image_bytes)
+            tensor, _preview, meta, texture = classifier_preprocess(image_bytes)
+            tensor = tensor.to(self.device)
+            if (
+                self.object_net.use_texture
+                and self.object_net.texture_mlp is not None
+                and texture is not None
+            ):
+                texture = texture.to(self.device)
+                obj_logits = self.object_net(tensor, texture)
+            else:
+                obj_logits = self.object_net(tensor)
         else:
             tensor, _preview, meta = cv_preprocess(image_bytes)
-        tensor = tensor.to(self.device)
-
-        obj_logits = self.object_net(tensor)
+            tensor = tensor.to(self.device)
+            obj_logits = self.object_net(tensor)
         object_class, object_conf = decode_object_class(obj_logits, OBJECT_CLASSES)
 
         feature_lines: list[str] = []
@@ -101,7 +109,7 @@ class ArchaeologyClassifierPipeline:
             )
         else:
             feature_lines.append(
-                "Признаки: Сеть 2 ещё не обучена",
+                "Признаки: модуль признаков ещё не обучен",
             )
 
         display_name = object_name.strip() if object_name and object_name.strip() else "Новый объект"

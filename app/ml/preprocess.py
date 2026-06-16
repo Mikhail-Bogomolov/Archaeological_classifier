@@ -1,8 +1,8 @@
 """
-Предобработка изображений для MobileNet.
+Подготовка фото перед классификацией.
 
-classifier_preprocess — быстрый путь, как при обучении Сети 1.
-cv_preprocess — тяжёлый CV-пайплайн (для Сети 2, когда будет обучена).
+classifier_preprocess — обычный путь для сети 1.
+cv_preprocess — старый тяжёлый вариант, для сети 2.
 """
 
 from __future__ import annotations
@@ -16,15 +16,23 @@ import torch
 from PIL import Image, ImageOps
 from torchvision import transforms
 
-from app.ml.config import IMAGENET_MEAN, IMAGENET_STD, INPUT_SIZE
+from app.ml.config import (
+    IMAGENET_MEAN,
+    IMAGENET_STD,
+    INPUT_SIZE,
+    USE_TEXTURE_FEATURES,
+)
+from app.ml.texture_features import extract_texture_vector
 
-# Типичный кадр описи Канск: линейка снизу, бирка справа — убираем до resize.
+# На фото описи снизу линейка, справа бирка.
 KANSK_BOTTOM_CROP_RATIO = 0.14
 KANSK_RIGHT_CROP_RATIO = 0.08
+# Полный JPEG слишком большой, грузим уменьшенный.
+MAX_LOAD_SIDE = 1600
 
 
 def item_key_from_filename(path: str | Path) -> str:
-    """уд85_1-1_а.jpg → 1-1 (один предмет, несколько ракурсов)."""
+    """уд85_1-1_а.jpg → 1-1 (один предмет, разные ракурсы)."""
     stem = Path(path).stem.lower()
     if stem.startswith("уд85_"):
         stem = stem[5:]
@@ -33,7 +41,7 @@ def item_key_from_filename(path: str | Path) -> str:
 
 
 def crop_kansk_frame(pil: Image.Image) -> Image.Image:
-    """Обрезка служебных элементов кадра описи: линейка, бирка."""
+    """Убираем линейку и бирку по краям кадра."""
     w, h = pil.size
     right = max(1, int(w * (1 - KANSK_RIGHT_CROP_RATIO)))
     bottom = max(1, int(h * (1 - KANSK_BOTTOM_CROP_RATIO)))
@@ -43,10 +51,7 @@ def crop_kansk_frame(pil: Image.Image) -> Image.Image:
 
 
 def crop_to_artifact(pil: Image.Image, max_side: int = 800) -> Image.Image:
-    """
-    Быстрое выделение предмета: на уменьшенной копии ищем крупнейший тёмный контур,
-    обрезаем с отступом. Убирает лишний фон, блики по краям, оборудование слева.
-    """
+    """Ищем предмет на фото и обрезаем лишний фон."""
     try:
         import cv2
     except ImportError:
@@ -99,22 +104,33 @@ def crop_to_artifact(pil: Image.Image, max_side: int = 800) -> Image.Image:
     return Image.fromarray(arr[y0:y1, x0:x1])
 
 
-def load_classifier_rgb(image_bytes: bytes | None = None, path: str | Path | None = None) -> Image.Image:
-    """EXIF → RGB → обрезка кадра → выделение предмета. Для обучения и инференса Сети 1."""
+def load_classifier_rgb(
+    image_bytes: bytes | None = None,
+    path: str | Path | None = None,
+    max_load_side: int = MAX_LOAD_SIDE,
+) -> Image.Image:
+    """Поворот, обрезка кадра и выделение предмета."""
     if image_bytes is not None:
         pil = Image.open(io.BytesIO(image_bytes))
     elif path is not None:
         pil = Image.open(path)
     else:
         raise ValueError("Нужен image_bytes или path")
-    pil = ImageOps.exif_transpose(pil).convert("RGB")
+
+    if pil.format == "JPEG" and max_load_side > 0:
+        pil.draft("RGB", (max_load_side, max_load_side))
+
+    pil = ImageOps.exif_transpose(pil)
+    if max_load_side > 0 and max(pil.size) > max_load_side:
+        pil.thumbnail((max_load_side, max_load_side), Image.LANCZOS)
+    pil = pil.convert("RGB")
     pil = crop_kansk_frame(pil)
     pil = crop_to_artifact(pil)
     return pil
 
 
 def _val_transforms() -> transforms.Compose:
-    """Те же шаги, что build_val_transforms() в train_classifier.py."""
+    """Как при проверке на val."""
     return transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
@@ -123,18 +139,22 @@ def _val_transforms() -> transforms.Compose:
     ])
 
 
-def classifier_preprocess(image_bytes: bytes) -> Tuple[torch.Tensor, Image.Image, dict]:
-    """Быстрая предобработка для Сети 1: обрезка кадра → resize → crop → normalize."""
+def classifier_preprocess(image_bytes: bytes) -> Tuple[torch.Tensor, Image.Image, dict, torch.Tensor | None]:
+    """Фото → тензор для сети 1 + текстура, если включена."""
     pil = load_classifier_rgb(image_bytes=image_bytes)
+    texture = None
+    if USE_TEXTURE_FEATURES:
+        texture = torch.tensor(extract_texture_vector(pil), dtype=torch.float32).unsqueeze(0)
     tensor = _val_transforms()(pil).unsqueeze(0)
     meta = {
         "preprocess": "classifier",
         "frame_cropped": True,
         "artifact_cropped": True,
+        "texture_features": USE_TEXTURE_FEATURES,
         "cv_multi_channel_applied": False,
         "mean_brightness": float(np.mean(np.array(pil.convert("L")))),
     }
-    return tensor, pil, meta
+    return tensor, pil, meta, texture
 
 
 def _mobilenet_tensor_from_rgb(pil: Image.Image) -> torch.Tensor:
@@ -148,7 +168,7 @@ def _mobilenet_tensor_from_rgb(pil: Image.Image) -> torch.Tensor:
 
 
 def five_channel_to_pil_rgb(five_ch: np.ndarray) -> Image.Image:
-    """Каналы R, G, B из пятиканального стека (индексы 2, 3, 4) → PIL RGB."""
+    """RGB из пятиканального массива (каналы 2–4)."""
     rgb = five_ch[2:5]
     rgb = np.clip(rgb * 255.0, 0, 255).astype(np.uint8)
     rgb = np.transpose(rgb, (1, 2, 0))
@@ -156,10 +176,7 @@ def five_channel_to_pil_rgb(five_ch: np.ndarray) -> Image.Image:
 
 
 def cv_preprocess(image_bytes: bytes) -> Tuple[torch.Tensor, Image.Image, dict]:
-    """
-    Тяжёлый CV-пайплайн: prepare_img → (5, 50, 50) → RGB 224×224.
-    Медленный на больших фото; использовать только для Сети 2.
-    """
+    """Старый пайплайн с OpenCV, медленный — для сети 2."""
     meta: dict = {"cv_multi_channel_applied": False, "preprocess": "cv"}
     pil_fallback = Image.open(io.BytesIO(image_bytes))
     pil_fallback = ImageOps.exif_transpose(pil_fallback).convert("RGB")
@@ -183,6 +200,6 @@ def cv_preprocess(image_bytes: bytes) -> Tuple[torch.Tensor, Image.Image, dict]:
 
 
 def five_channel_to_mobilenet_tensor(five_ch: np.ndarray) -> torch.Tensor:
-    """Для обучения: (5, H, W) numpy → tensor [1, 3, 224, 224]."""
+    """Пятиканальный numpy → тензор 224×224."""
     pil = five_channel_to_pil_rgb(five_ch)
     return _mobilenet_tensor_from_rgb(pil)

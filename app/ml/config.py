@@ -1,10 +1,8 @@
-"""
-Схема классов и признаков — Канск 2023.
-"""
+"""Классы и пути — датасет Канск 2023."""
 
 from dataclasses import dataclass
 
-# --- Сеть 1: тип объекта (multiclass) ---
+# Тип объекта (сеть 1)
 OBJECT_CLASSES: list[str] = [
     "кельты",
     "ножи",
@@ -13,7 +11,7 @@ OBJECT_CLASSES: list[str] = [
     "накладки",
 ]
 
-# --- Сеть 2: признаки (multi-label), у каждого типа свой набор ---
+# Признаки по типу (сеть 2)
 FEATURE_SCHEMA: dict[str, list[str]] = {
     "кельты": [
         "материал",
@@ -64,17 +62,18 @@ MARKUP_COLUMNS: list[str] = ["номер", "название"] + [
 ]
 
 INPUT_SIZE = (224, 224)
-CV_TARGET_SHAPE = 50  # размер каналов после CV-предобработки (5, 50, 50)
+CV_TARGET_SHAPE = 50  # размер после обработки OpenCV
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
 
 MODELS_DIR = "models/archaeology"
 OBJECT_MODEL_FILE = "object_classifier.pt"
 FEATURE_MODEL_FILE = "feature_classifier.pt"
+USE_TEXTURE_FEATURES = True
 
 MARKUP_TEMPLATE_PATH = "data/templates/markup_template.xlsx"
 
-# Тестовые изображения в корне проекта
+# Тестовые фото в корне (если понадобятся вручную)
 TEST_IMAGE_PATHS: list[str] = [
     "test_img_02.jpg",
     "test_img_10.jpg",

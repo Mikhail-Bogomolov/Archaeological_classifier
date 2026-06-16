@@ -1,4 +1,4 @@
-"""MobileNet V2 / V3 backbone (torchvision)."""
+"""Основа модели — MobileNet из torchvision."""
 
 from __future__ import annotations
 
@@ -10,10 +10,7 @@ def create_mobilenet_backbone(
     version: str = "v3_small",
     pretrained: bool = False,
 ) -> tuple[nn.Module, int]:
-    """
-    version: v2 | v3_small | v3_large
-    Возвращает (feature_extractor, out_channels).
-    """
+    """v2, v3_small или v3_large; возвращает сеть и число признаков на выходе."""
     version = version.lower()
     if version == "v2":
         weights = models.MobileNet_V2_Weights.DEFAULT if pretrained else None

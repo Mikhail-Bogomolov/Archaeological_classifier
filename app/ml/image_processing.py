@@ -1,8 +1,5 @@
 """
-Сектор обработки фото.
-
-prepare_img() → тензор (5, TARGET_SHAPE, TARGET_SHAPE):
-  [shape_mask, edges, R, G, B].
+Обработка фото через OpenCV: маска, контуры, 5 каналов.
 """
 
 from __future__ import annotations
@@ -26,7 +23,7 @@ except ImportError:  # pragma: no cover
 
 
 def rgb2gray(rgb: np.ndarray) -> np.ndarray:
-    """Преобразование RGB в оттенки серого."""
+    """RGB → серый."""
     r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
     gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
     return gray.reshape([len(r), len(r[0]), 1])
@@ -55,9 +52,7 @@ def prepare_img(
     black_const: int = 25,
     target_shape: int = CV_TARGET_SHAPE,
 ) -> np.ndarray:
-    """
-    Очистка фона → контуры → Canny → 5 каналов target_shape×target_shape.
-    """
+    """Чистка фона, контуры, 5 каналов фиксированного размера."""
     if cv2 is None:
         raise ImportError(
             "Для обработки фото нужен opencv-python-headless."
@@ -153,7 +148,7 @@ def load_image_bgr(path: str | Path) -> np.ndarray:
 
 
 def process_file(path: str | Path, target_shape: int = CV_TARGET_SHAPE) -> np.ndarray:
-    """cv2.imread → prepare_img"""
+    """Файл → prepare_img."""
     return prepare_img(load_image_bgr(path), target_shape=target_shape)
 
 
@@ -168,7 +163,7 @@ def process_bytes(image_bytes: bytes, target_shape: int = CV_TARGET_SHAPE) -> np
 
 
 def discover_test_images(extra_paths: Iterable[str] | None = None) -> list[Path]:
-    """Находит test_img_02.jpg и test_img_10.jpg"""
+    """test_img_02.jpg и test_img_10.jpg в корне проекта."""
     found: list[Path] = []
     seen: set[str] = set()
     candidates = list(TEST_IMAGE_PATHS)
@@ -182,7 +177,7 @@ def discover_test_images(extra_paths: Iterable[str] | None = None) -> list[Path]
             seen.add(key)
             found.append(path)
 
-    # Уникальные по имени файла (корень приоритетнее)
+    # если один файл встретился дважды — берём из корня
     by_name: dict[str, Path] = {}
     for p in found:
         by_name.setdefault(p.name, p)

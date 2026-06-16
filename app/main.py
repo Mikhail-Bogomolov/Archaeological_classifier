@@ -49,9 +49,21 @@ async def home(request: Request, page: int = Query(1, ge=1)):
             "prev_page": meta["prev_page"],
             "next_page": meta["next_page"],
             "per_page": meta["per_page"],
+        }
+    )
+
+
+@app.get("/export")
+async def export_page(request: Request):
+    db.init_db()
+    date_bounds = db.get_export_date_bounds()
+    return templates.TemplateResponse(
+        request=request,
+        name="export_csv.html",
+        context={
             "export_min_date": date_bounds["min_date"],
             "export_max_date": date_bounds["max_date"],
-        }
+        },
     )
 
 

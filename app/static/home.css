@@ -1,0 +1,470 @@
+/* Главная и страница экспорта */
+
+:root {
+    --ui-navy: #1a2744;
+    --ui-navy-hover: #243456;
+    --ui-bg: #f3f4f6;
+    --ui-surface: #ffffff;
+    --ui-border: #e5e7eb;
+    --ui-muted: #6b7280;
+    --ui-green: #22c55e;
+    --ui-green-bg: #dcfce7;
+    --ui-orange: #f59e0b;
+    --ui-orange-bg: #fef3c7;
+    --ui-radius: 12px;
+}
+
+body.home-page,
+body.export-page {
+    background: var(--ui-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Шапка */
+.ui-header {
+    background: var(--ui-navy);
+    color: #fff;
+    padding: 14px 16px;
+    text-align: center;
+    position: relative;
+}
+
+.ui-header h1 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.ui-header--back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ui-back {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    text-decoration: none;
+    font-size: 22px;
+    line-height: 1;
+    padding: 4px 8px;
+}
+
+/* Главная */
+.home-main {
+    flex: 1;
+    padding: 12px 12px 80px;
+}
+
+.ui-btn-scan {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    background: var(--ui-navy);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: none;
+    border-radius: var(--ui-radius);
+    box-sizing: border-box;
+}
+
+.ui-btn-scan:active {
+    background: var(--ui-navy-hover);
+}
+
+.ui-btn-scan svg {
+    flex-shrink: 0;
+}
+
+.ui-search-wrap {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.ui-search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ui-muted);
+    pointer-events: none;
+}
+
+.ui-search-input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px 10px 40px;
+    font-size: 13px;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    background: var(--ui-surface);
+    box-sizing: border-box;
+    color: #111;
+}
+
+.ui-search-input:disabled {
+    opacity: 0.85;
+    background: #fafafa;
+}
+
+.ui-list-title {
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+}
+
+.ui-object-list {
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    overflow: hidden;
+}
+
+.ui-object-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.ui-object-card:last-child {
+    border-bottom: none;
+}
+
+.ui-object-card:active {
+    background: #f9fafb;
+}
+
+.ui-object-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--ui-border);
+    flex-shrink: 0;
+}
+
+.ui-object-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ui-object-info strong {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ui-object-cat,
+.ui-object-date {
+    font-size: 11px;
+    color: var(--ui-muted);
+}
+
+.ui-badge {
+    flex-shrink: 0;
+    min-width: 40px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.ui-badge--green {
+    background: var(--ui-green-bg);
+    color: #15803d;
+}
+
+.ui-badge--orange {
+    background: var(--ui-orange-bg);
+    color: #b45309;
+}
+
+.ui-chevron {
+    flex-shrink: 0;
+    color: #9ca3af;
+    font-size: 18px;
+    margin-left: -4px;
+}
+
+.ui-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+
+.ui-pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding: 8px 4px;
+    font-size: 12px;
+}
+
+.ui-pager a {
+    color: var(--ui-navy);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 6px 10px;
+}
+
+.ui-pager span.disabled {
+    color: #d1d5db;
+}
+
+.ui-footer-export {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    padding: 10px 12px 14px;
+    background: linear-gradient(transparent, var(--ui-bg) 20%);
+    box-sizing: border-box;
+}
+
+.ui-btn-export-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    background: var(--ui-surface);
+    color: var(--ui-navy);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: 2px solid var(--ui-navy);
+    border-radius: var(--ui-radius);
+    box-sizing: border-box;
+}
+
+.ui-btn-export-footer:active {
+    background: #f8fafc;
+}
+
+/* Экспорт */
+.export-main {
+    flex: 1;
+    padding: 12px 12px 90px;
+}
+
+.export-range-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.export-range-field label {
+    display: block;
+    font-size: 11px;
+    color: var(--ui-muted);
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.export-range-display {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 36px 10px 12px;
+    font-size: 13px;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    background: var(--ui-surface);
+    box-sizing: border-box;
+    color: #111;
+    cursor: default;
+}
+
+.export-range-wrap {
+    position: relative;
+}
+
+.export-range-wrap svg {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ui-muted);
+    pointer-events: none;
+}
+
+.calendars-panel {
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    padding: 10px 8px 12px;
+    margin-bottom: 12px;
+}
+
+.calendars-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.mini-cal {
+    min-width: 0;
+}
+
+.mini-cal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    padding: 0 2px;
+}
+
+.mini-cal-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #111;
+    text-align: center;
+    flex: 1;
+}
+
+.mini-cal-nav {
+    background: none;
+    border: none;
+    color: var(--ui-muted);
+    font-size: 14px;
+    padding: 2px 6px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.mini-cal-weekdays,
+.mini-cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+}
+
+.mini-cal-weekdays span {
+    font-size: 8px;
+    color: var(--ui-muted);
+    font-weight: 600;
+    padding: 2px 0;
+}
+
+.mini-cal-day {
+    font-size: 9px;
+    padding: 4px 0;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #111;
+    line-height: 1.2;
+}
+
+.mini-cal-day:disabled {
+    color: transparent;
+    cursor: default;
+}
+
+.mini-cal-day:not(:disabled):hover {
+    background: #f3f4f6;
+}
+
+.mini-cal-day.is-start,
+.mini-cal-day.is-end {
+    background: var(--ui-navy);
+    color: #fff;
+    font-weight: 700;
+}
+
+.mini-cal-day.is-in-range {
+    background: #e8edf5;
+    border-radius: 4px;
+}
+
+.export-summary {
+    background: #f8fafc;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #374151;
+    text-align: center;
+}
+
+.export-clear-btn {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    background: none;
+    border: none;
+    color: var(--ui-muted);
+    font-size: 11px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.export-footer {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    padding: 10px 12px 14px;
+    background: linear-gradient(transparent, var(--ui-bg) 20%);
+    box-sizing: border-box;
+}
+
+.ui-btn-download {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    background: var(--ui-navy);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border: none;
+    border-radius: var(--ui-radius);
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.ui-btn-download:active {
+    background: var(--ui-navy-hover);
+}

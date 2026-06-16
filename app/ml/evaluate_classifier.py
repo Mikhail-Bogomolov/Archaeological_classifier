@@ -1,10 +1,8 @@
 """
-Оценка Сети 1 на val-выборке: точность, матрица ошибок, уверенность.
+Проверка классификатора на val: точность, матрица ошибок.
 
 Запуск:
     python -m app.ml.evaluate_classifier
-    python -m app.ml.evaluate_classifier --split val
-    python -m app.ml.evaluate_classifier --split train --limit 50
 """
 
 from __future__ import annotations
@@ -16,9 +14,14 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader
 
-from app.ml.config import MODELS_DIR, OBJECT_CLASSES, OBJECT_MODEL_FILE
+from app.ml.config import (
+    MODELS_DIR,
+    OBJECT_CLASSES,
+    OBJECT_MODEL_FILE,
+    USE_TEXTURE_FEATURES,
+)
 from app.ml.models import ObjectClassifierNet
-from app.ml.train_classifier import KanskDataset, build_val_transforms
+from app.ml.train_classifier import KanskDataset, build_val_transforms, _collate_batch
 
 
 @torch.no_grad()
@@ -38,10 +41,18 @@ def main() -> None:
     if args.limit > 0:
         ds.samples = ds.samples[: args.limit]
 
-    loader = DataLoader(ds, batch_size=args.batch_size, shuffle=False, num_workers=0)
-    model = ObjectClassifierNet().to(device)
-    model.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
+    loader = DataLoader(
+        ds, batch_size=args.batch_size, shuffle=False, num_workers=0, collate_fn=_collate_batch
+    )
+    model = ObjectClassifierNet(use_texture=USE_TEXTURE_FEATURES).to(device)
+    state = torch.load(weights, map_location=device, weights_only=True)
+    has_texture = any(k.startswith("texture_mlp") for k in state)
+    if USE_TEXTURE_FEATURES and not has_texture:
+        print("Внимание: в файле весов нет текстуры, считаем только по фото")
+        model = ObjectClassifierNet(use_texture=False).to(device)
+    model.load_state_dict(state, strict=False)
     model.eval()
+    use_texture = model.use_texture and model.texture_mlp is not None
 
     confusion: dict[tuple[int, int], int] = Counter()
     confidences: list[float] = []
@@ -52,9 +63,16 @@ def main() -> None:
     correct = 0
     total = 0
     idx_offset = 0
-    for batch_x, batch_y in loader:
-        batch_x = batch_x.to(device)
-        logits = model(batch_x)
+    for batch in loader:
+        if use_texture:
+            batch_x, batch_tex, batch_y = batch
+            batch_x = batch_x.to(device)
+            batch_tex = batch_tex.to(device)
+            logits = model(batch_x, batch_tex)
+        else:
+            batch_x, batch_y = batch
+            batch_x = batch_x.to(device)
+            logits = model(batch_x)
         probs = torch.softmax(logits, dim=-1)
         conf, preds = probs.max(dim=-1)
 
@@ -97,12 +115,16 @@ def main() -> None:
             row.append(f"{confusion.get((ti, pi), 0):8d}")
         print(" | ".join(row))
 
-    # По предметам
+    # Считаем по предметам (все ракурсы)
     by_item: dict[str, list[bool]] = defaultdict(list)
     idx_offset = 0
-    for batch_x, batch_y in loader:
-        batch_x = batch_x.to(device)
-        preds = model(batch_x).argmax(dim=-1).cpu()
+    for batch in loader:
+        if use_texture:
+            batch_x, batch_tex, batch_y = batch
+            preds = model(batch_x.to(device), batch_tex.to(device)).argmax(dim=-1).cpu()
+        else:
+            batch_x, batch_y = batch
+            preds = model(batch_x.to(device)).argmax(dim=-1).cpu()
         for i in range(batch_y.size(0)):
             sample = ds.samples[idx_offset + i]
             ok = int(preds[i].item()) == int(batch_y[i].item())
@@ -118,8 +140,7 @@ def main() -> None:
         for path, true_c, pred_c, conf_f in wrong_examples[:15]:
             print(f"  {path}: {true_c} -> {pred_c} ({conf_f:.0%})")
 
-    print("\nПодсказка: 3/6 вручную ≈ 50%. При val accuracy ~59% это в пределах нормы.")
-    print("Запустите на val целиком — это честнее, чем 6 случайных фото.")
+    print("\nОценка на всей val-выборке даёт честную картину.")
 
 
 if __name__ == "__main__":

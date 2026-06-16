@@ -5,111 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Археологический классификатор</title>
     <link rel="stylesheet" href="/static/small-screen.css">
+    <link rel="stylesheet" href="/static/home.css">
 </head>
-<body class="small-screen bg-gray-50">
+<body class="small-screen home-page">
 
-<header class="page-pad flex items-center gap-2 border-b border-gray-200 bg-white">
-    <span style="font-size:20px">🏺</span>
-    <h1 class="title-app flex-1">Археологический классификатор</h1>
+<header class="ui-header">
+    <h1>Археологический классификатор</h1>
 </header>
 
-<div class="page-pad">
-    <input type="text" placeholder="Поиск..." class="input-search" disabled>
-</div>
-
-<section class="card">
-    <div class="page-pad" style="padding-bottom:0">
-        <h2 class="title-section">Отснятые объекты ({{ total_count }})</h2>
-    </div>
-
-    <div class="action-bar" style="padding-bottom:0">
-        <a href="/scan" class="btn-primary">Начать сканирование</a>
-    </div>
-
-    <form
-        class="export-form"
-        action="/export/csv"
-        method="GET"
-        data-show-loader
-        data-loader-message="Подготовка выгрузки…"
-    >
-        <p class="export-form-title">Экспорт CSV за период</p>
-        <div class="export-dates">
-            <div class="export-date-row">
-                <label for="date_from">С</label>
-                <input
-                    type="date"
-                    id="date_from"
-                    name="date_from"
-                    class="input-search input-date"
-                    {% if export_min_date %}min="{{ export_min_date }}"{% endif %}
-                    {% if export_max_date %}max="{{ export_max_date }}"{% endif %}
-                >
-            </div>
-            <div class="export-date-row">
-                <label for="date_to">До</label>
-                <input
-                    type="date"
-                    id="date_to"
-                    name="date_to"
-                    class="input-search input-date"
-                    {% if export_min_date %}min="{{ export_min_date }}"{% endif %}
-                    {% if export_max_date %}max="{{ export_max_date }}"{% endif %}
-                >
-            </div>
-        </div>
-        <button type="submit" class="btn-secondary" style="border:1px solid #e5e7eb;width:100%">
-            Скачать CSV
-        </button>
-        <p style="font-size:var(--text-xs);color:#9ca3af;margin:0">
-            Оставьте оба поля пустыми, чтобы выгрузить все объекты.
-        </p>
-    </form>
-
-    {% for obj in objects %}
-    <a href="/object/{{ obj.id }}" class="object-row">
-        <img
-            src="/object/{{ obj.id }}/thumbnail?size=48"
-            width="44"
-            height="36"
-            alt=""
-            class="thumb"
-            loading="lazy"
-        >
-        <div class="object-meta">
-            <h3>{{ obj.name }}</h3>
-            <p>{{ obj.category }} · {{ obj.confidence }}%</p>
-            <p>{{ obj.date }}</p>
-        </div>
-        <span style="color:#9ca3af;font-size:14px;flex-shrink:0">›</span>
+<main class="home-main">
+    <a href="/scan" class="ui-btn-scan">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+        НАЧАТЬ СКАНИРОВАНИЕ
     </a>
-    {% else %}
-    <p class="page-pad" style="color:#6b7280;text-align:center">
-        Объектов нет. Нажмите «Начать сканирование».
-    </p>
-    {% endfor %}
+
+    <div class="ui-search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/>
+        </svg>
+        <input type="text" class="ui-search-input" placeholder="Поиск" disabled>
+    </div>
+
+    <h2 class="ui-list-title">Объекты ({{ total_count }})</h2>
+
+    <div class="ui-object-list">
+        {% for obj in objects %}
+        <a href="/object/{{ obj.id }}" class="ui-object-card">
+            <img
+                src="/object/{{ obj.id }}/thumbnail?size=48"
+                width="48"
+                height="48"
+                alt=""
+                class="ui-object-thumb"
+                loading="lazy"
+            >
+            <div class="ui-object-info">
+                <strong>{{ obj.name }}</strong>
+                <span class="ui-object-cat">{{ obj.category }}</span>
+                <span class="ui-object-date">{{ obj.date }}</span>
+            </div>
+            <span class="ui-badge {% if obj.confidence >= 92 %}ui-badge--green{% else %}ui-badge--orange{% endif %}">
+                {{ obj.confidence }}%
+            </span>
+            <span class="ui-chevron" aria-hidden="true">›</span>
+        </a>
+        {% else %}
+        <p class="ui-empty">Объектов нет. Нажмите «Начать сканирование».</p>
+        {% endfor %}
+    </div>
 
     {% if total_pages > 1 %}
-    <div class="pager">
+    <div class="ui-pager">
         {% if has_prev %}
-        <a href="/?page={{ prev_page }}">←</a>
+        <a href="/?page={{ prev_page }}">← Назад</a>
         {% else %}
-        <span class="disabled">←</span>
+        <span class="disabled">← Назад</span>
         {% endif %}
         <span>{{ page }}/{{ total_pages }}</span>
         {% if has_next %}
-        <a href="/?page={{ next_page }}">→</a>
+        <a href="/?page={{ next_page }}">Вперёд →</a>
         {% else %}
-        <span class="disabled">→</span>
+        <span class="disabled">Вперёд →</span>
         {% endif %}
     </div>
     {% endif %}
-</section>
+</main>
 
-<div id="app-loader" class="loader-overlay" hidden>
-    <div class="loader-spinner" aria-hidden="true"></div>
-    <p class="loader-text">Подготовка выгрузки…</p>
+<div class="ui-footer-export">
+    <a href="/export" class="ui-btn-export-footer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 21h16"/>
+        </svg>
+        ЭКСПОРТ CSV
+    </a>
 </div>
-<script src="/static/app.js"></script>
+
 </body>
 </html>

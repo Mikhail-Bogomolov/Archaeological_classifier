@@ -1,4 +1,4 @@
-"""One-hot и multi-hot кодирование меток."""
+"""Кодирование меток для обучения."""
 
 from __future__ import annotations
 
