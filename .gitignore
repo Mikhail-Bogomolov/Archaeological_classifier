@@ -12,7 +12,7 @@ app/data.sqlite3
 
 # Source datasets (not for repo)
 General_data/
-data/perdataset/
+data/dataset/
 siberiana-hakaton/
 
 # Temp files

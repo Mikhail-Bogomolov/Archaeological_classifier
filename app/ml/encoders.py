@@ -40,9 +40,35 @@ def decode_features(
     feature_labels: list[str],
     threshold: float = 0.5,
 ) -> list[tuple[str, float]]:
+    """Устаревший multi-label декодер (сеть 2 v1)."""
     probs = torch.sigmoid(logits)
     out: list[tuple[str, float]] = []
     for i, p in enumerate(probs.squeeze().tolist()):
         if p >= threshold and i < len(feature_labels):
             out.append((feature_labels[i], float(p)))
     return out
+
+
+def decode_feature_attributes(
+    logits: dict[str, torch.Tensor],
+    vocab: dict[str, list[str]],
+    object_class: str,
+    feature_names: list[str],
+    min_conf: float = 0.2,
+) -> list[str]:
+    """Декодирование голов сети 2 в строки для UI."""
+    lines: list[str] = []
+    for feat_name in feature_names:
+        key = f"{object_class}:{feat_name}"
+        if key not in logits or key not in vocab:
+            continue
+        head_logits = logits[key]
+        if head_logits.dim() == 1:
+            head_logits = head_logits.unsqueeze(0)
+        probs = torch.softmax(head_logits, dim=-1).squeeze(0)
+        conf, idx = torch.max(probs, dim=-1)
+        if float(conf) < min_conf:
+            continue
+        label = vocab[key][int(idx.item())]
+        lines.append(f"{feat_name}: {label} ({int(float(conf) * 100)}%)")
+    return lines

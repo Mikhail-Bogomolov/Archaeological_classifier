@@ -33,7 +33,7 @@ body.export-page {
 
 .ui-header h1 {
     margin: 0;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.01em;
 }
@@ -73,7 +73,7 @@ body.export-page {
     padding: 12px 16px;
     background: var(--ui-navy);
     color: #fff;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-decoration: none;
@@ -92,7 +92,7 @@ body.export-page {
 
 .ui-search-wrap {
     position: relative;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 
 .ui-search-wrap svg {
@@ -108,22 +108,48 @@ body.export-page {
     width: 100%;
     min-height: 44px;
     padding: 10px 12px 10px 40px;
-    font-size: 13px;
+    font-size: 15px;
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
     background: var(--ui-surface);
     box-sizing: border-box;
     color: #111;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
-.ui-search-input:disabled {
-    opacity: 0.85;
-    background: #fafafa;
+.ui-search-input:focus {
+    outline: none;
+    border-color: var(--ui-navy);
+    box-shadow: 0 0 0 2px rgba(26, 39, 68, 0.12);
+}
+
+.ui-btn-show-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 40px;
+    margin-bottom: 14px;
+    padding: 8px 12px;
+    background: var(--ui-surface);
+    color: var(--ui-navy);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    box-sizing: border-box;
+}
+
+.ui-btn-show-all:active {
+    background: #f8fafc;
 }
 
 .ui-list-title {
     margin: 0 0 10px;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 700;
     color: #111;
 }
@@ -171,7 +197,7 @@ body.export-page {
 }
 
 .ui-object-info strong {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
@@ -180,7 +206,7 @@ body.export-page {
 
 .ui-object-cat,
 .ui-object-date {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ui-muted);
 }
 
@@ -189,7 +215,7 @@ body.export-page {
     min-width: 40px;
     padding: 4px 8px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     text-align: center;
 }
@@ -215,7 +241,7 @@ body.export-page {
     padding: 24px 16px;
     text-align: center;
     color: var(--ui-muted);
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .ui-pager {
@@ -224,7 +250,7 @@ body.export-page {
     align-items: center;
     margin-top: 10px;
     padding: 8px 4px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .ui-pager a {
@@ -260,7 +286,7 @@ body.export-page {
     padding: 12px 16px;
     background: var(--ui-surface);
     color: var(--ui-navy);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-decoration: none;
@@ -288,7 +314,7 @@ body.export-page {
 
 .export-range-field label {
     display: block;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ui-muted);
     margin-bottom: 4px;
     font-weight: 600;
@@ -298,7 +324,7 @@ body.export-page {
     width: 100%;
     min-height: 44px;
     padding: 10px 36px 10px 12px;
-    font-size: 13px;
+    font-size: 15px;
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
     background: var(--ui-surface);
@@ -347,7 +373,7 @@ body.export-page {
 }
 
 .mini-cal-title {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     color: #111;
     text-align: center;
@@ -373,14 +399,14 @@ body.export-page {
 }
 
 .mini-cal-weekdays span {
-    font-size: 8px;
+    font-size: 10px;
     color: var(--ui-muted);
     font-weight: 600;
     padding: 2px 0;
 }
 
 .mini-cal-day {
-    font-size: 9px;
+    font-size: 11px;
     padding: 4px 0;
     border: none;
     background: none;
@@ -416,7 +442,7 @@ body.export-page {
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
     padding: 12px 14px;
-    font-size: 12px;
+    font-size: 14px;
     color: #374151;
     text-align: center;
 }
@@ -429,7 +455,7 @@ body.export-page {
     background: none;
     border: none;
     color: var(--ui-muted);
-    font-size: 11px;
+    font-size: 13px;
     text-decoration: underline;
     cursor: pointer;
 }
@@ -456,7 +482,7 @@ body.export-page {
     padding: 12px 16px;
     background: var(--ui-navy);
     color: #fff;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.04em;
     border: none;

@@ -4,16 +4,16 @@
 }
 
 :root {
-    --touch-min: 40px;
-    --text-xs: 10px;
-    --text-sm: 11px;
-    --text-base: 12px;
-    --text-lg: 14px;
-    --text-xl: 16px;
-    --pad: 8px;
-    --gap: 6px;
-    --thumb-w: 44px;
-    --thumb-h: 36px;
+    --touch-min: 44px;
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 20px;
+    --pad: 10px;
+    --gap: 8px;
+    --thumb-w: 48px;
+    --thumb-h: 40px;
 }
 
 html {
@@ -23,7 +23,7 @@ html {
 
 body.small-screen {
     font-size: var(--text-base);
-    line-height: 1.35;
+    line-height: 1.45;
     width: 100%;
     max-width: 480px;
     margin: 0 auto;
@@ -53,7 +53,7 @@ body.small-screen {
     width: 100%;
     max-width: 100%;
     min-height: var(--touch-min);
-    padding: 10px 8px;
+    padding: 12px 10px;
     font-size: var(--text-base);
     font-weight: 600;
     border-radius: 10px;

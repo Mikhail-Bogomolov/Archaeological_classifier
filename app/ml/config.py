@@ -52,14 +52,23 @@ FEATURE_SCHEMA: dict[str, list[str]] = {
 }
 
 # Путь к датасету Канск 2023
-KANSK_DATASET_DIR = "data/perdataset/kansk_2023"
+KANSK_DATASET_DIR = "data/dataset"
 KANSK_PHOTOS_DIR = f"{KANSK_DATASET_DIR}/photos"
 KANSK_TABLES_DIR = f"{KANSK_DATASET_DIR}/tables"
 
-# Колонки шаблона разметки / экспорта
-MARKUP_COLUMNS: list[str] = ["номер", "название"] + [
-    f"признак {i}" for i in range(1, 6)
-]
+# Шаблон разметки / экспорт: 5 признаков на тип (имена из FEATURE_SCHEMA)
+MARKUP_BASE_COLUMNS: list[str] = ["номер", "название"]
+MARKUP_FEATURE_COUNT = 5
+
+
+def markup_feature_names(object_class: str) -> list[str]:
+    """До 5 признаков класса — колонки CSV/XLSX для этого типа."""
+    schema = FEATURE_SCHEMA.get(object_class, FEATURE_SCHEMA.get(OBJECT_CLASSES[0], []))
+    return list(schema[:MARKUP_FEATURE_COUNT])
+
+
+def markup_columns_for_class(object_class: str) -> list[str]:
+    return [*MARKUP_BASE_COLUMNS, *markup_feature_names(object_class)]
 
 INPUT_SIZE = (224, 224)
 CV_TARGET_SHAPE = 50  # размер после обработки OpenCV

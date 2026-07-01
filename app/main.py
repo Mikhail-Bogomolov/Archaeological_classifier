@@ -9,8 +9,15 @@ import io
 from PIL import Image
 
 from app import db
-from app.export_markup import ensure_markup_template_on_disk, export_objects_csv_zip, export_objects_xlsx
+from app.export_markup import (
+    ensure_markup_csv_template_on_disk,
+    ensure_markup_template_on_disk,
+    export_objects_csv_zip,
+    export_objects_xlsx,
+)
 from app.inference import run_inference
+from app.ml.config import OBJECT_CLASSES
+from app.ml.pipeline import get_pipeline
 
 
 app = FastAPI()
@@ -20,6 +27,7 @@ app = FastAPI()
 def _ensure_markup_template():
     try:
         ensure_markup_template_on_disk()
+        ensure_markup_csv_template_on_disk()
     except Exception:
         pass  # openpyxl может быть не установлен на этапе первого запуска
 
@@ -31,11 +39,19 @@ pending_scan = None
 
 
 @app.get("/")
-async def home(request: Request, page: int = Query(1, ge=1)):
+async def home(
+    request: Request,
+    page: int = Query(1, ge=1),
+    q: str = Query(""),
+):
     db.init_db()
-    meta = db.pagination_meta(page)
-    objects = db.list_objects_paginated(meta["page"], meta["per_page"])
-    date_bounds = db.get_export_date_bounds()
+    search = q.strip()
+    meta = db.pagination_meta(page, search=search or None)
+    objects = db.list_objects_paginated(
+        meta["page"],
+        meta["per_page"],
+        search=search or None,
+    )
     return templates.TemplateResponse(
         request=request,
         name="index.html",
@@ -49,6 +65,7 @@ async def home(request: Request, page: int = Query(1, ge=1)):
             "prev_page": meta["prev_page"],
             "next_page": meta["next_page"],
             "per_page": meta["per_page"],
+            "search_query": search,
         }
     )
 
@@ -72,7 +89,7 @@ async def scan_page(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="scan.html",
-        context={"scan": pending_scan}
+        context={"scan": pending_scan, "object_classes": OBJECT_CLASSES},
     )
 
 
@@ -83,11 +100,17 @@ async def perform_scan(
 ):
     global pending_scan
     contents = await file.read()
+    result = run_inference(contents, object_name)
     pending_scan = {
-        **run_inference(contents, object_name),
+        **result,
         "image_bytes": contents,
+        "preview_image_bytes": result.get("preview_image_bytes"),
         "image_mime": file.content_type or "application/octet-stream",
         "image_url": "/scan/image",
+        "predicted_category": str(result.get("object_class") or result.get("category") or ""),
+        "predicted_confidence": int(result.get("confidence") or 0),
+        "class_confirmed": False,
+        "category": None,
     }
     return RedirectResponse("/scan", status_code=303)
 
@@ -99,10 +122,39 @@ async def rescan():
     return RedirectResponse("/scan", status_code=303)
 
 
+@app.post("/scan/confirm-class")
+async def confirm_scan_class(
+    approved: str = Form(...),
+    category: str = Form(""),
+):
+    global pending_scan
+    if pending_scan is None:
+        return RedirectResponse("/scan", status_code=303)
+
+    if approved == "yes":
+        chosen = str(pending_scan.get("predicted_category") or "")
+    else:
+        chosen = category.strip()
+
+    if chosen not in OBJECT_CLASSES:
+        return RedirectResponse("/scan", status_code=303)
+
+    pipeline = get_pipeline()
+    features = pipeline.predict_features(bytes(pending_scan["image_bytes"]), chosen)
+
+    pending_scan["category"] = chosen
+    pending_scan["class_confirmed"] = True
+    pending_scan["features"] = features
+    pending_scan["description"] = (
+        f"Тип: {chosen}. Класс подтверждён пользователем."
+    )
+    return RedirectResponse("/scan", status_code=303)
+
+
 @app.post("/scan/add")
 async def add_scanned_object():
     global pending_scan
-    if pending_scan is None:
+    if pending_scan is None or not pending_scan.get("class_confirmed"):
         return RedirectResponse("/scan", status_code=303)
 
     db.init_db()
@@ -113,8 +165,14 @@ async def add_scanned_object():
         confidence=int(pending_scan["confidence"]),
         date=datetime.now().strftime("%d.%m.%Y %H:%M"),
         features=list(pending_scan.get("features") or []),
-        image_bytes=bytes(pending_scan["image_bytes"]),
-        image_mime=str(pending_scan.get("image_mime") or "application/octet-stream"),
+        image_bytes=bytes(
+            pending_scan.get("preview_image_bytes") or pending_scan["image_bytes"]
+        ),
+        image_mime=(
+            "image/jpeg"
+            if pending_scan.get("preview_image_bytes")
+            else str(pending_scan.get("image_mime") or "application/octet-stream")
+        ),
     )
     pending_scan = None
     return RedirectResponse("/", status_code=303)
@@ -138,6 +196,9 @@ async def object_detail(request: Request, object_id: int):
 async def pending_scan_image():
     if pending_scan is None:
         return RedirectResponse("/scan", status_code=303)
+    preview = pending_scan.get("preview_image_bytes")
+    if preview:
+        return StreamingResponse(io.BytesIO(preview), media_type="image/jpeg")
     return StreamingResponse(
         io.BytesIO(pending_scan["image_bytes"]),
         media_type=str(pending_scan.get("image_mime") or "application/octet-stream"),
@@ -203,13 +264,25 @@ async def export_xlsx():
 
 @app.get("/export/template")
 async def export_markup_template():
-    """Пустой шаблон разметки (лист «объект 1»)."""
+    """Пустой шаблон разметки (XLSX: лист на каждый тип объекта)."""
     path = ensure_markup_template_on_disk()
     data = path.read_bytes()
     return Response(
         content=data,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": "attachment; filename=markup_template.xlsx"},
+    )
+
+
+@app.get("/export/template/csv")
+async def export_markup_template_csv():
+    """Пустой шаблон разметки (ZIP с CSV по типам объектов)."""
+    path = ensure_markup_csv_template_on_disk()
+    data = path.read_bytes()
+    return Response(
+        content=data,
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=markup_template_csv.zip"},
     )
 
 

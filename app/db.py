@@ -70,24 +70,44 @@ def add_object(
         return int(cur.lastrowid)
 
 
-def count_objects() -> int:
+def _search_clause(search: str | None) -> tuple[str, list[Any]]:
+    term = (search or "").strip()
+    if not term:
+        return "", []
+    pattern = f"%{term}%"
+    clause = """
+        WHERE name LIKE ? COLLATE NOCASE
+           OR category LIKE ? COLLATE NOCASE
+           OR description LIKE ? COLLATE NOCASE
+    """
+    return clause, [pattern, pattern, pattern]
+
+
+def count_objects(search: str | None = None) -> int:
+    clause, params = _search_clause(search)
     with _connect() as conn:
-        row = conn.execute("SELECT COUNT(*) AS cnt FROM objects").fetchone()
+        row = conn.execute(f"SELECT COUNT(*) AS cnt FROM objects {clause}", params).fetchone()
         return int(row["cnt"]) if row else 0
 
 
-def list_objects_paginated(page: int = 1, per_page: int = PAGE_SIZE) -> list[dict[str, Any]]:
+def list_objects_paginated(
+    page: int = 1,
+    per_page: int = PAGE_SIZE,
+    search: str | None = None,
+) -> list[dict[str, Any]]:
     page = max(1, page)
     offset = (page - 1) * per_page
+    clause, params = _search_clause(search)
     with _connect() as conn:
         rows = conn.execute(
-            """
+            f"""
             SELECT id, name, description, category, confidence, date
             FROM objects
+            {clause}
             ORDER BY id DESC
             LIMIT ? OFFSET ?
             """,
-            (per_page, offset),
+            (*params, per_page, offset),
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -171,8 +191,12 @@ def get_export_date_bounds() -> dict[str, str | None]:
     }
 
 
-def pagination_meta(page: int, per_page: int = PAGE_SIZE) -> dict[str, int]:
-    total = count_objects()
+def pagination_meta(
+    page: int,
+    per_page: int = PAGE_SIZE,
+    search: str | None = None,
+) -> dict[str, int]:
+    total = count_objects(search)
     total_pages = max(1, math.ceil(total / per_page)) if total else 1
     page = min(max(1, page), total_pages)
     return {

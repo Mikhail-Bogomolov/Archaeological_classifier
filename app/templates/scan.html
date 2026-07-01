@@ -16,21 +16,51 @@
 {% if scan %}
 <div class="page-pad" style="display:flex;flex-direction:column;gap:8px">
     <div class="card page-pad">
-        <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 6px">Снимок</p>
-        <img src="{{ scan.image_url }}" alt="" style="width:100%;max-height:180px;object-fit:contain;border-radius:8px;background:#f3f4f6">
+        <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 6px">Объект (центр кадра)</p>
+        <div style="width:100%;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:#e5e7eb">
+            <img src="{{ scan.image_url }}" alt="" style="width:100%;height:100%;object-fit:contain;display:block">
+        </div>
     </div>
 
     <div class="card page-pad">
         <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 4px">Нейросеть</p>
-        <p style="font-weight:700;margin:0;font-size:var(--text-base)">{{ scan.name }}</p>
-        <p style="margin:6px 0 0;font-size:var(--text-sm)">{{ scan.description }}</p>
-        <p style="margin:6px 0 0"><b>{{ scan.category }}</b> · {{ scan.confidence }}%</p>
+        <p style="font-weight:700;margin:0;font-size:var(--text-lg)">{{ scan.name }}</p>
+        <p style="margin:8px 0 0;font-size:var(--text-base)">
+            Предсказание: <b>{{ scan.predicted_category }}</b> · {{ scan.predicted_confidence }}%
+        </p>
+
+        {% if scan.class_confirmed %}
+        <p style="margin:10px 0 0;font-size:var(--text-base);color:#166534">
+            Подтверждённый класс: <b>{{ scan.category }}</b>
+        </p>
+        <p style="margin:8px 0 0;font-size:var(--text-sm)">{{ scan.description }}</p>
         {% if scan.features %}
-        <ul style="margin:8px 0 0;padding-left:16px;font-size:var(--text-xs)">
+        <ul style="margin:10px 0 0;padding-left:18px;font-size:var(--text-sm)">
             {% for feature in scan.features %}
             <li>{{ feature }}</li>
             {% endfor %}
         </ul>
+        {% endif %}
+        {% else %}
+        <p style="margin:10px 0 0;font-size:var(--text-base);color:#6b7280">
+            Подтвердите класс или выберите верный из списка.
+        </p>
+
+        <form action="/scan/confirm-class" method="POST" style="margin-top:12px">
+            <input type="hidden" name="approved" value="yes">
+            <button type="submit" class="btn-primary" style="border:none;width:100%">Класс верный</button>
+        </form>
+
+        <form action="/scan/confirm-class" method="POST" style="margin-top:10px">
+            <input type="hidden" name="approved" value="no">
+            <label style="font-size:var(--text-base);display:block;margin-bottom:6px">Исправить класс</label>
+            <select name="category" class="input-search" style="margin-bottom:10px;font-size:var(--text-base)" required>
+                {% for cls in object_classes %}
+                <option value="{{ cls }}" {% if cls == scan.predicted_category %}selected{% endif %}>{{ cls }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-secondary" style="border:none;width:100%">Сохранить класс</button>
+        </form>
         {% endif %}
     </div>
 
@@ -38,13 +68,18 @@
         <button type="submit" class="btn-secondary" style="border:none;width:100%">Повторное сканирование</button>
     </form>
     <form action="/scan/add" method="POST">
-        <button type="submit" class="btn-primary" style="border:none;width:100%">Добавить</button>
+        <button
+            type="submit"
+            class="btn-primary"
+            style="border:none;width:100%;margin-top:8px;{% if not scan.class_confirmed %}opacity:0.45{% endif %}"
+            {% if not scan.class_confirmed %}disabled{% endif %}
+        >Добавить</button>
     </form>
 </div>
 
 {% else %}
 <div class="page-pad card" style="margin:var(--pad)">
-    <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 10px">
+    <p style="font-size:var(--text-base);color:#6b7280;margin:0 0 10px">
         Загрузите фото с установки. После проверки нажмите «Добавить».
     </p>
     <form
@@ -54,10 +89,10 @@
         data-show-loader
         data-loader-message="Обработка изображения…"
     >
-        <label style="font-size:var(--text-sm);display:block;margin-bottom:4px">Название (необяз.)</label>
+        <label style="font-size:var(--text-base);display:block;margin-bottom:4px">Название (необяз.)</label>
         <input type="text" name="object_name" class="input-search" style="margin-bottom:8px">
-        <label style="font-size:var(--text-sm);display:block;margin-bottom:4px">Фото</label>
-        <input type="file" name="file" accept="image/*" required style="width:100%;font-size:var(--text-xs);margin-bottom:10px">
+        <label style="font-size:var(--text-base);display:block;margin-bottom:4px">Фото</label>
+        <input type="file" name="file" accept="image/*" required style="width:100%;font-size:var(--text-sm);margin-bottom:10px">
         <button type="submit" class="btn-primary" style="border:none;width:100%">Начать сканирование</button>
     </form>
 </div>
