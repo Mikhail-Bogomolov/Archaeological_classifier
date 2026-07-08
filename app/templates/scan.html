@@ -16,7 +16,15 @@
 {% if scan %}
 <div class="page-pad" style="display:flex;flex-direction:column;gap:8px">
     <div class="card page-pad">
-        <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 6px">Объект (центр кадра)</p>
+        <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 6px">
+            {% if scan.preview_meta and scan.preview_meta.fallback %}
+            Объект (полный кадр — автообрезка ненадёжна)
+            {% elif scan.preview_meta and scan.preview_meta.preview_mode == 'cropped' %}
+            Объект (автообрезка{% if scan.preview_meta.preset %}, {{ scan.preview_meta.preset }}{% endif %})
+            {% else %}
+            Объект (центр кадра)
+            {% endif %}
+        </p>
         <div style="width:100%;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:#e5e7eb">
             <img src="{{ scan.image_url }}" alt="" style="width:100%;height:100%;object-fit:contain;display:block">
         </div>
@@ -28,6 +36,11 @@
         <p style="margin:8px 0 0;font-size:var(--text-base)">
             Предсказание: <b>{{ scan.predicted_category }}</b> · {{ scan.predicted_confidence }}%
         </p>
+        {% if scan.source_path %}
+        <p style="margin:8px 0 0;font-size:var(--text-sm);color:#6b7280">
+            Снимок камеры: {{ scan.source_path }}
+        </p>
+        {% endif %}
 
         {% if scan.class_confirmed %}
         <p style="margin:10px 0 0;font-size:var(--text-base);color:#166534">
@@ -80,8 +93,14 @@
 {% else %}
 <div class="page-pad card" style="margin:var(--pad)">
     <p style="font-size:var(--text-base);color:#6b7280;margin:0 0 10px">
-        Загрузите фото с установки. После проверки нажмите «Добавить».
+        Загрузите фото с установки или нажмите «Начать сканирование» без файла — снимок с камеры ПК.
+        После проверки нажмите «Добавить».
     </p>
+    {% if camera_error %}
+    <p style="font-size:var(--text-sm);color:#b91c1c;margin:0 0 10px">
+        Не удалось снять кадр с камеры. Подключите камеру или выберите файл вручную.
+    </p>
+    {% endif %}
     <form
         action="/scan"
         method="POST"
@@ -91,8 +110,8 @@
     >
         <label style="font-size:var(--text-base);display:block;margin-bottom:4px">Название (необяз.)</label>
         <input type="text" name="object_name" class="input-search" style="margin-bottom:8px">
-        <label style="font-size:var(--text-base);display:block;margin-bottom:4px">Фото</label>
-        <input type="file" name="file" accept="image/*" required style="width:100%;font-size:var(--text-sm);margin-bottom:10px">
+        <label style="font-size:var(--text-base);display:block;margin-bottom:4px">Фото (необяз.)</label>
+        <input type="file" name="file" accept="image/*" style="width:100%;font-size:var(--text-sm);margin-bottom:10px">
         <button type="submit" class="btn-primary" style="border:none;width:100%">Начать сканирование</button>
     </form>
 </div>

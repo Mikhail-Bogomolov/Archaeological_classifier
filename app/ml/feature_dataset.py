@@ -19,7 +19,13 @@ from app.ml.config import (
     OBJECT_CLASSES,
     USE_TEXTURE_FEATURES,
 )
-from app.ml.feature_vocab import attribute_key, build_vocab, ensure_other_bucket, value_to_index
+from app.ml.feature_vocab import (
+    attribute_key,
+    build_vocab,
+    ensure_other_bucket,
+    resolve_column_index,
+    value_to_index,
+)
 from app.ml.preprocess import item_key_from_filename, load_classifier_rgb
 from app.ml.texture_features import extract_texture_vector
 
@@ -112,7 +118,7 @@ class KanskFeatureDataset(Dataset):
                     akey = attribute_key(class_name, feat_name)
                     if akey not in self.vocab:
                         continue
-                    idx = col_index.get(feat_name)
+                    idx = resolve_column_index(headers, feat_name)
                     raw = row[idx] if idx is not None and idx < len(row) else None
                     targets[akey] = value_to_index(self.vocab, akey, raw)
 

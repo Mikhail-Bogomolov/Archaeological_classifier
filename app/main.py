@@ -15,9 +15,11 @@ from app.export_markup import (
     export_objects_csv_zip,
     export_objects_xlsx,
 )
+from app.camera_capture import CameraCaptureError, capture_jpeg_bytes
 from app.inference import run_inference
 from app.ml.config import OBJECT_CLASSES
 from app.ml.pipeline import get_pipeline
+from app.ml.preprocess import load_ui_preview_rgb, pil_to_jpeg_bytes
 
 
 app = FastAPI()
@@ -85,33 +87,71 @@ async def export_page(request: Request):
 
 
 @app.get("/scan")
-async def scan_page(request: Request):
+async def scan_page(request: Request, camera_error: int = Query(0)):
     return templates.TemplateResponse(
         request=request,
         name="scan.html",
-        context={"scan": pending_scan, "object_classes": OBJECT_CLASSES},
+        context={
+            "scan": pending_scan,
+            "object_classes": OBJECT_CLASSES,
+            "camera_error": bool(camera_error),
+        },
     )
 
 
-@app.post("/scan")
-async def perform_scan(
-    file: UploadFile = File(...),
-    object_name: str = Form(None),
-):
+def _start_pending_scan(
+    contents: bytes,
+    result: dict,
+    *,
+    image_mime: str = "image/jpeg",
+    source_path: str | None = None,
+) -> None:
     global pending_scan
-    contents = await file.read()
-    result = run_inference(contents, object_name)
     pending_scan = {
         **result,
         "image_bytes": contents,
         "preview_image_bytes": result.get("preview_image_bytes"),
-        "image_mime": file.content_type or "application/octet-stream",
+        "preview_meta": result.get("preview_meta") or {},
+        "image_mime": image_mime,
         "image_url": "/scan/image",
+        "source_path": source_path,
         "predicted_category": str(result.get("object_class") or result.get("category") or ""),
         "predicted_confidence": int(result.get("confidence") or 0),
         "class_confirmed": False,
         "category": None,
     }
+
+
+@app.post("/scan")
+async def perform_scan(
+    file: UploadFile | None = File(None),
+    object_name: str = Form(None),
+):
+    contents: bytes | None = None
+    source_path: str | None = None
+    image_mime = "image/jpeg"
+
+    if file is not None and file.filename:
+        data = await file.read()
+        if data:
+            contents = data
+            image_mime = file.content_type or "application/octet-stream"
+
+    if contents is None:
+        try:
+            contents, saved = capture_jpeg_bytes()
+            source_path = str(saved) if saved is not None else None
+            image_mime = "image/jpeg"
+        except CameraCaptureError:
+            return RedirectResponse("/scan?camera_error=1", status_code=303)
+
+    result = run_inference(contents, object_name, source_path=source_path)
+    _start_pending_scan(
+        contents,
+        result,
+        image_mime=image_mime,
+        source_path=source_path,
+    )
     return RedirectResponse("/scan", status_code=303)
 
 
@@ -140,7 +180,23 @@ async def confirm_scan_class(
         return RedirectResponse("/scan", status_code=303)
 
     pipeline = get_pipeline()
-    features = pipeline.predict_features(bytes(pending_scan["image_bytes"]), chosen)
+    source_path = pending_scan.get("source_path")
+    features = pipeline.predict_features(
+        bytes(pending_scan["image_bytes"]),
+        chosen,
+        source_path=source_path,
+    )
+
+    try:
+        preview, preview_meta = load_ui_preview_rgb(
+            bytes(pending_scan["image_bytes"]),
+            object_class=chosen,
+            source_path=source_path,
+        )
+        pending_scan["preview_image_bytes"] = pil_to_jpeg_bytes(preview)
+        pending_scan["preview_meta"] = preview_meta
+    except Exception:
+        pass
 
     pending_scan["category"] = chosen
     pending_scan["class_confirmed"] = True

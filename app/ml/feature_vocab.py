@@ -9,8 +9,16 @@ from pathlib import Path
 import openpyxl
 
 from app.ml.config import FEATURE_SCHEMA, KANSK_TABLES_DIR, OBJECT_CLASSES
+from app.ml.table_normalization import (
+    NOT_SPECIFIED_VALUES,
+    normalize_cell_value,
+)
 
-NOT_SPECIFIED = frozenset({"не указано", "", "nan", "none", "—", "-"})
+# Старые имена колонок в Excel → актуальные из FEATURE_SCHEMA.
+FEATURE_COLUMN_ALIASES: dict[str, list[str]] = {
+    "тип_насада": ["тип_насадки"],
+    "форма_пера": ["форма_лезвия"],
+}
 
 
 def attribute_key(class_name: str, feature_name: str) -> str:
@@ -25,18 +33,35 @@ def from_head_key(head: str) -> str:
     return head.replace("__", ":")
 
 
-def normalize_feature_value(raw: object) -> str | None:
+def _parse_attr_key(attr_key: str) -> tuple[str, str]:
+    class_name, feature_name = attr_key.split(":", 1)
+    return class_name, feature_name
+
+
+def normalize_feature_value(
+    raw: object,
+    *,
+    class_name: str | None = None,
+    feature_name: str | None = None,
+) -> str | None:
     if raw is None:
         return None
     text = str(raw).strip().lower()
     text = re.sub(r"\s+", " ", text)
-    if text in NOT_SPECIFIED:
+    if text in NOT_SPECIFIED_VALUES:
         return None
-    if text in {"бронза", "bronze"}:
-        return "бронза"
-    if text in {"железо", "iron"}:
-        return "железо"
+    if class_name and feature_name:
+        return normalize_cell_value(class_name, feature_name, text)
     return text
+
+
+def resolve_column_index(headers: list[str], feature_name: str) -> int | None:
+    """Индекс колонки признака с учётом старых имён."""
+    names = [feature_name, *FEATURE_COLUMN_ALIASES.get(feature_name, [])]
+    for name in names:
+        if name in headers:
+            return headers.index(name)
+    return None
 
 
 def scan_tables(tables_dir: str | Path = KANSK_TABLES_DIR) -> dict[str, Counter]:
@@ -53,18 +78,19 @@ def scan_tables(tables_dir: str | Path = KANSK_TABLES_DIR) -> dict[str, Counter]
         if not header_row:
             continue
         headers = [str(h).strip() if h is not None else "" for h in header_row]
-        col_index = {name: i for i, name in enumerate(headers)}
 
         for feature_name in FEATURE_SCHEMA.get(class_name, []):
-            if feature_name not in col_index:
+            idx = resolve_column_index(headers, feature_name)
+            if idx is None:
                 continue
             key = attribute_key(class_name, feature_name)
             counts.setdefault(key, Counter())
-            idx = col_index[feature_name]
             for row in ws.iter_rows(min_row=2, values_only=True):
                 if idx >= len(row):
                     continue
-                norm = normalize_feature_value(row[idx])
+                norm = normalize_feature_value(
+                    row[idx], class_name=class_name, feature_name=feature_name
+                )
                 if norm:
                     counts[key][norm] += 1
     return counts
@@ -88,7 +114,10 @@ def build_vocab(
 
 
 def value_to_index(vocab: dict[str, list[str]], attr_key: str, raw: object) -> int:
-    norm = normalize_feature_value(raw)
+    class_name, feature_name = _parse_attr_key(attr_key)
+    norm = normalize_feature_value(
+        raw, class_name=class_name, feature_name=feature_name
+    )
     if norm is None:
         return -1
     labels = vocab.get(attr_key)
@@ -107,11 +136,14 @@ def ensure_other_bucket(vocab: dict[str, list[str]], tables_dir: str | Path) -> 
     out: dict[str, list[str]] = {}
 
     for key, labels in vocab.items():
+        class_name, feature_name = _parse_attr_key(key)
         counter = counts.get(key, Counter())
         frequent = set(labels)
         merged = list(labels)
         rare_seen = any(
-            normalize_feature_value(v) not in frequent and normalize_feature_value(v)
+            normalize_feature_value(v, class_name=class_name, feature_name=feature_name)
+            not in frequent
+            and normalize_feature_value(v, class_name=class_name, feature_name=feature_name)
             for v, _ in counter.items()
         )
         if rare_seen and "другое" not in merged:

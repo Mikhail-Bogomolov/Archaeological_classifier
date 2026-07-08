@@ -17,10 +17,10 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
+from app.ml.augmentations import build_train_transforms_mild, build_val_transforms
 from app.ml.config import FEATURE_MODEL_FILE, MODELS_DIR, USE_TEXTURE_FEATURES
 from app.ml.feature_dataset import KanskFeatureDataset, collate_features
 from app.ml.models import FeatureClassifierNet
-from app.ml.train_classifier import build_train_transforms, build_val_transforms
 
 
 def compute_loss(
@@ -178,7 +178,7 @@ def main() -> None:
 
     train_ds = KanskFeatureDataset(
         vocab=vocab,
-        transform=build_train_transforms(),
+        transform=build_train_transforms_mild(),
         split="train",
         use_texture=use_texture,
     )

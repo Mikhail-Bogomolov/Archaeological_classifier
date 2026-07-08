@@ -98,11 +98,18 @@ class ArchaeologyClassifierPipeline:
         return self._object_weights_loaded
 
     @torch.no_grad()
-    def predict(self, image_bytes: bytes, object_name: str | None = None) -> PredictionResult:
+    def predict(
+        self,
+        image_bytes: bytes,
+        object_name: str | None = None,
+        source_path: str | Path | None = None,
+    ) -> PredictionResult:
         is_demo = not self._object_weights_loaded
         texture = None
         if self._object_weights_loaded:
-            tensor, _preview, meta, texture = classifier_preprocess(image_bytes)
+            tensor, _preview, meta, texture = classifier_preprocess(
+                image_bytes, source_path=source_path
+            )
             tensor = tensor.to(self.device)
             if (
                 self.object_net.use_texture
@@ -161,14 +168,21 @@ class ArchaeologyClassifierPipeline:
         )
 
     @torch.no_grad()
-    def predict_features(self, image_bytes: bytes, object_class: str) -> list[str]:
+    def predict_features(
+        self,
+        image_bytes: bytes,
+        object_class: str,
+        source_path: str | Path | None = None,
+    ) -> list[str]:
         """Признаки для уже выбранного пользователем класса."""
         if object_class not in OBJECT_CLASSES:
             return []
 
         texture = None
         if self._object_weights_loaded:
-            tensor, _preview, meta, texture = classifier_preprocess(image_bytes)
+            tensor, _preview, meta, texture = classifier_preprocess(
+                image_bytes, source_path=source_path
+            )
             tensor = tensor.to(self.device)
         else:
             tensor, _preview, meta = cv_preprocess(image_bytes)

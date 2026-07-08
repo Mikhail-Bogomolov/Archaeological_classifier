@@ -15,6 +15,16 @@ General_data/
 data/dataset/
 siberiana-hakaton/
 
+# Camera captures / local artifacts
+data/photos_from_camera/
+reports/
+orange_pi_deploy.zip
+test_img_*.jpg
+
+# Scratch / experiments
+Новая папка/
+five_tables_археологи/
+
 # Temp files
 kansk_probe*.txt
 

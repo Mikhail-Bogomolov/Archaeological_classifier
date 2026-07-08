@@ -8,6 +8,7 @@ cv_preprocess — старый тяжёлый вариант, для сети 2.
 from __future__ import annotations
 
 import io
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Tuple
 
@@ -53,6 +54,8 @@ def _is_installation_shot(path: str | Path | None, pil: Image.Image) -> bool:
         return True
     # Тёмный фон установки — Otsu ловит блики, не предмет.
     if float(np.mean(np.array(pil.convert("L")))) < 48:
+        return True
+    if _has_led_reflection(pil):
         return True
     return False
 
@@ -221,14 +224,189 @@ def center_crop_focus(
     pil: Image.Image,
     width_ratio: float = 0.62,
     height_ratio: float = 0.68,
+    x_bias: float = 0.5,
+    y_bias: float = 0.5,
 ) -> Image.Image:
-    """Центральная область кадра — для установки, где предмет по центру."""
+    """Центральная область кадра; x/y_bias смещают окно (0 — влево/вверх)."""
     w, h = pil.size
     cw = max(1, min(w, int(w * width_ratio)))
     ch = max(1, min(h, int(h * height_ratio)))
-    left = (w - cw) // 2
-    top = (h - ch) // 2
+    max_left = max(0, w - cw)
+    max_top = max(0, h - ch)
+    left = int(max_left * max(0.0, min(1.0, x_bias)))
+    top = int(max_top * max(0.0, min(1.0, y_bias)))
     return pil.crop((left, top, left + cw, top + ch))
+
+
+def _estimate_bg_level(gray: np.ndarray) -> float:
+    h, w = gray.shape
+    strip = max(1, min(h, w) // 40)
+    border = np.concatenate([
+        gray[:strip, :].ravel(),
+        gray[-strip:, :].ravel(),
+        gray[:, :strip].ravel(),
+        gray[:, -strip:].ravel(),
+    ])
+    return float(np.median(border))
+
+
+def _foreground_mask(pil: Image.Image) -> np.ndarray:
+    """Пиксели предмета: отличаются от фона, без бирки, линейки и LED."""
+    rgb = np.asarray(pil.convert("RGB"), dtype=np.float32)
+    gray = rgb.mean(axis=2)
+    bg = _estimate_bg_level(gray)
+    mask = (np.abs(gray - bg) > 10) | (gray < bg - 16)
+    mask &= gray < 228
+
+    r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
+    orange_ruler = (r > 145) & (g < 135) & (b < 105) & (r > g + 18)
+    led = gray > 212
+    white_tag = gray > 238
+    mask &= ~(orange_ruler | led | white_tag)
+    return mask
+
+
+def crop_to_foreground_bbox(
+    pil: Image.Image,
+    pad_ratio: float = 0.06,
+    max_coverage: float = 0.90,
+    min_coverage: float = 0.0,
+) -> Image.Image:
+    """Обрезка по bbox предмета; min_coverage не даёт уйти в сильный перезум."""
+    mask = _foreground_mask(pil)
+    if int(mask.sum()) < 60:
+        return pil
+
+    ys, xs = np.where(mask)
+    y0, y1 = int(ys.min()), int(ys.max())
+    x0, x1 = int(xs.min()), int(xs.max())
+    h, w = mask.shape
+    bw, bh = x1 - x0 + 1, y1 - y0 + 1
+    elong = bh / max(bw, 1)
+    if elong > 2.2:
+        pad_ratio = max(pad_ratio, 0.14)
+    pad_x = max(2, int(bw * pad_ratio))
+    pad_y = max(2, int(bh * pad_ratio))
+    left = max(0, x0 - pad_x)
+    top = max(0, y0 - pad_y)
+    right = min(w, x1 + 1 + pad_x)
+    bottom = min(h, y1 + 1 + pad_y)
+
+    if min_coverage > 0:
+        min_area = w * h * min_coverage
+        crop_area = (right - left) * (bottom - top)
+        if crop_area < min_area:
+            cx = (left + right) / 2.0
+            cy = (top + bottom) / 2.0
+            scale = (min_area / max(crop_area, 1)) ** 0.5
+            half_w = (right - left) * scale / 2.0
+            half_h = (bottom - top) * scale / 2.0
+            left = int(max(0, cx - half_w))
+            right = int(min(w, cx + half_w))
+            top = int(max(0, cy - half_h))
+            bottom = int(min(h, cy + half_h))
+
+    if (right - left) * (bottom - top) > w * h * max_coverage:
+        return pil
+    if (right - left) * (bottom - top) < w * h * 0.02:
+        return pil
+    return pil.crop((left, top, right, bottom))
+
+
+def _preview_bbox_settings(
+    installation: bool,
+    object_class: str | None,
+) -> tuple[float, float, float]:
+    """pad_ratio, max_coverage, min_coverage."""
+    if installation:
+        return 0.16, 0.72, 0.42
+    if object_class == "ножи":
+        return 0.20, 0.82, 0.30
+    return 0.08, 0.86, 0.18
+
+
+def _content_center_fraction(pil: Image.Image) -> tuple[float, float]:
+    mask = _foreground_mask(pil)
+    if int(mask.sum()) < 80:
+        return 0.5, 0.5
+    ys, xs = np.where(mask)
+    h, w = mask.shape
+    return float(xs.mean() / max(w - 1, 1)), float(ys.mean() / max(h - 1, 1))
+
+
+def _has_led_reflection(pil: Image.Image) -> bool:
+    """Горизонтальные блики LED-панели (съёмка на установке)."""
+    gray = np.asarray(pil.convert("L"), dtype=np.float32)
+    h, _w = gray.shape
+    if h < 48:
+        return False
+    top_half = gray[: h // 2, :]
+    row_bright = np.mean(top_half > 208, axis=1)
+    stripe_rows = int(np.sum(row_bright > 0.18))
+    return stripe_rows >= 4 and float(np.max(row_bright)) > 0.32
+
+
+def _led_dominates_crop(pil: Image.Image) -> bool:
+    """LED мешает превью — только если яркие полосы занимают заметную часть кадра."""
+    gray = np.asarray(pil.convert("L"), dtype=np.float32)
+    h, _w = gray.shape
+    if h < 32:
+        return False
+    top = gray[: max(1, h // 2), :]
+    if float(np.mean(top > 210)) < 0.08:
+        return False
+    row_bright = np.mean(top > 208, axis=1)
+    return int(np.sum(row_bright > 0.22)) >= 3 and float(np.max(row_bright)) > 0.38
+
+
+def center_crop_on_content(
+    pil: Image.Image,
+    width_ratio: float,
+    height_ratio: float,
+    x_bias: float = 0.5,
+    y_bias: float = 0.5,
+    y_shift: float = 0.0,
+) -> Image.Image:
+    """Crop вокруг центра масс предмета; иначе — геометрический bias."""
+    w, h = pil.size
+    cw = max(1, min(w, int(w * width_ratio)))
+    ch = max(1, min(h, int(h * height_ratio)))
+    cx, cy = _content_center_fraction(pil)
+    if cx == 0.5 and cy == 0.5:
+        return center_crop_focus(pil, width_ratio, height_ratio, x_bias, y_bias)
+    cx = max(0.0, min(1.0, cx))
+    cy = max(0.0, min(1.0, cy + y_shift))
+    left = int(cx * w - cw / 2)
+    top = int(cy * h - ch / 2)
+    left = max(0, min(w - cw, left))
+    top = max(0, min(h - ch, top))
+    return pil.crop((left, top, left + cw, top + ch))
+
+
+def _fit_preview_cover(
+    pil: Image.Image,
+    target: float = 4 / 3,
+    *,
+    min_fill: float = 0.55,
+) -> Image.Image:
+    """4:3 для превью; при уже крупном crop — мягче, без лишнего перезума."""
+    w, h = pil.size
+    if h <= 0:
+        return pil
+    img_aspect = w / h
+    if abs(img_aspect - target) < 0.04:
+        return pil
+    if img_aspect > target:
+        new_w = max(1, int(h * target))
+        if new_w >= w * min_fill:
+            left = max(0, (w - new_w) // 2)
+            return pil.crop((left, 0, left + new_w, h))
+        return _pad_preview_aspect(pil, target=target)
+    new_h = max(1, int(w / target))
+    if new_h >= h * min_fill:
+        top = max(0, (h - new_h) // 2)
+        return pil.crop((0, top, w, top + new_h))
+    return _pad_preview_aspect(pil, target=target)
 
 
 def _pad_preview_aspect(
@@ -272,49 +450,376 @@ def _ui_preview_crop_ratios(
     return 1.0, 1.0
 
 
-# Доп. обрезка бирки справа в превью UI (после crop_kansk_frame).
-UI_PREVIEW_RIGHT_TRIM = 0.10
-UI_PREVIEW_LEFT_TRIM = 0.02
-UI_PREVIEW_TOP_TRIM = 0.05
-UI_PREVIEW_BOTTOM_TRIM = 0.12
+@dataclass(frozen=True)
+class UiPreviewPreset:
+    """Параметры геометрического превью."""
+
+    name: str = "standard"
+    left_trim: float = 0.02
+    right_trim: float = 0.12
+    top_trim: float = 0.05
+    bottom_trim: float = 0.13
+    width_ratio: float = 0.84
+    height_ratio: float = 0.72
+    x_bias: float = 0.42
+    y_bias: float = 0.46
 
 
-def crop_kansk_preview_trim(pil: Image.Image) -> Image.Image:
+KANSK_ASPECT_PRESETS: dict[str, UiPreviewPreset] = {
+    "wide": UiPreviewPreset(
+        name="wide",
+        right_trim=0.15,
+        bottom_trim=0.15,
+        width_ratio=0.78,
+        height_ratio=0.60,
+        x_bias=0.36,
+        y_bias=0.44,
+    ),
+    "standard": UiPreviewPreset(
+        name="standard",
+        right_trim=0.12,
+        bottom_trim=0.13,
+        width_ratio=0.84,
+        height_ratio=0.72,
+        x_bias=0.42,
+        y_bias=0.46,
+    ),
+    "tall": UiPreviewPreset(
+        name="tall",
+        left_trim=0.10,
+        right_trim=0.10,
+        bottom_trim=0.10,
+        width_ratio=0.58,
+        height_ratio=0.92,
+        x_bias=0.50,
+        y_bias=0.50,
+    ),
+}
+
+CLASS_PRESET_OVERRIDES: dict[str, dict[str, float | str]] = {
+    "ножи": {
+        "name": "class:ножи",
+        "left_trim": 0.12,
+        "right_trim": 0.22,
+        "width_ratio": 0.62,
+        "height_ratio": 0.88,
+        "x_bias": 0.50,
+        "y_bias": 0.50,
+    },
+    "кельты": {
+        "name": "class:кельты",
+        "width_ratio": 0.80,
+        "height_ratio": 0.68,
+        "x_bias": 0.40,
+    },
+    "наконечники стрел": {
+        "name": "class:наконечники",
+        "width_ratio": 0.76,
+        "height_ratio": 0.62,
+        "x_bias": 0.38,
+        "y_bias": 0.44,
+    },
+    "удила": {
+        "name": "class:удила",
+        "width_ratio": 0.68,
+        "height_ratio": 0.68,
+        "x_bias": 0.45,
+        "y_bias": 0.48,
+    },
+    "накладки": {
+        "name": "class:накладки",
+        "width_ratio": 0.72,
+        "height_ratio": 0.72,
+        "x_bias": 0.40,
+        "bottom_trim": 0.11,
+    },
+}
+
+SOFT_KANSK_PRESET = UiPreviewPreset(
+    name="soft",
+    left_trim=0.04,
+    right_trim=0.06,
+    top_trim=0.03,
+    bottom_trim=0.08,
+    width_ratio=0.78,
+    height_ratio=0.88,
+    x_bias=0.50,
+    y_bias=0.50,
+)
+
+
+def _kansk_aspect_bucket(aspect: float) -> str:
+    if aspect > 1.28:
+        return "wide"
+    if aspect < 0.88:
+        return "tall"
+    return "standard"
+
+
+def _resolve_kansk_preset(framed: Image.Image, object_class: str | None) -> UiPreviewPreset:
+    aspect = framed.size[0] / max(framed.size[1], 1)
+    preset = KANSK_ASPECT_PRESETS[_kansk_aspect_bucket(aspect)]
+    if object_class and object_class in CLASS_PRESET_OVERRIDES:
+        preset = replace(preset, **CLASS_PRESET_OVERRIDES[object_class])
+    return preset
+
+
+def crop_kansk_preview_trim(
+    pil: Image.Image,
+    preset: UiPreviewPreset | None = None,
+) -> Image.Image:
     """Убираем зону бирки справа — предмет обычно левее центра."""
+    p = preset or KANSK_ASPECT_PRESETS["standard"]
     w, h = pil.size
-    left = int(w * UI_PREVIEW_LEFT_TRIM)
-    right = int(w * (1 - UI_PREVIEW_RIGHT_TRIM))
-    top = int(h * UI_PREVIEW_TOP_TRIM)
-    bottom = int(h * (1 - UI_PREVIEW_BOTTOM_TRIM))
+    left = int(w * p.left_trim)
+    right = int(w * (1 - p.right_trim))
+    top = int(h * p.top_trim)
+    bottom = int(h * (1 - p.bottom_trim))
     if right <= left + 8 or bottom <= top + 8:
         return pil
     return pil.crop((left, top, right, bottom))
 
 
-def _ui_kansk_preview(framed: Image.Image) -> Image.Image:
-    """Геометрическое превью без OpenCV — бирка и линейка не попадают в кадр."""
-    trimmed = crop_kansk_preview_trim(framed)
-    w, h = trimmed.size
+def _build_kansk_preview(
+    framed: Image.Image,
+    preset: UiPreviewPreset,
+    object_class: str | None = None,
+) -> Image.Image:
+    trimmed = crop_kansk_preview_trim(framed, preset)
+    # Длинные ножи: bbox цепляется за текстуру — только геометрия.
+    if object_class == "ножи":
+        return center_crop_on_content(
+            trimmed,
+            preset.width_ratio,
+            preset.height_ratio,
+            preset.x_bias,
+            preset.y_bias,
+        )
+
+    pad, max_cov, min_cov = _preview_bbox_settings(False, object_class)
+    tight = crop_to_foreground_bbox(
+        trimmed, pad_ratio=pad, max_coverage=max_cov, min_coverage=min_cov
+    )
+    if tight.size != trimmed.size:
+        return tight
+    return center_crop_on_content(
+        trimmed,
+        preset.width_ratio,
+        preset.height_ratio,
+        preset.x_bias,
+        preset.y_bias,
+    )
+
+
+def _installation_preview_ratios(
+    pil: Image.Image,
+    object_class: str | None,
+) -> tuple[float, float, float]:
+    """Полевая/установка: умеренный zoom — в кадре и так мало лишнего."""
+    w, h = pil.size
     aspect = w / max(h, 1)
-    if aspect > 1.25:
-        return center_crop_focus(trimmed, 0.80, 0.62)
-    if aspect < 0.85:
-        return center_crop_focus(trimmed, 0.92, 0.94)
-    return center_crop_focus(trimmed, 0.88, 0.78)
+    mean_b = float(np.mean(np.array(pil.convert("L"))))
+
+    if object_class == "ножи":
+        return 0.72, 0.78, 0.04
+    if mean_b < 55:
+        return 0.68, 0.72, 0.05
+    if aspect >= FIELD_ASPECT_MIN:
+        return 0.70, 0.68, 0.04
+    if object_class == "накладки":
+        return 0.66, 0.64, 0.05
+    return 0.68, 0.66, 0.04
 
 
-def load_ui_preview_rgb(image_bytes: bytes, max_load_side: int = MAX_LOAD_SIDE) -> Image.Image:
-    """Превью для UI: геометрия, без OpenCV (бирки/блики не цепляются)."""
+def _build_installation_preview(
+    pil: Image.Image,
+    object_class: str | None,
+) -> Image.Image:
+    source = pil
+    if _has_led_reflection(pil):
+        w, h = pil.size
+        source = pil.crop((0, int(h * 0.28), w, h))
+
+    wr, hr, y_shift = _installation_preview_ratios(source, object_class)
+    return center_crop_on_content(source, wr, hr, y_shift=y_shift)
+
+
+def _validate_ui_preview(
+    original: Image.Image,
+    cropped: Image.Image,
+    *,
+    installation: bool,
+    object_class: str | None = None,
+) -> tuple[bool, str]:
+    """Эвристики: бирка, блик, линейка, слишком сильный/слабый crop."""
+    ow, oh = cropped.size
+    pw, ph = original.size
+    if ow < 32 or oh < 32:
+        return False, "too_small"
+
+    area_ratio = (ow * oh) / max(pw * ph, 1)
+    fg_frac = float(_foreground_mask(cropped).mean())
+    min_area = 0.04 if installation else 0.05
+    if area_ratio < min_area and fg_frac < 0.08:
+        return False, "crop_too_tight"
+    if area_ratio > 0.88:
+        return False, "crop_too_weak"
+
+    aspect = ow / max(oh, 1)
+    max_aspect = 3.6 if object_class == "наконечники стрел" else 2.8
+    if object_class == "ножи":
+        min_aspect = 0.15
+    elif object_class == "наконечники стрел":
+        min_aspect = 0.28
+    else:
+        min_aspect = 0.38
+    if aspect > max_aspect or aspect < min_aspect:
+        return False, "bad_aspect"
+
+    gray = np.asarray(cropped.convert("L"), dtype=np.float32)
+    mean_b = float(gray.mean())
+    std_b = float(gray.std())
+    white_frac = float(np.mean(gray > 242))
+
+    if mean_b > 200 and white_frac > 0.30:
+        return False, "mostly_white"
+    if mean_b > 215 and std_b < 22:
+        return False, "flat_white"
+
+    w = gray.shape[1]
+    h = gray.shape[0]
+    if w >= 40:
+        core = float(gray[:, w // 5 : 4 * w // 5].mean())
+        right_edge = float(gray[:, int(w * 0.82) :].mean())
+        left_edge = float(gray[:, : max(1, w // 8)].mean())
+        if right_edge - core > 45 and white_frac > 0.22:
+            return False, "tag_on_right"
+        if left_edge > 210 and white_frac > 0.14:
+            return False, "tag_on_left"
+
+    if _led_dominates_crop(cropped):
+        return False, "led_reflection"
+
+    if fg_frac < 0.03:
+        return False, "no_content"
+
+    cx, cy = _content_center_fraction(cropped)
+    if fg_frac < 0.12:
+        limit_x = 0.36 if installation else 0.32
+        limit_y = 0.38 if installation else 0.34
+        if abs(cx - 0.5) > limit_x or abs(cy - 0.5) > limit_y:
+            return False, "content_off_center"
+
+    if aspect > 2.3 and std_b < 28:
+        return False, "reflection_strip"
+
+    if not installation and h >= 30:
+        bottom_band = float(gray[int(h * 0.88) :, :].mean())
+        upper = float(gray[: int(h * 0.72), :].mean())
+        if bottom_band < 35 and upper - bottom_band > 48:
+            return False, "ruler_bottom"
+
+    return True, "ok"
+
+
+def load_ui_preview_rgb(
+    image_bytes: bytes,
+    max_load_side: int = MAX_LOAD_SIDE,
+    object_class: str | None = None,
+    source_path: str | Path | None = None,
+) -> tuple[Image.Image, dict]:
+    """Превью для UI: пресеты по aspect/классу + fallback на оригинал."""
     pil = _load_rgb_base(image_bytes=image_bytes, max_load_side=max_load_side)
-    installation = _is_installation_shot(None, pil)
+    installation = _is_installation_shot(source_path, pil)
+    meta: dict = {
+        "installation": installation,
+        "fallback": False,
+        "preview_mode": "cropped",
+        "preset": None,
+        "reason": None,
+        "object_class": object_class,
+    }
 
     if not installation:
-        out = _ui_kansk_preview(crop_kansk_frame(pil))
+        framed = crop_kansk_frame(pil)
+        preset = _resolve_kansk_preset(framed, object_class)
+        out = _build_kansk_preview(framed, preset, object_class=object_class)
+        meta["preset"] = preset.name
+        area_frac = (out.size[0] * out.size[1]) / max(framed.size[0] * framed.size[1], 1)
+        if area_frac < 0.32 and object_class != "ножи":
+            meta["preset"] = f"{preset.name}+tight"
+        ok, reason = _validate_ui_preview(
+            pil, out, installation=False, object_class=object_class
+        )
+        if not ok:
+            soft_out = _build_kansk_preview(
+                framed, SOFT_KANSK_PRESET, object_class=object_class
+            )
+            ok_soft, _ = _validate_ui_preview(
+                pil, soft_out, installation=False, object_class=object_class
+            )
+            if ok_soft:
+                out = soft_out
+                meta["preset"] = SOFT_KANSK_PRESET.name
+            else:
+                trimmed = crop_kansk_preview_trim(framed, preset)
+                pad, max_cov, min_cov = _preview_bbox_settings(False, object_class)
+                bbox_out = crop_to_foreground_bbox(
+                    trimmed, pad_ratio=pad, max_coverage=max_cov, min_coverage=min_cov
+                )
+                ok_bbox, _ = _validate_ui_preview(
+                    pil, bbox_out, installation=False, object_class=object_class
+                )
+                if ok_bbox and bbox_out.size != trimmed.size:
+                    out = bbox_out
+                    meta["preset"] = "tight-bbox"
+                else:
+                    bbox_full = crop_to_foreground_bbox(
+                        framed, pad_ratio=pad, max_coverage=max_cov, min_coverage=min_cov
+                    )
+                    ok_full, _ = _validate_ui_preview(
+                        pil, bbox_full, installation=False, object_class=object_class
+                    )
+                    if ok_full and bbox_full.size != framed.size:
+                        out = bbox_full
+                        meta["preset"] = "tight-bbox"
+                    else:
+                        out = pil
+                        meta.update(
+                            fallback=True,
+                            preview_mode="original",
+                            reason=reason,
+                        )
     else:
-        wr, hr = _ui_preview_crop_ratios(pil, installation)
-        out = center_crop_focus(pil, wr, hr)
+        out = _build_installation_preview(pil, object_class)
+        meta["preset"] = "installation+content" if _has_led_reflection(pil) else "installation"
+        area_frac = (out.size[0] * out.size[1]) / max(pil.size[0] * pil.size[1], 1)
+        if area_frac < 0.38:
+            meta["preset"] = str(meta["preset"]) + "+tight"
+        ok, reason = _validate_ui_preview(
+            pil, out, installation=True, object_class=object_class
+        )
+        if not ok:
+            soft_src = pil
+            if _has_led_reflection(pil):
+                w, h = pil.size
+                soft_src = pil.crop((0, int(h * 0.30), w, h))
+            soft_out = center_crop_on_content(soft_src, 0.76, 0.72)
+            ok_soft, _ = _validate_ui_preview(
+                pil, soft_out, installation=True, object_class=object_class
+            )
+            if ok_soft:
+                out = soft_out
+                meta["preset"] = "installation-soft"
+            else:
+                out = pil
+                meta.update(
+                    fallback=True,
+                    preview_mode="original",
+                    reason=reason,
+                )
 
-    return _pad_preview_aspect(out)
+    return _fit_preview_cover(out), meta
 
 
 def pil_to_jpeg_bytes(pil: Image.Image, quality: int = 85) -> bytes:
@@ -398,9 +903,15 @@ def _val_transforms() -> transforms.Compose:
     ])
 
 
-def classifier_preprocess(image_bytes: bytes) -> Tuple[torch.Tensor, Image.Image, dict, torch.Tensor | None]:
+def classifier_preprocess(
+    image_bytes: bytes,
+    source_path: str | Path | None = None,
+) -> Tuple[torch.Tensor, Image.Image, dict, torch.Tensor | None]:
     """Фото → тензор для сети 1 + текстура, если включена."""
-    pil, prep_flags = _prepare_classifier_pil(image_bytes=image_bytes)
+    pil, prep_flags = _prepare_classifier_pil(
+        image_bytes=image_bytes,
+        path=source_path,
+    )
     texture = None
     if USE_TEXTURE_FEATURES:
         texture = torch.tensor(extract_texture_vector(pil), dtype=torch.float32).unsqueeze(0)

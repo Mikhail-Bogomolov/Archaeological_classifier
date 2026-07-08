@@ -31,9 +31,8 @@ try:
 except ImportError as e:
     raise SystemExit("Нет openpyxl. Установите: pip install openpyxl") from e
 
+from app.ml.augmentations import build_train_transforms, build_val_transforms
 from app.ml.config import (
-    IMAGENET_MEAN,
-    IMAGENET_STD,
     KANSK_PHOTOS_DIR,
     KANSK_TABLES_DIR,
     MODELS_DIR,
@@ -42,31 +41,24 @@ from app.ml.config import (
     USE_TEXTURE_FEATURES,
 )
 from app.ml.models import ObjectClassifierNet
+from app.ml.table_normalization import CONFUSED_ITEM_PREFIXES
 from app.ml.texture_features import extract_texture_vector
 
 
-
-def build_train_transforms() -> transforms.Compose:
-    return transforms.Compose([
-        transforms.Resize(256),
-        transforms.RandomResizedCrop(224, scale=(0.65, 1.0)),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomAffine(degrees=10, translate=(0.05, 0.05), scale=(0.95, 1.05)),
-        transforms.ColorJitter(brightness=0.35, contrast=0.35, saturation=0.25),
-        transforms.ToTensor(),
-        transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-    ])
+MIXUP_ALPHA = 0.2
 
 
-def build_val_transforms() -> transforms.Compose:
-    return transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-    ])
-
-
+def _mixup_batch(
+    x: torch.Tensor,
+    y: torch.Tensor,
+    alpha: float,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, float]:
+    if alpha <= 0:
+        return x, y, y, 1.0
+    lam = float(np.random.beta(alpha, alpha))
+    perm = torch.randperm(x.size(0), device=x.device)
+    mixed_x = lam * x + (1.0 - lam) * x[perm]
+    return mixed_x, y, y[perm], lam
 
 class KanskDataset(Dataset):
     CLASS_TO_IDX: dict[str, int] = {c: i for i, c in enumerate(OBJECT_CLASSES)}
@@ -210,13 +202,17 @@ class KanskDataset(Dataset):
             return x, tex, y
         return x, y
 
-    def class_weights(self) -> torch.Tensor:
+    def class_weights(self, confused_boost: float = 2.0) -> torch.Tensor:
         counts = Counter(r["class_idx"] for r in self.samples)
         n_total = len(self.samples)
         weights = []
         for sample in self.samples:
             c = sample["class_idx"]
-            weights.append(n_total / (len(counts) * counts[c]))
+            w = n_total / (len(counts) * counts[c])
+            key = sample["item_key"]
+            if any(key.startswith(p) for p in CONFUSED_ITEM_PREFIXES):
+                w *= confused_boost
+            weights.append(w)
         return torch.tensor(weights, dtype=torch.float)
 
 
@@ -236,6 +232,7 @@ def train_one_epoch(
     criterion: nn.Module,
     device: torch.device,
     use_texture: bool,
+    mixup_alpha: float = MIXUP_ALPHA,
 ) -> float:
     model.train()
     total_loss = 0.0
@@ -243,13 +240,24 @@ def train_one_epoch(
         if use_texture:
             x, tex, y = batch
             x, tex, y = x.to(device), tex.to(device), y.to(device)
-            logits = model(x, tex)
+            if mixup_alpha > 0 and x.size(0) > 1:
+                x, ya, yb, lam = _mixup_batch(x, y, mixup_alpha)
+                logits = model(x, tex)
+                loss = lam * criterion(logits, ya) + (1.0 - lam) * criterion(logits, yb)
+            else:
+                logits = model(x, tex)
+                loss = criterion(logits, y)
         else:
             x, y = batch
             x, y = x.to(device), y.to(device)
-            logits = model(x)
+            if mixup_alpha > 0 and x.size(0) > 1:
+                x, ya, yb, lam = _mixup_batch(x, y, mixup_alpha)
+                logits = model(x)
+                loss = lam * criterion(logits, ya) + (1.0 - lam) * criterion(logits, yb)
+            else:
+                logits = model(x)
+                loss = criterion(logits, y)
         optimizer.zero_grad()
-        loss = criterion(logits, y)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
@@ -295,6 +303,7 @@ def main() -> None:
     parser.add_argument("--no-texture", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--verify-only", action="store_true")
+    parser.add_argument("--no-mixup", action="store_true", help="Отключить Mixup на train")
     args = parser.parse_args()
 
     use_texture = USE_TEXTURE_FEATURES and not args.no_texture
@@ -393,7 +402,13 @@ def main() -> None:
             print(f"  [epoch {epoch}] Донастройка всей модели, lr={args.lr}")
 
         train_loss = train_one_epoch(
-            model, train_loader, optimizer, criterion, device, use_texture
+            model,
+            train_loader,
+            optimizer,
+            criterion,
+            device,
+            use_texture,
+            mixup_alpha=0.0 if args.no_mixup else MIXUP_ALPHA,
         )
         val_loss, val_acc = evaluate(model, val_loader, device, use_texture)
 
