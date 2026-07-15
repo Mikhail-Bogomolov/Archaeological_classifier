@@ -80,6 +80,10 @@ OBJECT_MODEL_FILE = "object_classifier.pt"
 FEATURE_MODEL_FILE = "feature_classifier.pt"
 USE_TEXTURE_FEATURES = True
 
+# Сплиты и инференс — см. app.ml.splits, app.ml.training_config
+SPLIT_MANIFEST_PATH = f"{KANSK_DATASET_DIR}/split_manifest.json"
+TRAINING_LOG_DIR = "reports/training"
+
 MARKUP_TEMPLATE_PATH = "data/templates/markup_template.xlsx"
 
 # Тестовые фото в корне (если понадобятся вручную)

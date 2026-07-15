@@ -3,7 +3,8 @@
 
 Запуск:
     python -m app.ml.evaluate_classifier
-    python -m app.ml.evaluate_classifier --split val --json-out reports/object_val.json
+    python -m app.ml.evaluate_classifier --split test --json-out reports/object_test.json
+    python -m app.ml.evaluate_classifier --split val --calibrate
 """
 
 from __future__ import annotations
@@ -15,6 +16,8 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader
 
+from app.ml.augmentations import build_val_transforms
+from app.ml.calibration import expected_calibration_error
 from app.ml.config import (
     MODELS_DIR,
     OBJECT_CLASSES,
@@ -24,10 +27,15 @@ from app.ml.config import (
 from app.ml.evaluation_metrics import (
     compute_benchmark_report,
     print_benchmark_report,
+    resolve_report_image_paths,
     save_benchmark_report,
+    save_confusion_heatmap,
+    save_per_class_bars,
 )
 from app.ml.models import ObjectClassifierNet
-from app.ml.train_classifier import KanskDataset, _collate_batch, build_val_transforms
+from app.ml.splits import DEFAULT_SPLIT_SEED, DEFAULT_TEST_RATIO, DEFAULT_VAL_RATIO
+from app.ml.train_classifier import KanskDataset, _collate_batch
+from app.ml.training_config import DEFAULT_INFERENCE, load_state_dict
 
 
 @torch.no_grad()
@@ -107,23 +115,59 @@ def _item_level_accuracy(
 @torch.no_grad()
 def main() -> None:
     parser = argparse.ArgumentParser(description="Бенчмарк классификатора объектов")
-    parser.add_argument("--split", choices=("train", "val"), default="val")
+    parser.add_argument(
+        "--split",
+        choices=("train", "val", "test"),
+        default="test",
+        help="test — holdout, не используется при early stopping (рекомендуется для отчёта)",
+    )
     parser.add_argument("--limit", type=int, default=0, help="Ограничить число фото (0 = все)")
     parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SPLIT_SEED)
+    parser.add_argument("--val-ratio", type=float, default=DEFAULT_VAL_RATIO)
+    parser.add_argument("--test-ratio", type=float, default=DEFAULT_TEST_RATIO)
     parser.add_argument(
         "--json-out",
         type=str,
         default="",
-        help="Сохранить отчёт в JSON (например reports/object_val.json)",
+        help="Сохранить отчёт в JSON (например reports/object_test.json)",
+    )
+    parser.add_argument(
+        "--heatmap-out",
+        type=str,
+        default="",
+        help="PNG confusion matrix (по умолчанию рядом с json или reports/object_<split>.png)",
+    )
+    parser.add_argument(
+        "--no-heatmap",
+        action="store_true",
+        help="Не сохранять PNG визуализацию",
+    )
+    parser.add_argument(
+        "--calibrate",
+        action="store_true",
+        help="Посчитать ECE и предложить порог low-confidence (на указанном split)",
     )
     args = parser.parse_args()
+
+    if args.split != "test":
+        print(
+            f"Внимание: метрики на split={args.split!r}. "
+            "Для честной оценки используйте --split test."
+        )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     weights = Path(MODELS_DIR) / OBJECT_MODEL_FILE
     if not weights.is_file():
         raise SystemExit(f"Нет весов: {weights}. Сначала обучите модель.")
 
-    ds = KanskDataset(transform=build_val_transforms(), split=args.split)
+    ds = KanskDataset(
+        transform=build_val_transforms(),
+        split=args.split,
+        seed=args.seed,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
+    )
     if args.limit > 0:
         ds.samples = ds.samples[: args.limit]
 
@@ -131,7 +175,8 @@ def main() -> None:
         ds, batch_size=args.batch_size, shuffle=False, num_workers=0, collate_fn=_collate_batch
     )
     model = ObjectClassifierNet(use_texture=USE_TEXTURE_FEATURES).to(device)
-    state = torch.load(weights, map_location=device, weights_only=True)
+    raw_ckpt = torch.load(weights, map_location=device, weights_only=False)
+    state, meta = load_state_dict(raw_ckpt)
     has_texture = any(k.startswith("texture_mlp") for k in state)
     if USE_TEXTURE_FEATURES and not has_texture:
         print("Внимание: в файле весов нет текстуры, считаем только по фото")
@@ -139,6 +184,13 @@ def main() -> None:
     model.load_state_dict(state, strict=False)
     model.eval()
     use_texture = model.use_texture and model.texture_mlp is not None
+
+    if meta.get("training"):
+        tr = meta["training"]
+        print(
+            f"Чекпоинт: best_epoch={meta.get('best_epoch')}, "
+            f"selection={tr.get('selection_metric')}, seed={tr.get('split_seed')}"
+        )
 
     y_true, y_pred, confidences, wrong_examples = _run_inference(
         model, loader, ds, device, use_texture
@@ -148,24 +200,38 @@ def main() -> None:
     correct_conf = [c for t, p, c in zip(y_true, y_pred, confidences) if t == p]
     wrong_conf = [c for t, p, c in zip(y_true, y_pred, confidences) if t != p]
 
+    extra: dict = {
+        "item_accuracy": item_correct / max(item_total, 1),
+        "item_correct": item_correct,
+        "item_total": item_total,
+        "mean_confidence": sum(confidences) / max(len(confidences), 1),
+        "mean_confidence_correct": (
+            sum(correct_conf) / len(correct_conf) if correct_conf else None
+        ),
+        "mean_confidence_wrong": (
+            sum(wrong_conf) / len(wrong_conf) if wrong_conf else None
+        ),
+        "split_seed": args.seed,
+        "val_ratio": args.val_ratio,
+        "test_ratio": args.test_ratio,
+    }
+
+    if args.calibrate:
+        cal = expected_calibration_error(y_true, y_pred, confidences)
+        extra["calibration"] = cal.as_dict()
+        print(
+            f"\nКалибровка ({args.split}): ECE={cal.ece:.3f}, "
+            f"предложенный порог предупреждения={cal.suggested_threshold:.2f} "
+            f"(сейчас в коде: {DEFAULT_INFERENCE.object_low_conf_threshold})"
+        )
+
     report = compute_benchmark_report(
         y_true,
         y_pred,
         OBJECT_CLASSES,
         task="object_classification",
         split=args.split,
-        extra={
-            "item_accuracy": item_correct / max(item_total, 1),
-            "item_correct": item_correct,
-            "item_total": item_total,
-            "mean_confidence": sum(confidences) / max(len(confidences), 1),
-            "mean_confidence_correct": (
-                sum(correct_conf) / len(correct_conf) if correct_conf else None
-            ),
-            "mean_confidence_wrong": (
-                sum(wrong_conf) / len(wrong_conf) if wrong_conf else None
-            ),
-        },
+        extra=extra,
     )
     print_benchmark_report(report)
 
@@ -189,6 +255,20 @@ def main() -> None:
     if args.json_out:
         out_path = save_benchmark_report(report, args.json_out)
         print(f"\nОтчёт сохранён: {out_path}")
+
+    if not args.no_heatmap:
+        heat_path, bars_path = resolve_report_image_paths(
+            args.json_out or None,
+            args.heatmap_out or None,
+            default_stem=f"object_{args.split}",
+        )
+        saved_heat = save_confusion_heatmap(report, heat_path)
+        print(f"Heatmap: {saved_heat}")
+        saved_bars = save_per_class_bars(report, bars_path)
+        if saved_bars:
+            print(f"Bars:    {saved_bars}")
+        elif bars_path:
+            print("Bars: пропущены (установите matplotlib: pip install matplotlib)")
 
 
 if __name__ == "__main__":

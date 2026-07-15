@@ -32,23 +32,34 @@ except ImportError as e:
     raise SystemExit("Нет openpyxl. Установите: pip install openpyxl") from e
 
 from app.ml.config import (
-    IMAGENET_MEAN,
-    IMAGENET_STD,
     KANSK_PHOTOS_DIR,
     KANSK_TABLES_DIR,
     MODELS_DIR,
     OBJECT_CLASSES,
     OBJECT_MODEL_FILE,
+    TRAINING_LOG_DIR,
     USE_TEXTURE_FEATURES,
 )
 from app.ml.augmentations import build_train_transforms, build_val_transforms
+from app.ml.dataset_stats import RowLoadStats
 from app.ml.losses import build_object_loss_weights, focal_cross_entropy
 from app.ml.models import ObjectClassifierNet
+from app.ml.splits import (
+    DEFAULT_SPLIT_SEED,
+    DEFAULT_TEST_RATIO,
+    DEFAULT_VAL_RATIO,
+    rows_for_split,
+)
 from app.ml.texture_features import extract_texture_vector
+from app.ml.training_config import (
+    DEFAULT_OBJECT_TRAINING,
+    ObjectTrainingConfig,
+    checkpoint_payload,
+)
+from app.ml.experiment_log import EpochLogger
 
 
-MIXUP_ALPHA = 0.15
-DEFAULT_FOCUS_CLASS = "ножи"
+DEFAULT_FOCUS_CLASS = DEFAULT_OBJECT_TRAINING.focus_class
 
 class KanskDataset(Dataset):
     CLASS_TO_IDX: dict[str, int] = {c: i for i, c in enumerate(OBJECT_CLASSES)}
@@ -59,11 +70,14 @@ class KanskDataset(Dataset):
         tables_dir: str | Path = KANSK_TABLES_DIR,
         transform: Optional[transforms.Compose] = None,
         split: str = "train",
-        val_ratio: float = 0.15,
-        seed: int = 42,
+        val_ratio: float = DEFAULT_VAL_RATIO,
+        test_ratio: float = DEFAULT_TEST_RATIO,
+        seed: int = DEFAULT_SPLIT_SEED,
         use_texture: bool = USE_TEXTURE_FEATURES,
         cache_texture: bool = True,
     ):
+        if split not in ("train", "val", "test"):
+            raise ValueError(f"split must be train|val|test, got {split!r}")
         self.photos_dir = Path(photos_dir)
         self.transform = transform
         self.split = split
@@ -71,15 +85,21 @@ class KanskDataset(Dataset):
         self.cache_texture = cache_texture
         self._tex_cache: dict[str, np.ndarray] = {}
 
-        rows = self._load_rows(Path(tables_dir) / "all_classes.xlsx")
+        rows, load_stats = self._load_rows(Path(tables_dir) / "all_classes.xlsx")
         rows = self._filter_existing(rows)
         if not rows:
             raise FileNotFoundError(
                 f"Не найдено ни одного фото. Проверьте {tables_dir}/all_classes.xlsx"
             )
 
-        train_rows, val_rows = self._stratified_split(rows, val_ratio, seed)
-        self.samples = train_rows if split == "train" else val_rows
+        self.samples = rows_for_split(
+            rows,
+            split,
+            val_ratio=val_ratio,
+            test_ratio=test_ratio,
+            seed=seed,
+        )
+        self.load_stats = load_stats
 
         cls_counts = Counter(r["class_idx"] for r in self.samples)
         labels = sorted(cls_counts)
@@ -87,18 +107,24 @@ class KanskDataset(Dataset):
             f"[KanskDataset] {split}: {len(self.samples)} фото | "
             + " | ".join(f"{OBJECT_CLASSES[i]}={cls_counts[i]}" for i in labels)
         )
+        for line in load_stats.summary_lines("[KanskDataset] "):
+            if "пропущ" in line.lower() or "  - " in line:
+                print(line)
 
-    def _load_rows(self, xlsx_path: Path) -> list[dict]:
+    def _load_rows(self, xlsx_path: Path) -> tuple[list[dict], RowLoadStats]:
         if not xlsx_path.is_file():
             raise FileNotFoundError(f"Не найдена таблица: {xlsx_path}")
         wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
-
+        stats = RowLoadStats()
         result: list[dict] = []
         seen_paths: set[str] = set()
         for ws in wb.worksheets:
+            stats.worksheets_seen += 1
             rows_iter = ws.iter_rows(values_only=True)
             header_row = next(rows_iter, None)
             if not header_row:
+                stats.worksheets_skipped += 1
+                stats.skip("пустой лист")
                 continue
             headers = [str(h).strip().lower() if h is not None else "" for h in header_row]
 
@@ -111,24 +137,33 @@ class KanskDataset(Dataset):
             img_col = col("image_path")
             cls_col = col("класс")
             if img_col is None or cls_col is None:
+                stats.worksheets_skipped += 1
+                stats.skip("нет image_path или класс")
                 continue
 
             for row in rows_iter:
+                stats.rows_total += 1
                 img_rel = str(row[img_col]).strip() if row[img_col] else ""
                 cls_name = str(row[cls_col]).strip().lower() if row[cls_col] else ""
-                if not img_rel or cls_name not in self.CLASS_TO_IDX:
+                if not img_rel:
+                    stats.skip("пустой image_path")
+                    continue
+                if cls_name not in self.CLASS_TO_IDX:
+                    stats.skip("неизвестный класс")
                     continue
                 img_path = self.photos_dir / Path(img_rel).name
                 key = str(img_path).lower()
                 if key in seen_paths:
+                    stats.skip("дубликат пути")
                     continue
                 seen_paths.add(key)
+                stats.rows_kept += 1
                 result.append({
                     "path": img_path,
                     "class_idx": self.CLASS_TO_IDX[cls_name],
                     "item_key": item_key_from_filename(img_path),
                 })
-        return result
+        return result, stats
 
     def _filter_existing(self, rows: list[dict]) -> list[dict]:
         ok = [r for r in rows if r["path"].is_file()]
@@ -136,26 +171,6 @@ class KanskDataset(Dataset):
         if missing:
             print(f"[KanskDataset] Предупреждение: {missing} фото не найдено, пропускаем.")
         return ok
-
-    @staticmethod
-    def _stratified_split(
-        rows: list[dict], val_ratio: float, seed: int
-    ) -> tuple[list[dict], list[dict]]:
-        rng = random.Random(seed)
-        by_class_items: dict[int, dict[str, list[dict]]] = {}
-        for r in rows:
-            by_class_items.setdefault(r["class_idx"], {}).setdefault(r["item_key"], []).append(r)
-
-        train, val = [], []
-        for items in by_class_items.values():
-            keys = list(items.keys())
-            rng.shuffle(keys)
-            n_val = max(1, int(len(keys) * val_ratio))
-            for key in keys[:n_val]:
-                val.extend(items[key])
-            for key in keys[n_val:]:
-                train.extend(items[key])
-        return train, val
 
     def _load_sample(self, path: Path) -> tuple:
         key = str(path)
@@ -384,6 +399,15 @@ def main() -> None:
         help="Focal loss gamma (0 = обычный CE)",
     )
     parser.add_argument("--mixup", action="store_true", help="Включить Mixup (для ножей обычно выкл.)")
+    parser.add_argument("--seed", type=int, default=DEFAULT_SPLIT_SEED, help="Seed сплита train/val/test")
+    parser.add_argument("--val-ratio", type=float, default=DEFAULT_VAL_RATIO)
+    parser.add_argument("--test-ratio", type=float, default=DEFAULT_TEST_RATIO)
+    parser.add_argument(
+        "--log-csv",
+        type=str,
+        default="",
+        help=f"CSV-лог эпох (по умолчанию {TRAINING_LOG_DIR}/object_classifier.csv)",
+    )
     args = parser.parse_args()
 
     focus_class_idx: int | None = None
@@ -408,10 +432,20 @@ def main() -> None:
         )
 
     train_ds = KanskDataset(
-        transform=build_train_transforms(), split="train", use_texture=use_texture
+        transform=build_train_transforms(),
+        split="train",
+        use_texture=use_texture,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
+        seed=args.seed,
     )
     val_ds = KanskDataset(
-        transform=build_val_transforms(), split="val", use_texture=use_texture
+        transform=build_val_transforms(),
+        split="val",
+        use_texture=use_texture,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
+        seed=args.seed,
     )
 
     if args.verify_only:
@@ -456,7 +490,11 @@ def main() -> None:
 
     model = ObjectClassifierNet(pretrained=pretrained, use_texture=use_texture).to(device)
 
-    FREEZE_EPOCHS = 3 if pretrained else 5
+    FREEZE_EPOCHS = (
+        DEFAULT_OBJECT_TRAINING.freeze_epochs_pretrained
+        if pretrained
+        else DEFAULT_OBJECT_TRAINING.freeze_epochs_scratch
+    )
     for param in model.backbone.parameters():
         param.requires_grad = False
 
@@ -472,7 +510,28 @@ def main() -> None:
         focus_class_idx=focus_class_idx,
         focus_boost=args.focus_boost,
     )
-    criterion = nn.CrossEntropyLoss(weight=loss_weights, label_smoothing=0.05)
+    criterion = nn.CrossEntropyLoss(weight=loss_weights, label_smoothing=DEFAULT_OBJECT_TRAINING.label_smoothing)
+
+    training_cfg = ObjectTrainingConfig(
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        lr=args.lr,
+        head_lr=args.head_lr,
+        patience=args.patience,
+        mixup_alpha=DEFAULT_OBJECT_TRAINING.mixup_alpha,
+        focal_gamma=args.focal_gamma,
+        focus_class=args.focus_class if focus_class_idx is not None else "",
+        focus_boost=args.focus_boost,
+        selection_metric=args.selection_metric,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
+        split_seed=args.seed,
+        use_texture=use_texture,
+        pretrained=pretrained,
+    )
+
+    log_path = args.log_csv or str(Path(TRAINING_LOG_DIR) / "object_classifier.csv")
+    epoch_logger = EpochLogger(log_path)
 
     best_score = -1.0
     best_val_acc = 0.0
@@ -506,7 +565,7 @@ def main() -> None:
             criterion,
             device,
             use_texture,
-            mixup_alpha=MIXUP_ALPHA if args.mixup else 0.0,
+            mixup_alpha=DEFAULT_OBJECT_TRAINING.mixup_alpha if args.mixup else 0.0,
             focal_gamma=args.focal_gamma,
             loss_weights=loss_weights,
         )
@@ -542,6 +601,17 @@ def main() -> None:
             f"  val_acc={val_acc:.3f}{focus_label}{marker}"
         )
 
+        epoch_logger.log({
+            "epoch": epoch,
+            "train_loss": f"{train_loss:.6f}",
+            "val_loss": f"{val_loss:.6f}",
+            "val_acc": f"{val_acc:.6f}",
+            "focus_recall": f"{focus_recall:.6f}",
+            "selection_score": f"{score:.6f}",
+            "selection_metric": args.selection_metric,
+            "seed": args.seed,
+        })
+
         if improved:
             best_score = score
             best_val_acc = val_acc
@@ -550,7 +620,19 @@ def main() -> None:
             no_improve = 0
             if not args.dry_run:
                 Path(MODELS_DIR).mkdir(parents=True, exist_ok=True)
-                torch.save(model.state_dict(), Path(MODELS_DIR) / OBJECT_MODEL_FILE)
+                ckpt = checkpoint_payload(
+                    model.state_dict(),
+                    model_kind="object_classifier",
+                    training=training_cfg,
+                    best_epoch=epoch,
+                    best_score=score,
+                    extra={
+                        "val_acc": val_acc,
+                        "focus_recall": focus_recall,
+                        "focus_class": OBJECT_CLASSES[focus_class_idx] if focus_class_idx is not None else None,
+                    },
+                )
+                torch.save(ckpt, Path(MODELS_DIR) / OBJECT_MODEL_FILE)
         else:
             no_improve += 1
             if no_improve >= args.patience:
@@ -564,6 +646,11 @@ def main() -> None:
     )
     if not args.dry_run:
         print(f"Веса: {MODELS_DIR}/{OBJECT_MODEL_FILE}")
+        print(f"Лог эпох: {log_path}")
+        print(
+            "Итоговые метрики смотрите на test-сете (не использовался при обучении):\n"
+            "  py -m app.ml.evaluate_classifier --split test --json-out reports/object_test.json"
+        )
     _print_per_class_accuracy(model, val_ds, device, use_texture)
 
 

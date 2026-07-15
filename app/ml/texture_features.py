@@ -49,7 +49,11 @@ def _glcm_features(gray: np.ndarray) -> np.ndarray:
 
 
 def extract_texture_vector(pil: Image.Image, size: int = TEXTURE_SIZE) -> np.ndarray:
-    """Считает 15 признаков текстуры по серому фото."""
+    """Считает 15 признаков текстуры по серому фото.
+
+    По умолчанию resize до 224×224. Для высокого разрешения можно передать
+    больший size или считать по кропу до resize в CNN (см. training_config).
+    """
     gray = np.array(pil.convert("L").resize((size, size), Image.LANCZOS), dtype=np.uint8)
     lbp = _lbp_histogram(gray)
     glcm = _glcm_features(gray)

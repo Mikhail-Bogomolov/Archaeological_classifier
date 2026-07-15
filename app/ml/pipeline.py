@@ -24,6 +24,7 @@ from app.ml.encoders import (
 )
 from app.ml.models import FeatureClassifierNet, ObjectClassifierNet
 from app.ml.preprocess import classifier_preprocess, cv_preprocess
+from app.ml.training_config import DEFAULT_INFERENCE, load_state_dict
 
 
 @dataclass
@@ -47,6 +48,8 @@ class ArchaeologyClassifierPipeline:
         self._feature_vocab: dict[str, list[str]] | None = None
         self._object_weights_loaded = False
         self._feature_weights_loaded = False
+        self.object_low_conf_threshold = DEFAULT_INFERENCE.object_low_conf_threshold
+        self.feature_min_conf = DEFAULT_INFERENCE.feature_min_conf
         self._load_weights_if_present()
         self.object_net.eval()
         if self.feature_net is not None:
@@ -56,12 +59,16 @@ class ArchaeologyClassifierPipeline:
         obj_path = Path(MODELS_DIR) / OBJECT_MODEL_FILE
         feat_path = Path(MODELS_DIR) / FEATURE_MODEL_FILE
         if obj_path.is_file():
-            state = torch.load(obj_path, map_location=self.device, weights_only=True)
+            raw = torch.load(obj_path, map_location=self.device, weights_only=False)
+            state, meta = load_state_dict(raw)
             has_texture = any(k.startswith("texture_mlp") for k in state)
             if USE_TEXTURE_FEATURES and not has_texture:
                 self.object_net = ObjectClassifierNet(use_texture=False).to(self.device)
             self.object_net.load_state_dict(state, strict=False)
             self._object_weights_loaded = True
+            cal = (meta.get("extra") or {}).get("calibration") if meta else None
+            if isinstance(cal, dict) and "suggested_threshold" in cal:
+                self.object_low_conf_threshold = float(cal["suggested_threshold"])
         if feat_path.is_file():
             ckpt = torch.load(feat_path, map_location=self.device, weights_only=False)
             if isinstance(ckpt, dict) and "state_dict" in ckpt and "vocab" in ckpt:
@@ -135,6 +142,7 @@ class ArchaeologyClassifierPipeline:
                 self._feature_vocab,
                 object_class,
                 FEATURE_SCHEMA.get(object_class, []),
+                min_conf=self.feature_min_conf,
             )
         elif is_demo:
             feature_lines.append(
@@ -152,7 +160,7 @@ class ArchaeologyClassifierPipeline:
             f"Тип: {object_class}. "
             + ("Ожидается обучение на вашем датасете." if is_demo else "Классификатор обучен.")
         )
-        if not is_demo and object_conf < 0.55:
+        if not is_demo and object_conf < self.object_low_conf_threshold:
             description += " Низкая уверенность — результат может быть неточным."
 
         return PredictionResult(
@@ -196,6 +204,7 @@ class ArchaeologyClassifierPipeline:
                 self._feature_vocab,
                 object_class,
                 FEATURE_SCHEMA.get(object_class, []),
+                min_conf=self.feature_min_conf,
             )
 
         if not self._object_weights_loaded:

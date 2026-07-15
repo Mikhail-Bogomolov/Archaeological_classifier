@@ -8,32 +8,54 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import re
 from collections import defaultdict
 from pathlib import Path
 
 import torch
 from torch.utils.data import DataLoader
 
+from app.ml.augmentations import build_val_transforms
 from app.ml.config import FEATURE_MODEL_FILE, MODELS_DIR
 from app.ml.evaluation_metrics import (
     BenchmarkReport,
     compute_benchmark_report,
-    save_benchmark_report,
+    save_confusion_heatmap,
 )
 from app.ml.feature_dataset import KanskFeatureDataset, collate_features
 from app.ml.models import FeatureClassifierNet
-from app.ml.augmentations import build_val_transforms
+from app.ml.splits import DEFAULT_SPLIT_SEED, DEFAULT_TEST_RATIO, DEFAULT_VAL_RATIO
 
 
 @torch.no_grad()
 def main() -> None:
     parser = argparse.ArgumentParser(description="Бенчмарк сети признаков")
-    parser.add_argument("--split", choices=("train", "val"), default="val")
+    parser.add_argument(
+        "--split",
+        choices=("train", "val", "test"),
+        default="test",
+        help="test — holdout для честной оценки",
+    )
+    parser.add_argument("--seed", type=int, default=DEFAULT_SPLIT_SEED)
+    parser.add_argument("--val-ratio", type=float, default=DEFAULT_VAL_RATIO)
+    parser.add_argument("--test-ratio", type=float, default=DEFAULT_TEST_RATIO)
     parser.add_argument(
         "--json-out",
         type=str,
         default="",
         help="Сохранить сводный отчёт в JSON",
+    )
+    parser.add_argument(
+        "--heatmap-dir",
+        type=str,
+        default="",
+        help="Папка для PNG heatmap по головам (по умолчанию рядом с json или reports/feature_heatmaps)",
+    )
+    parser.add_argument(
+        "--no-heatmap",
+        action="store_true",
+        help="Не сохранять PNG визуализацию",
     )
     args = parser.parse_args()
 
@@ -57,6 +79,9 @@ def main() -> None:
         transform=build_val_transforms(),
         split=args.split,
         use_texture=use_texture,
+        seed=args.seed,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
     )
     loader = DataLoader(ds, batch_size=32, shuffle=False, collate_fn=collate_features)
 
@@ -155,6 +180,31 @@ def main() -> None:
             encoding="utf-8",
         )
         print(f"\nОтчёт сохранён: {out}")
+
+    if not args.no_heatmap and per_head_reports:
+        if args.heatmap_dir:
+            heat_dir = Path(args.heatmap_dir)
+        elif args.json_out:
+            heat_dir = Path(args.json_out).with_suffix("").parent / (
+                Path(args.json_out).stem + "_heatmaps"
+            )
+        else:
+            heat_dir = Path("reports") / f"feature_heatmaps_{args.split}"
+        heat_dir.mkdir(parents=True, exist_ok=True)
+        index: dict[str, str] = {}
+        for key, head_report in per_head_reports.items():
+            safe = re.sub(r"[^\w\-]+", "_", key, flags=re.UNICODE).strip("_")
+            digest = hashlib.sha1(key.encode("utf-8")).hexdigest()[:8]
+            fname = f"{safe}_{digest}.png" if safe else f"{digest}.png"
+            path = heat_dir / fname
+            save_confusion_heatmap(head_report, path, title=key)
+            index[fname] = key
+        index_path = heat_dir / "index.json"
+        index_path.write_text(
+            __import__("json").dumps(index, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        print(f"Heatmaps: {heat_dir} ({len(index)} файлов)")
 
 
 if __name__ == "__main__":
