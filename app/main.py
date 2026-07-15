@@ -44,15 +44,19 @@ pending_scan = None
 async def home(
     request: Request,
     page: int = Query(1, ge=1),
-    q: str = Query(""),
+    category: str = Query(""),
 ):
+    global pending_scan
+    pending_scan = None
     db.init_db()
-    search = q.strip()
-    meta = db.pagination_meta(page, search=search or None)
+    selected = category.strip()
+    if selected and selected not in OBJECT_CLASSES:
+        selected = ""
+    meta = db.pagination_meta(page, category=selected or None)
     objects = db.list_objects_paginated(
         meta["page"],
         meta["per_page"],
-        search=search or None,
+        category=selected or None,
     )
     return templates.TemplateResponse(
         request=request,
@@ -67,7 +71,8 @@ async def home(
             "prev_page": meta["prev_page"],
             "next_page": meta["next_page"],
             "per_page": meta["per_page"],
-            "search_query": search,
+            "selected_category": selected,
+            "object_classes": OBJECT_CLASSES,
         }
     )
 
@@ -125,7 +130,6 @@ def _start_pending_scan(
 @app.post("/scan")
 async def perform_scan(
     file: UploadFile | None = File(None),
-    object_name: str = Form(None),
 ):
     contents: bytes | None = None
     source_path: str | None = None
@@ -145,7 +149,7 @@ async def perform_scan(
         except CameraCaptureError:
             return RedirectResponse("/scan?camera_error=1", status_code=303)
 
-    result = run_inference(contents, object_name, source_path=source_path)
+    result = run_inference(contents, source_path=source_path)
     _start_pending_scan(
         contents,
         result,
@@ -214,12 +218,16 @@ async def add_scanned_object():
         return RedirectResponse("/scan", status_code=303)
 
     db.init_db()
+    scanned_at = datetime.now()
+    date_str = scanned_at.strftime("%d.%m.%Y %H:%M")
+    category = str(pending_scan["category"])
+    object_name = f"{category} {date_str}"
     db.add_object(
-        name=str(pending_scan["name"]),
+        name=object_name,
         description=str(pending_scan["description"]),
-        category=str(pending_scan["category"]),
+        category=category,
         confidence=int(pending_scan["confidence"]),
-        date=datetime.now().strftime("%d.%m.%Y %H:%M"),
+        date=date_str,
         features=list(pending_scan.get("features") or []),
         image_bytes=bytes(
             pending_scan.get("preview_image_bytes") or pending_scan["image_bytes"]

@@ -9,9 +9,10 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "orange_pi_deploy.zip"
 
 DEPLOY_FILES = [
-    "requirements.txt",
+    "requirements-orange-pi.txt",
     "app/main.py",
     "app/inference.py",
+    "app/camera_capture.py",
     "app/db.py",
     "app/export_markup.py",
     "app/templates/index.html",
@@ -34,6 +35,8 @@ DEPLOY_FILES = [
     "app/ml/models/backbone.py",
     "app/ml/models/object_classifier.py",
     "app/ml/models/feature_classifier.py",
+    "data/templates/markup_template.xlsx",
+    "data/templates/markup_template_csv.zip",
     "models/archaeology/object_classifier.pt",
     "models/archaeology/feature_classifier.pt",
     "models/archaeology/feature_classifier.vocab.json",
@@ -50,8 +53,19 @@ README = """Orange Pi — минимальный деплой Archaeological Cla
    python3 -m venv venv
    source venv/bin/activate
    pip install --upgrade pip
-   pip install torch torchvision
-   pip install -r requirements.txt
+
+   # PyTorch CPU-only (CUDA на одноплатнике нет — не ставить cu118/cu121 wheels).
+   # Вариант A — официальный CPU-индекс (часто x86_64):
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+   # Вариант B — ARM (Orange Pi / Raspberry Pi), если A не сработал:
+   # pip install torch torchvision --extra-index-url https://www.piwheels.org/simple
+
+   pip install -r requirements-orange-pi.txt
+
+   Проверка:
+   python -c "import torch; print(torch.__version__, 'cuda=', torch.cuda.is_available())"
+   # cuda должен быть False
 
 3. Запуск:
    uvicorn app.main:app --host 0.0.0.0 --port 8000
@@ -60,6 +74,17 @@ README = """Orange Pi — минимальный деплой Archaeological Cla
    http://IP_ПЛАТЫ:8000/scan
 
 IP платы: hostname -I
+
+Сканирование:
+- Можно загрузить фото вручную.
+- Или нажать «Начать сканирование» без файла — снимок с USB-камеры.
+- Если камера не та: export CAMERA_INDEX=0  (или 1) перед запуском uvicorn.
+- Снимки сохраняются в data/photos_from_camera/ (папка создаётся автоматически).
+
+Примечания:
+- В архиве requirements-orange-pi.txt — без torch/torchvision (чтобы pip не тянул CUDA-сборки).
+- На ПК для разработки используйте обычный requirements.txt.
+- Датасет для обучения в архив не входит — только веса и веб-приложение.
 """
 
 

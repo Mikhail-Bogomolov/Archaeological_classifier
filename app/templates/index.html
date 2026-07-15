@@ -21,28 +21,23 @@
         НАЧАТЬ СКАНИРОВАНИЕ
     </a>
 
-    <form class="ui-search-wrap" method="get" action="/">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/>
-        </svg>
-        <input
-            type="search"
-            name="q"
-            class="ui-search-input"
-            placeholder="Поиск по названию, типу…"
-            value="{{ search_query }}"
-            autocomplete="off"
-            enterkeyhint="search"
-        >
+    <form class="ui-filter-wrap" method="get" action="/">
+        <label for="category-filter" class="ui-filter-label">Класс</label>
+        <select id="category-filter" name="category" class="ui-filter-select" onchange="this.form.submit()">
+            <option value="">Все объекты</option>
+            {% for cls in object_classes %}
+            <option value="{{ cls }}" {% if selected_category == cls %}selected{% endif %}>{{ cls }}</option>
+            {% endfor %}
+        </select>
     </form>
 
-    {% if search_query %}
+    {% if selected_category %}
     <a href="/" class="ui-btn-show-all">УВИДЕТЬ ВСЕ ОБЪЕКТЫ</a>
     {% endif %}
 
     <h2 class="ui-list-title">
-        {% if search_query %}
-        Найдено ({{ total_count }})
+        {% if selected_category %}
+        {{ selected_category }} ({{ total_count }})
         {% else %}
         Объекты ({{ total_count }})
         {% endif %}
@@ -71,8 +66,8 @@
         </a>
         {% else %}
         <p class="ui-empty">
-            {% if search_query %}
-            Ничего не найдено по запросу «{{ search_query }}».
+            {% if selected_category %}
+            Нет объектов класса «{{ selected_category }}».
             {% else %}
             Объектов нет. Нажмите «Начать сканирование».
             {% endif %}
@@ -83,13 +78,13 @@
     {% if total_pages > 1 %}
     <div class="ui-pager">
         {% if has_prev %}
-        <a href="/?page={{ prev_page }}{% if search_query %}&amp;q={{ search_query | urlencode }}{% endif %}">← Назад</a>
+        <a href="/?page={{ prev_page }}{% if selected_category %}&amp;category={{ selected_category | urlencode }}{% endif %}">← Назад</a>
         {% else %}
         <span class="disabled">← Назад</span>
         {% endif %}
         <span>{{ page }}/{{ total_pages }}</span>
         {% if has_next %}
-        <a href="/?page={{ next_page }}{% if search_query %}&amp;q={{ search_query | urlencode }}{% endif %}">Вперёд →</a>
+        <a href="/?page={{ next_page }}{% if selected_category %}&amp;category={{ selected_category | urlencode }}{% endif %}">Вперёд →</a>
         {% else %}
         <span class="disabled">Вперёд →</span>
         {% endif %}

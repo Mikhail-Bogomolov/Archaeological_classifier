@@ -1,0 +1,27 @@
+# Зависимости для Orange Pi / одноплатника (без torch — ставится отдельно, CPU-only).
+# См. ORANGE_PI_README.txt
+
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.13.0
+click==8.4.0
+colorama==0.4.6
+fastapi==0.136.1
+h11==0.16.0
+idna==3.15
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+pydantic==2.13.4
+pydantic_core==2.46.4
+python-multipart==0.0.29
+starlette==1.0.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+uvicorn==0.47.0
+numpy>=1.24.0
+Pillow>=10.0.0
+openpyxl>=3.1.0
+python-docx>=1.1.0
+opencv-python-headless>=4.8.0
+imutils>=0.5.4
+scikit-image>=0.22.0

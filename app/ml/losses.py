@@ -27,3 +27,17 @@ def class_weights_from_counts(counts: list[int], device: torch.device) -> torch.
     for c in counts:
         weights.append(total / (n * c) if c > 0 else 0.0)
     return torch.tensor(weights, dtype=torch.float32, device=device)
+
+
+def build_object_loss_weights(
+    counts: list[int],
+    device: torch.device,
+    *,
+    focus_class_idx: int | None = None,
+    focus_boost: float = 1.0,
+) -> torch.Tensor:
+    """Веса CE; для focus-класса (ножи) — дополнительный множитель."""
+    weights = class_weights_from_counts(counts, device)
+    if focus_class_idx is not None and focus_boost > 1.0:
+        weights[focus_class_idx] *= focus_boost
+    return weights

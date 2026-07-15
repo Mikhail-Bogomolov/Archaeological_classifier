@@ -24,10 +24,11 @@ body.export-page {
 
 /* Шапка */
 .ui-header {
-    background: var(--ui-navy);
-    color: #fff;
-    padding: 14px 16px;
+    background: var(--ui-bg);
+    color: #111;
+    padding: 16px 16px 14px;
     text-align: center;
+    border-top: 1px solid #d1d5db;
     position: relative;
 }
 
@@ -36,6 +37,7 @@ body.export-page {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.01em;
+    color: #111;
 }
 
 .ui-header--back {
@@ -49,7 +51,7 @@ body.export-page {
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #fff;
+    color: var(--ui-navy);
     text-decoration: none;
     font-size: 22px;
     line-height: 1;
@@ -88,6 +90,38 @@ body.export-page {
 
 .ui-btn-scan svg {
     flex-shrink: 0;
+}
+
+.ui-filter-wrap {
+    margin-bottom: 10px;
+}
+
+.ui-filter-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ui-muted);
+    margin-bottom: 4px;
+}
+
+.ui-filter-select {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    background: var(--ui-surface);
+    box-sizing: border-box;
+    color: #111;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.ui-filter-select:focus {
+    outline: none;
+    border-color: var(--ui-navy);
+    box-shadow: 0 0 0 2px rgba(26, 39, 68, 0.12);
 }
 
 .ui-search-wrap {

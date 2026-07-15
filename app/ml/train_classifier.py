@@ -31,8 +31,9 @@ try:
 except ImportError as e:
     raise SystemExit("Нет openpyxl. Установите: pip install openpyxl") from e
 
-from app.ml.augmentations import build_train_transforms, build_val_transforms
 from app.ml.config import (
+    IMAGENET_MEAN,
+    IMAGENET_STD,
     KANSK_PHOTOS_DIR,
     KANSK_TABLES_DIR,
     MODELS_DIR,
@@ -40,25 +41,14 @@ from app.ml.config import (
     OBJECT_MODEL_FILE,
     USE_TEXTURE_FEATURES,
 )
+from app.ml.augmentations import build_train_transforms, build_val_transforms
+from app.ml.losses import build_object_loss_weights, focal_cross_entropy
 from app.ml.models import ObjectClassifierNet
-from app.ml.table_normalization import CONFUSED_ITEM_PREFIXES
 from app.ml.texture_features import extract_texture_vector
 
 
-MIXUP_ALPHA = 0.2
-
-
-def _mixup_batch(
-    x: torch.Tensor,
-    y: torch.Tensor,
-    alpha: float,
-) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, float]:
-    if alpha <= 0:
-        return x, y, y, 1.0
-    lam = float(np.random.beta(alpha, alpha))
-    perm = torch.randperm(x.size(0), device=x.device)
-    mixed_x = lam * x + (1.0 - lam) * x[perm]
-    return mixed_x, y, y[perm], lam
+MIXUP_ALPHA = 0.15
+DEFAULT_FOCUS_CLASS = "ножи"
 
 class KanskDataset(Dataset):
     CLASS_TO_IDX: dict[str, int] = {c: i for i, c in enumerate(OBJECT_CLASSES)}
@@ -202,18 +192,30 @@ class KanskDataset(Dataset):
             return x, tex, y
         return x, y
 
-    def class_weights(self, confused_boost: float = 2.0) -> torch.Tensor:
+    def class_weights(self, focus_class_idx: int | None = None, focus_boost: float = 1.0) -> torch.Tensor:
         counts = Counter(r["class_idx"] for r in self.samples)
         n_total = len(self.samples)
         weights = []
         for sample in self.samples:
             c = sample["class_idx"]
             w = n_total / (len(counts) * counts[c])
-            key = sample["item_key"]
-            if any(key.startswith(p) for p in CONFUSED_ITEM_PREFIXES):
-                w *= confused_boost
+            if focus_class_idx is not None and c == focus_class_idx and focus_boost > 1.0:
+                w *= focus_boost
             weights.append(w)
         return torch.tensor(weights, dtype=torch.float)
+
+
+def _mixup_batch(
+    x: torch.Tensor,
+    y: torch.Tensor,
+    alpha: float,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, float]:
+    if alpha <= 0:
+        return x, y, y, 1.0
+    lam = float(np.random.beta(alpha, alpha))
+    perm = torch.randperm(x.size(0), device=x.device)
+    mixed_x = lam * x + (1.0 - lam) * x[perm]
+    return mixed_x, y, y[perm], lam
 
 
 def _collate_batch(batch):
@@ -232,7 +234,10 @@ def train_one_epoch(
     criterion: nn.Module,
     device: torch.device,
     use_texture: bool,
-    mixup_alpha: float = MIXUP_ALPHA,
+    *,
+    mixup_alpha: float = 0.0,
+    focal_gamma: float = 0.0,
+    loss_weights: torch.Tensor | None = None,
 ) -> float:
     model.train()
     total_loss = 0.0
@@ -243,25 +248,71 @@ def train_one_epoch(
             if mixup_alpha > 0 and x.size(0) > 1:
                 x, ya, yb, lam = _mixup_batch(x, y, mixup_alpha)
                 logits = model(x, tex)
-                loss = lam * criterion(logits, ya) + (1.0 - lam) * criterion(logits, yb)
+                if focal_gamma > 0:
+                    loss = lam * focal_cross_entropy(
+                        logits, ya, weight=loss_weights, gamma=focal_gamma
+                    ) + (1.0 - lam) * focal_cross_entropy(
+                        logits, yb, weight=loss_weights, gamma=focal_gamma
+                    )
+                else:
+                    loss = lam * criterion(logits, ya) + (1.0 - lam) * criterion(logits, yb)
             else:
                 logits = model(x, tex)
-                loss = criterion(logits, y)
+                if focal_gamma > 0:
+                    loss = focal_cross_entropy(logits, y, weight=loss_weights, gamma=focal_gamma)
+                else:
+                    loss = criterion(logits, y)
         else:
             x, y = batch
             x, y = x.to(device), y.to(device)
             if mixup_alpha > 0 and x.size(0) > 1:
                 x, ya, yb, lam = _mixup_batch(x, y, mixup_alpha)
                 logits = model(x)
-                loss = lam * criterion(logits, ya) + (1.0 - lam) * criterion(logits, yb)
+                if focal_gamma > 0:
+                    loss = lam * focal_cross_entropy(
+                        logits, ya, weight=loss_weights, gamma=focal_gamma
+                    ) + (1.0 - lam) * focal_cross_entropy(
+                        logits, yb, weight=loss_weights, gamma=focal_gamma
+                    )
+                else:
+                    loss = lam * criterion(logits, ya) + (1.0 - lam) * criterion(logits, yb)
             else:
                 logits = model(x)
-                loss = criterion(logits, y)
+                if focal_gamma > 0:
+                    loss = focal_cross_entropy(logits, y, weight=loss_weights, gamma=focal_gamma)
+                else:
+                    loss = criterion(logits, y)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
     return total_loss / max(len(loader), 1)
+
+
+@torch.no_grad()
+def evaluate_per_class_recall(
+    model: ObjectClassifierNet,
+    loader: DataLoader,
+    device: torch.device,
+    use_texture: bool,
+) -> dict[int, float]:
+    model.eval()
+    correct: dict[int, int] = {i: 0 for i in range(len(OBJECT_CLASSES))}
+    total: dict[int, int] = {i: 0 for i in range(len(OBJECT_CLASSES))}
+    for batch in loader:
+        if use_texture:
+            x, tex, y = batch
+            x, tex, y = x.to(device), tex.to(device), y.to(device)
+            preds = model(x, tex).argmax(dim=1)
+        else:
+            x, y = batch
+            x, y = x.to(device), y.to(device)
+            preds = model(x).argmax(dim=1)
+        for pred, label in zip(preds.tolist(), y.tolist()):
+            total[label] += 1
+            if pred == label:
+                correct[label] += 1
+    return {i: correct[i] / max(total[i], 1) for i in range(len(OBJECT_CLASSES))}
 
 
 @torch.no_grad()
@@ -303,8 +354,45 @@ def main() -> None:
     parser.add_argument("--no-texture", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--verify-only", action="store_true")
-    parser.add_argument("--no-mixup", action="store_true", help="Отключить Mixup на train")
+    parser.add_argument(
+        "--focus-class",
+        type=str,
+        default=DEFAULT_FOCUS_CLASS,
+        help="Усилить обучение для класса (по умолчанию: ножи)",
+    )
+    parser.add_argument(
+        "--no-focus-class",
+        action="store_true",
+        help="Отключить усиление focus-класса",
+    )
+    parser.add_argument(
+        "--focus-boost",
+        type=float,
+        default=2.0,
+        help="Множитель веса и oversampling для focus-класса",
+    )
+    parser.add_argument(
+        "--selection-metric",
+        choices=("accuracy", "focus_recall", "balanced"),
+        default="focus_recall",
+        help="Критерий сохранения лучших весов",
+    )
+    parser.add_argument(
+        "--focal-gamma",
+        type=float,
+        default=0.0,
+        help="Focal loss gamma (0 = обычный CE)",
+    )
+    parser.add_argument("--mixup", action="store_true", help="Включить Mixup (для ножей обычно выкл.)")
     args = parser.parse_args()
+
+    focus_class_idx: int | None = None
+    if not args.no_focus_class:
+        focus_name = args.focus_class.strip().lower()
+        if focus_name in OBJECT_CLASSES:
+            focus_class_idx = OBJECT_CLASSES.index(focus_name)
+        else:
+            print(f"Предупреждение: неизвестный focus-class '{args.focus_class}', отключаем.")
 
     use_texture = USE_TEXTURE_FEATURES and not args.no_texture
     pretrained = not args.no_pretrained
@@ -313,6 +401,11 @@ def main() -> None:
     print(f"Device: {device}")
     print(f"Classes: {OBJECT_CLASSES}")
     print(f"pretrained={pretrained}, texture={use_texture}")
+    if focus_class_idx is not None:
+        print(
+            f"focus_class={OBJECT_CLASSES[focus_class_idx]}, "
+            f"boost={args.focus_boost}, selection={args.selection_metric}"
+        )
 
     train_ds = KanskDataset(
         transform=build_train_transforms(), split="train", use_texture=use_texture
@@ -338,7 +431,10 @@ def main() -> None:
         return
 
     sampler = WeightedRandomSampler(
-        weights=train_ds.class_weights(),
+        weights=train_ds.class_weights(
+            focus_class_idx=focus_class_idx,
+            focus_boost=args.focus_boost,
+        ),
         num_samples=len(train_ds),
         replacement=True,
     )
@@ -369,16 +465,18 @@ def main() -> None:
         head_params += list(model.texture_mlp.parameters())
     optimizer = torch.optim.AdamW(head_params, lr=args.head_lr)
 
-    counts = Counter(r["class_idx"] for r in train_ds.samples)
-    n_total = len(train_ds)
-    loss_weights = torch.tensor(
-        [n_total / (len(OBJECT_CLASSES) * counts.get(i, 1)) for i in range(len(OBJECT_CLASSES))],
-        dtype=torch.float,
-        device=device,
+    counts = [Counter(r["class_idx"] for r in train_ds.samples).get(i, 0) for i in range(len(OBJECT_CLASSES))]
+    loss_weights = build_object_loss_weights(
+        counts,
+        device,
+        focus_class_idx=focus_class_idx,
+        focus_boost=args.focus_boost,
     )
     criterion = nn.CrossEntropyLoss(weight=loss_weights, label_smoothing=0.05)
 
+    best_score = -1.0
     best_val_acc = 0.0
+    best_focus_recall = 0.0
     best_epoch = 0
     no_improve = 0
     scheduler = None
@@ -408,24 +506,46 @@ def main() -> None:
             criterion,
             device,
             use_texture,
-            mixup_alpha=0.0 if args.no_mixup else MIXUP_ALPHA,
+            mixup_alpha=MIXUP_ALPHA if args.mixup else 0.0,
+            focal_gamma=args.focal_gamma,
+            loss_weights=loss_weights,
         )
         val_loss, val_acc = evaluate(model, val_loader, device, use_texture)
+        per_class_recall = evaluate_per_class_recall(model, val_loader, device, use_texture)
+        focus_recall = (
+            per_class_recall.get(focus_class_idx, val_acc)
+            if focus_class_idx is not None
+            else val_acc
+        )
+
+        if args.selection_metric == "accuracy":
+            score = val_acc
+        elif args.selection_metric == "focus_recall":
+            score = focus_recall
+        else:
+            score = 0.5 * val_acc + 0.5 * focus_recall
 
         if scheduler is not None:
             scheduler.step()
 
-        improved = val_acc > best_val_acc
+        improved = score > best_score
         marker = " <- best" if improved else ""
+        focus_label = (
+            f"  {OBJECT_CLASSES[focus_class_idx]}_recall={focus_recall:.3f}"
+            if focus_class_idx is not None
+            else ""
+        )
         print(
             f"epoch {epoch:3d}/{args.epochs}"
             f"  train_loss={train_loss:.4f}"
             f"  val_loss={val_loss:.4f}"
-            f"  val_acc={val_acc:.3f}{marker}"
+            f"  val_acc={val_acc:.3f}{focus_label}{marker}"
         )
 
         if improved:
+            best_score = score
             best_val_acc = val_acc
+            best_focus_recall = focus_recall
             best_epoch = epoch
             no_improve = 0
             if not args.dry_run:
@@ -437,7 +557,11 @@ def main() -> None:
                 print(f"Early stopping: нет улучшения {args.patience} эпох")
                 break
 
-    print(f"\nЛучшая точность: {best_val_acc:.3f} на эпохе {best_epoch}")
+    print(
+        f"\nЛучший результат ({args.selection_metric}={best_score:.3f}): "
+        f"val_acc={best_val_acc:.3f}, focus_recall={best_focus_recall:.3f} "
+        f"на эпохе {best_epoch}"
+    )
     if not args.dry_run:
         print(f"Веса: {MODELS_DIR}/{OBJECT_MODEL_FILE}")
     _print_per_class_accuracy(model, val_ds, device, use_texture)

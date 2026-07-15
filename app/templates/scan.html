@@ -8,9 +8,16 @@
 </head>
 <body class="small-screen bg-gray-50 min-h-screen">
 
-<header class="page-pad bg-white border-b border-gray-200">
-    <a href="/" style="font-size:var(--text-sm);color:#6b7280;text-decoration:none">← Список</a>
-    <h1 class="title-section" style="margin-top:6px">Сканирование</h1>
+<header class="scan-header page-pad bg-white border-b border-gray-200">
+    <div class="scan-header-main">
+        <a href="/" style="font-size:var(--text-sm);color:#6b7280;text-decoration:none">← Список</a>
+        <h1 class="title-section" style="margin-top:6px">Сканирование</h1>
+    </div>
+    {% if scan and scan.class_confirmed %}
+    <form action="/scan/rescan" method="POST" class="scan-rescan-form">
+        <button type="submit" class="btn-rescan-top">Повторное сканирование</button>
+    </form>
+    {% endif %}
 </header>
 
 {% if scan %}
@@ -32,15 +39,9 @@
 
     <div class="card page-pad">
         <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 4px">Нейросеть</p>
-        <p style="font-weight:700;margin:0;font-size:var(--text-lg)">{{ scan.name }}</p>
         <p style="margin:8px 0 0;font-size:var(--text-base)">
             Предсказание: <b>{{ scan.predicted_category }}</b> · {{ scan.predicted_confidence }}%
         </p>
-        {% if scan.source_path %}
-        <p style="margin:8px 0 0;font-size:var(--text-sm);color:#6b7280">
-            Снимок камеры: {{ scan.source_path }}
-        </p>
-        {% endif %}
 
         {% if scan.class_confirmed %}
         <p style="margin:10px 0 0;font-size:var(--text-base);color:#166534">
@@ -55,46 +56,46 @@
         </ul>
         {% endif %}
         {% else %}
-        <p style="margin:10px 0 0;font-size:var(--text-base);color:#6b7280">
-            Подтвердите класс или выберите верный из списка.
-        </p>
-
-        <form action="/scan/confirm-class" method="POST" style="margin-top:12px">
+        <form action="/scan/confirm-class" method="POST" style="margin-top:12px" id="class-approve-form">
             <input type="hidden" name="approved" value="yes">
-            <button type="submit" class="btn-primary" style="border:none;width:100%">Класс верный</button>
+            <button type="submit" id="btn-class-approve" class="btn-primary" style="border:none;width:100%">Класс верный</button>
         </form>
 
-        <form action="/scan/confirm-class" method="POST" style="margin-top:10px">
+        <form action="/scan/confirm-class" method="POST" style="margin-top:10px" id="class-correct-form">
             <input type="hidden" name="approved" value="no">
             <label style="font-size:var(--text-base);display:block;margin-bottom:6px">Исправить класс</label>
-            <select name="category" class="input-search" style="margin-bottom:10px;font-size:var(--text-base)" required>
+            <select
+                name="category"
+                id="class-select"
+                class="input-search"
+                style="margin-bottom:10px;font-size:var(--text-base)"
+                required
+                data-predicted="{{ scan.predicted_category }}"
+            >
                 {% for cls in object_classes %}
                 <option value="{{ cls }}" {% if cls == scan.predicted_category %}selected{% endif %}>{{ cls }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn-secondary" style="border:none;width:100%">Сохранить класс</button>
+            <button type="submit" id="btn-class-save" class="btn-secondary" style="border:none;width:100%">Сохранить класс</button>
+        </form>
+
+        <form action="/scan/rescan" method="POST" style="margin-top:10px">
+            <button type="submit" class="btn-secondary" style="border:none;width:100%">Повторное сканирование</button>
         </form>
         {% endif %}
     </div>
 
-    <form action="/scan/rescan" method="POST">
-        <button type="submit" class="btn-secondary" style="border:none;width:100%">Повторное сканирование</button>
-    </form>
+    {% if scan.class_confirmed %}
     <form action="/scan/add" method="POST">
-        <button
-            type="submit"
-            class="btn-primary"
-            style="border:none;width:100%;margin-top:8px;{% if not scan.class_confirmed %}opacity:0.45{% endif %}"
-            {% if not scan.class_confirmed %}disabled{% endif %}
-        >Добавить</button>
+        <button type="submit" class="btn-primary" style="border:none;width:100%">Добавить</button>
     </form>
+    {% endif %}
 </div>
 
 {% else %}
 <div class="page-pad card" style="margin:var(--pad)">
     <p style="font-size:var(--text-base);color:#6b7280;margin:0 0 10px">
         Загрузите фото с установки или нажмите «Начать сканирование» без файла — снимок с камеры ПК.
-        После проверки нажмите «Добавить».
     </p>
     {% if camera_error %}
     <p style="font-size:var(--text-sm);color:#b91c1c;margin:0 0 10px">
@@ -108,8 +109,6 @@
         data-show-loader
         data-loader-message="Обработка изображения…"
     >
-        <label style="font-size:var(--text-base);display:block;margin-bottom:4px">Название (необяз.)</label>
-        <input type="text" name="object_name" class="input-search" style="margin-bottom:8px">
         <label style="font-size:var(--text-base);display:block;margin-bottom:4px">Фото (необяз.)</label>
         <input type="file" name="file" accept="image/*" style="width:100%;font-size:var(--text-sm);margin-bottom:10px">
         <button type="submit" class="btn-primary" style="border:none;width:100%">Начать сканирование</button>
@@ -122,5 +121,29 @@
     <p class="loader-text">Обработка изображения…</p>
 </div>
 <script src="/static/app.js"></script>
+{% if scan and not scan.class_confirmed %}
+<script>
+(function () {
+    var select = document.getElementById("class-select");
+    var btnApprove = document.getElementById("btn-class-approve");
+    var btnSave = document.getElementById("btn-class-save");
+    if (!select || !btnApprove || !btnSave) {
+        return;
+    }
+    var predicted = select.getAttribute("data-predicted") || "";
+
+    function syncClassButtons() {
+        var changed = select.value !== predicted;
+        btnApprove.className = changed ? "btn-secondary" : "btn-primary";
+        btnSave.className = changed ? "btn-primary" : "btn-secondary";
+        btnApprove.style.cssText = "border:none;width:100%";
+        btnSave.style.cssText = "border:none;width:100%";
+    }
+
+    select.addEventListener("change", syncClassButtons);
+    syncClassButtons();
+})();
+</script>
+{% endif %}
 </body>
 </html>
