@@ -90,6 +90,23 @@ class TestItemFailures(unittest.TestCase):
         self.assertEqual(failed[0]["majority_wrong_pred"], "ножи")
 
 
+class TestSohrannostNormalize(unittest.TestCase):
+    def test_typo_and_free_text_collapse(self):
+        from app.ml.table_normalization import coarse_sohrannost, normalize_cell_value
+
+        self.assertEqual(
+            coarse_sohrannost("целый, на одной сторон отверстие (недолив)"),
+            "целый",
+        )
+        self.assertEqual(coarse_sohrannost("целые"), "целый")
+        self.assertEqual(coarse_sohrannost("обломки"), "фрагмент")
+        self.assertEqual(coarse_sohrannost("целые и сломаны"), "смешанный")
+        self.assertEqual(
+            normalize_cell_value("кельты", "сохранность", "Целая"),
+            "целый",
+        )
+
+
 class TestTexture(unittest.TestCase):
     def test_texture_dim(self):
         self.assertEqual(texture_dim(), 15)

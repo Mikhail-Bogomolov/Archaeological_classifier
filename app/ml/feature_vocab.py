@@ -106,6 +106,7 @@ def build_vocab(
     vocab: dict[str, list[str]] = {}
 
     for key, counter in counts.items():
+        counter = _merge_near_duplicate_labels(counter)
         labels = [label for label, c in counter.items() if c >= min_count]
         labels.sort(key=lambda x: (-counter[x], x))
         if len(labels) >= min_classes:
@@ -113,7 +114,37 @@ def build_vocab(
     return vocab
 
 
+def _merge_near_duplicate_labels(
+    counter: Counter,
+    *,
+    cutoff: float = 0.90,
+) -> Counter:
+    """Сливает опечатки (difflib) в более частый канон внутри одной головы."""
+    from difflib import SequenceMatcher
+
+    labels = sorted(counter.keys(), key=lambda x: (-counter[x], len(x), x))
+    canonical: list[str] = []
+    mapping: dict[str, str] = {}
+    for label in labels:
+        matched = None
+        for canon in canonical:
+            if SequenceMatcher(None, label, canon).ratio() >= cutoff:
+                matched = canon
+                break
+        if matched is None:
+            canonical.append(label)
+            mapping[label] = label
+        else:
+            mapping[label] = matched
+    merged: Counter = Counter()
+    for label, count in counter.items():
+        merged[mapping[label]] += count
+    return merged
+
+
 def value_to_index(vocab: dict[str, list[str]], attr_key: str, raw: object) -> int:
+    from difflib import get_close_matches
+
     class_name, feature_name = _parse_attr_key(attr_key)
     norm = normalize_feature_value(
         raw, class_name=class_name, feature_name=feature_name
@@ -125,6 +156,10 @@ def value_to_index(vocab: dict[str, list[str]], attr_key: str, raw: object) -> i
         return -1
     if norm in labels:
         return labels.index(norm)
+    candidates = [lab for lab in labels if lab != "другое"]
+    close = get_close_matches(norm, candidates, n=1, cutoff=0.90)
+    if close:
+        return labels.index(close[0])
     if "другое" in labels:
         return labels.index("другое")
     return -1

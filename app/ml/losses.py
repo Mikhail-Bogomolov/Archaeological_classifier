@@ -35,9 +35,16 @@ def build_object_loss_weights(
     *,
     focus_class_idx: int | None = None,
     focus_boost: float = 1.0,
+    minority_boost: float = 1.25,
 ) -> torch.Tensor:
-    """Веса CE; для focus-класса (ножи) — дополнительный множитель."""
+    """Веса CE: inverse-freq + лёгкий буст редких классов; focus — опционально сверху."""
     weights = class_weights_from_counts(counts, device)
+    positive = [c for c in counts if c > 0]
+    if positive and minority_boost > 1.0:
+        mean = sum(positive) / len(positive)
+        for i, c in enumerate(counts):
+            if 0 < c < mean * 0.75:
+                weights[i] *= minority_boost
     if focus_class_idx is not None and focus_boost > 1.0:
         weights[focus_class_idx] *= focus_boost
     return weights

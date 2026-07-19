@@ -121,11 +121,57 @@ def coarse_forma_pera(raw: object) -> str | None:
     return text
 
 
+def coarse_sohrannost(raw: object) -> str | None:
+    """Схлопывает опечатки и свободный текст сохранности к канону."""
+    text = _clean(raw)
+    if not text or text in NOT_SPECIFIED_VALUES:
+        return None
+    if text in GENERIC_ALIASES:
+        return GENERIC_ALIASES[text]
+
+    has_whole = bool(re.search(r"\bцел", text))
+    has_broken = any(
+        x in text
+        for x in ("сломан", "обломан", "облом", "отлом", "фрагмент", "погнут")
+    )
+    mixed_markers = (
+        " и сломан",
+        " и облом",
+        " и в облом",
+        ", сломан",
+        "смешан",
+        "два цел",
+        "целые и",
+        "целый и сломан",
+        "целый, сломан",
+    )
+    if any(m in text for m in mixed_markers):
+        return "смешанный"
+    if has_whole and has_broken and "и фрагмент" not in text:
+        # «тело целое, ушко отломано» и т.п.
+        return "смешанный"
+    if "и фрагмент" in text:
+        return "целый и фрагмент"
+    if "половин" in text:
+        return "половина"
+    if "фрагмент" in text or "облом" in text:
+        return "фрагмент"
+    if "сломан" in text or "обломан" in text or "погнут" in text:
+        return "сломан"
+    # «целый, на одной сторон отверстие (недолив)» / окрашен / склеен → целый
+    if has_whole or text.startswith("цел"):
+        return "целый"
+    return text
+
+
 def normalize_cell_value(class_name: str, feature_name: str, raw: object) -> str | None:
     """Нормализация одной ячейки признака для Excel и обучения."""
     text = _clean(raw)
     if not text or text in NOT_SPECIFIED_VALUES:
         return None
+
+    if feature_name == "сохранность":
+        return coarse_sohrannost(text)
 
     if feature_name == "форма_пера" and class_name == "наконечники стрел":
         return coarse_forma_pera(text)

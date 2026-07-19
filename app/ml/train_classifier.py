@@ -207,13 +207,21 @@ class KanskDataset(Dataset):
             return x, tex, y
         return x, y
 
-    def class_weights(self, focus_class_idx: int | None = None, focus_boost: float = 1.0) -> torch.Tensor:
+    def class_weights(
+        self,
+        focus_class_idx: int | None = None,
+        focus_boost: float = 1.0,
+        minority_boost: float = 1.25,
+    ) -> torch.Tensor:
         counts = Counter(r["class_idx"] for r in self.samples)
         n_total = len(self.samples)
+        mean = n_total / max(len(counts), 1)
         weights = []
         for sample in self.samples:
             c = sample["class_idx"]
             w = n_total / (len(counts) * counts[c])
+            if counts[c] < mean * 0.75 and minority_boost > 1.0:
+                w *= minority_boost
             if focus_class_idx is not None and c == focus_class_idx and focus_boost > 1.0:
                 w *= focus_boost
             weights.append(w)
@@ -383,13 +391,13 @@ def main() -> None:
     parser.add_argument(
         "--focus-boost",
         type=float,
-        default=2.0,
+        default=DEFAULT_OBJECT_TRAINING.focus_boost,
         help="Множитель веса и oversampling для focus-класса",
     )
     parser.add_argument(
         "--selection-metric",
         choices=("accuracy", "focus_recall", "balanced"),
-        default="focus_recall",
+        default=DEFAULT_OBJECT_TRAINING.selection_metric,
         help="Критерий сохранения лучших весов",
     )
     parser.add_argument(

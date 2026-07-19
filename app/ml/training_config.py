@@ -19,8 +19,8 @@ class ObjectTrainingConfig:
     mixup_alpha: float = 0.15
     focal_gamma: float = 0.0
     focus_class: str = "ножи"
-    focus_boost: float = 2.0
-    selection_metric: str = "focus_recall"
+    focus_boost: float = 1.25
+    selection_metric: str = "balanced"
     freeze_epochs_pretrained: int = 3
     freeze_epochs_scratch: int = 5
     val_ratio: float = DEFAULT_VAL_RATIO

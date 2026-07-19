@@ -1,0 +1,4056 @@
+{
+  "summary": {
+    "n_files": 300,
+    "n_suspicious": 8,
+    "by_reason": {
+      "fg_too_large": 8
+    },
+    "classes_hint": [
+      "кельты",
+      "ножи",
+      "удила",
+      "наконечники стрел",
+      "накладки"
+    ]
+  },
+  "suspicious": [
+    {
+      "file": "уд85_1-14_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8985,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_1-14_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8978,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_1-8_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8853,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_12-2_а.jpg",
+      "size": [
+        695,
+        916
+      ],
+      "fg_frac": 0.8896,
+      "elongation": 1.318,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_12-2_б.jpg",
+      "size": [
+        697,
+        916
+      ],
+      "fg_frac": 0.8898,
+      "elongation": 1.314,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_12-2_в.jpg",
+      "size": [
+        697,
+        916
+      ],
+      "fg_frac": 0.8887,
+      "elongation": 1.314,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_16-9_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8909,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_16-9_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8826,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    }
+  ],
+  "all": [
+    {
+      "file": "уд85_1-11_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.3119,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-11_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.1771,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-11_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.1361,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-12_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.2787,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-12_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.2795,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-12_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.2691,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-12_г.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.2573,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-13_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.7868,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-13_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.7925,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-13_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.7874,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-14_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8985,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_1-14_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8978,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_1-19_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.6197,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-19_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.6172,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-19_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5916,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-1_а.jpg",
+      "size": [
+        769,
+        753
+      ],
+      "fg_frac": 0.5712,
+      "elongation": 1.021,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-1_б.jpg",
+      "size": [
+        769,
+        771
+      ],
+      "fg_frac": 0.5875,
+      "elongation": 1.003,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-1_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.3729,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-1_г.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.3856,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-20_а.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.6062,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-20_б.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.6087,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-20_в.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.6132,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-22_а.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.5568,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-22_б.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.5588,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-27_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8327,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-27_б.jpg",
+      "size": [
+        1472,
+        839
+      ],
+      "fg_frac": 0.849,
+      "elongation": 1.754,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-27_в.jpg",
+      "size": [
+        1472,
+        511
+      ],
+      "fg_frac": 0.8604,
+      "elongation": 2.881,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-27_г.jpg",
+      "size": [
+        1472,
+        533
+      ],
+      "fg_frac": 0.8453,
+      "elongation": 2.762,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-2_а.jpg",
+      "size": [
+        1472,
+        868
+      ],
+      "fg_frac": 0.8347,
+      "elongation": 1.696,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-2_б.jpg",
+      "size": [
+        1472,
+        868
+      ],
+      "fg_frac": 0.8313,
+      "elongation": 1.696,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-2_в.jpg",
+      "size": [
+        1472,
+        870
+      ],
+      "fg_frac": 0.8562,
+      "elongation": 1.692,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-2_г.jpg",
+      "size": [
+        1472,
+        868
+      ],
+      "fg_frac": 0.828,
+      "elongation": 1.696,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-2_д.jpg",
+      "size": [
+        1472,
+        870
+      ],
+      "fg_frac": 0.8507,
+      "elongation": 1.692,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-6_а.jpg",
+      "size": [
+        678,
+        561
+      ],
+      "fg_frac": 0.6042,
+      "elongation": 1.209,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-6_б.jpg",
+      "size": [
+        660,
+        557
+      ],
+      "fg_frac": 0.6142,
+      "elongation": 1.185,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-8_а.jpg",
+      "size": [
+        530,
+        1376
+      ],
+      "fg_frac": 0.5386,
+      "elongation": 2.596,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-8_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8853,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_1-9_а.jpg",
+      "size": [
+        728,
+        916
+      ],
+      "fg_frac": 0.7783,
+      "elongation": 1.258,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-9_б.jpg",
+      "size": [
+        730,
+        916
+      ],
+      "fg_frac": 0.7729,
+      "elongation": 1.255,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_1-9_в.jpg",
+      "size": [
+        546,
+        916
+      ],
+      "fg_frac": 0.611,
+      "elongation": 1.678,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-103_а.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.4446,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-103_б.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.4649,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-103_в.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.4392,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-10_field_1782280832300.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6656,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-10_field_1782280851361.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.67,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-10_field_1782280873616.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6351,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-10_field_1782280891566.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6347,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-11_field_1782280953371.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6343,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-11_field_1782280967239.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6369,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-12_field_1782281716124.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6699,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-12_field_1782281735467.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6885,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-13_field_1782280578891.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6538,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-13_field_1782280597020.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6558,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-14_field_1782280504008.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6353,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-14_field_1782280526054.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6478,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-17_field_1782281037823.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6561,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-17_field_1782281067849.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6535,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-17_field_1782281102842.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.652,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-17_field_1782281124264.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6529,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-17_field_1782281148798.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.658,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-1_field_1782280008247.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7385,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-1_field_1782280095773.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7412,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-1_field_1782280120838.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7395,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-20_field_1782282354489.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7253,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-20_field_1782282385092.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6644,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-20_field_1782282413898.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7171,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-20_field_1782282441653.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7325,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-25_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.4374,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-25_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.4447,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-25_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.4193,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-26_field_1782281940414.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6986,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-26_field_1782281962639.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7313,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-26_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5487,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-26_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5244,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-27_field_1782281393241.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6719,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-27_field_1782281428016.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6676,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-27_field_1782281455084.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6737,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-27_field_1782281477539.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6656,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-27_field_1782281504322.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6662,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-29_field_1782282079908.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6679,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-29_field_1782282103308.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.672,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-29_field_1782282138341.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7199,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-2_field_1782280200084.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7428,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-2_field_1782280225901.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7424,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-2_field_1782280295414.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.745,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-2_field_1782280309107.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7449,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-30_field_1782282543287.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7358,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-30_field_1782282559586.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7321,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-31_field_1782282605074.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7313,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-31_field_1782282628238.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6541,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-32_field_1782281583787.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6692,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-32_field_1782281600761.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6645,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-32_field_1782281615220.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6698,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-32_field_1782281640652.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6699,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-3_field_1782280358159.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7442,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-3_field_1782280374010.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7441,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-3_field_1782280396344.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7445,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-3_field_1782280412859.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7447,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-4_field_1782281237215.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6645,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-4_field_1782281270912.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6643,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-4_field_1782281294333.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6651,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-4_field_1782281312487.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6638,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-5_field_1782280657008.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6573,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-5_field_1782280676947.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6596,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-5_field_1782280699919.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6577,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-6_field_1782280757525.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6597,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-6_field_1782280772278.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6642,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-70_а.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.4573,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-70_б.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.4532,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-7_field_1782281801694.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6929,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-7_field_1782281820755.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6928,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-7_field_1782281845692.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6934,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-7_field_1782281881383.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6707,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-85_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.6556,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-85_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.6608,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-85_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.6509,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-8_field_1782282216626.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7373,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_10-8_field_1782282244219.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.6644,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-15_field_1781681457283.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7676,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-15_field_1781681505602.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.768,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-15_field_1781681539112.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7649,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-15_field_1781681565002.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7676,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-16_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5381,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-16_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5509,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-16_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5467,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-28_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.4718,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-28_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.4935,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-28_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.4698,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-2_а.jpg",
+      "size": [
+        695,
+        916
+      ],
+      "fg_frac": 0.8896,
+      "elongation": 1.318,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_12-2_б.jpg",
+      "size": [
+        697,
+        916
+      ],
+      "fg_frac": 0.8898,
+      "elongation": 1.314,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_12-2_в.jpg",
+      "size": [
+        697,
+        916
+      ],
+      "fg_frac": 0.8887,
+      "elongation": 1.314,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_12-32_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5599,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-32_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5637,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-32_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5611,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-32_г.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5525,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-33_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5576,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-33_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.564,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-33_в.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.5637,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-3_а.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.7535,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-3_б.jpg",
+      "size": [
+        1472,
+        917
+      ],
+      "fg_frac": 0.7461,
+      "elongation": 1.605,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-4_а.jpg",
+      "size": [
+        660,
+        916
+      ],
+      "fg_frac": 0.8646,
+      "elongation": 1.388,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-4_б.jpg",
+      "size": [
+        664,
+        916
+      ],
+      "fg_frac": 0.8624,
+      "elongation": 1.38,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-5_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.6686,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_12-5_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.6622,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-10_а.jpg",
+      "size": [
+        1079,
+        916
+      ],
+      "fg_frac": 0.826,
+      "elongation": 1.178,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-10_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7149,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-10_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7125,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-11_а.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.727,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-11_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7227,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-11_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7721,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-12_а.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7864,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-12_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7842,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-12_в.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7802,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-13_а.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7971,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-13_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7936,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-13_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.8036,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-14_а.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.8009,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-14_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7797,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-14_в.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7997,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-15_а.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.8011,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-15_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.8002,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-15_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7983,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-16_а.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.795,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-16_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7906,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-16_в.jpg",
+      "size": [
+        860,
+        916
+      ],
+      "fg_frac": 0.7928,
+      "elongation": 1.065,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-17_а.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.7662,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-17_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7346,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-17_в.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7569,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-18_а.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7477,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-18_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7226,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-18_в.jpg",
+      "size": [
+        887,
+        916
+      ],
+      "fg_frac": 0.7564,
+      "elongation": 1.033,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-19_а.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7223,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-19_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7002,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-19_в.jpg",
+      "size": [
+        860,
+        916
+      ],
+      "fg_frac": 0.6755,
+      "elongation": 1.065,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-1_а.jpg",
+      "size": [
+        869,
+        916
+      ],
+      "fg_frac": 0.7838,
+      "elongation": 1.054,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-1_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7223,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-1_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7251,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-1_г.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.7952,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-20_а.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7465,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-20_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7447,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-20_в.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7497,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-21_а.jpg",
+      "size": [
+        926,
+        916
+      ],
+      "fg_frac": 0.7631,
+      "elongation": 1.011,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-21_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.6959,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-21_в.jpg",
+      "size": [
+        860,
+        916
+      ],
+      "fg_frac": 0.7175,
+      "elongation": 1.065,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-22_а.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7274,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-22_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7223,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-22_в.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7469,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-2_а.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.711,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-2_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7187,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-2_в.jpg",
+      "size": [
+        852,
+        916
+      ],
+      "fg_frac": 0.7103,
+      "elongation": 1.075,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-2_г.jpg",
+      "size": [
+        869,
+        916
+      ],
+      "fg_frac": 0.785,
+      "elongation": 1.054,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-3_а.jpg",
+      "size": [
+        869,
+        916
+      ],
+      "fg_frac": 0.7934,
+      "elongation": 1.054,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-3_б.jpg",
+      "size": [
+        854,
+        916
+      ],
+      "fg_frac": 0.7624,
+      "elongation": 1.073,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-3_в.jpg",
+      "size": [
+        852,
+        916
+      ],
+      "fg_frac": 0.7645,
+      "elongation": 1.075,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-3_г.jpg",
+      "size": [
+        869,
+        916
+      ],
+      "fg_frac": 0.7946,
+      "elongation": 1.054,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-4_а.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.7955,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-4_б.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.7962,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-4_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7921,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-4_г.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.7869,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-5_а.jpg",
+      "size": [
+        871,
+        916
+      ],
+      "fg_frac": 0.7996,
+      "elongation": 1.052,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-5_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7968,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-5_в.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.7895,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-5_г.jpg",
+      "size": [
+        869,
+        916
+      ],
+      "fg_frac": 0.8016,
+      "elongation": 1.054,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-6_а.jpg",
+      "size": [
+        871,
+        916
+      ],
+      "fg_frac": 0.7981,
+      "elongation": 1.052,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-6_б.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7969,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-6_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7822,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-6_г.jpg",
+      "size": [
+        869,
+        916
+      ],
+      "fg_frac": 0.792,
+      "elongation": 1.054,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-7_а.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.6941,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-7_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.6988,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-7_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.6836,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-7_г.jpg",
+      "size": [
+        871,
+        916
+      ],
+      "fg_frac": 0.7398,
+      "elongation": 1.052,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-8_а.jpg",
+      "size": [
+        871,
+        916
+      ],
+      "fg_frac": 0.7884,
+      "elongation": 1.052,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-8_б.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.7777,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-8_в.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7072,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-9_а.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7505,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-9_б.jpg",
+      "size": [
+        863,
+        916
+      ],
+      "fg_frac": 0.7105,
+      "elongation": 1.061,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_13-9_в.jpg",
+      "size": [
+        862,
+        916
+      ],
+      "fg_frac": 0.7133,
+      "elongation": 1.063,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-11_а.jpg",
+      "size": [
+        628,
+        916
+      ],
+      "fg_frac": 0.5513,
+      "elongation": 1.459,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-11_б.jpg",
+      "size": [
+        633,
+        916
+      ],
+      "fg_frac": 0.5439,
+      "elongation": 1.447,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-11_в.jpg",
+      "size": [
+        621,
+        916
+      ],
+      "fg_frac": 0.532,
+      "elongation": 1.475,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-11_г.jpg",
+      "size": [
+        630,
+        916
+      ],
+      "fg_frac": 0.574,
+      "elongation": 1.454,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-14_а.jpg",
+      "size": [
+        865,
+        916
+      ],
+      "fg_frac": 0.7016,
+      "elongation": 1.059,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-14_б.jpg",
+      "size": [
+        852,
+        916
+      ],
+      "fg_frac": 0.6933,
+      "elongation": 1.075,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-1_а.jpg",
+      "size": [
+        637,
+        916
+      ],
+      "fg_frac": 0.5881,
+      "elongation": 1.438,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-1_б.jpg",
+      "size": [
+        628,
+        916
+      ],
+      "fg_frac": 0.5803,
+      "elongation": 1.459,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-1_в.jpg",
+      "size": [
+        646,
+        916
+      ],
+      "fg_frac": 0.6017,
+      "elongation": 1.418,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-26.jpg",
+      "size": [
+        473,
+        916
+      ],
+      "fg_frac": 0.6702,
+      "elongation": 1.937,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-2_а.jpg",
+      "size": [
+        685,
+        916
+      ],
+      "fg_frac": 0.6328,
+      "elongation": 1.337,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-2_б.jpg",
+      "size": [
+        690,
+        916
+      ],
+      "fg_frac": 0.6565,
+      "elongation": 1.328,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-2_в.jpg",
+      "size": [
+        685,
+        916
+      ],
+      "fg_frac": 0.6326,
+      "elongation": 1.337,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-7_а.jpg",
+      "size": [
+        845,
+        916
+      ],
+      "fg_frac": 0.5761,
+      "elongation": 1.084,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-7_б.jpg",
+      "size": [
+        803,
+        916
+      ],
+      "fg_frac": 0.5627,
+      "elongation": 1.141,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-8_а.jpg",
+      "size": [
+        805,
+        916
+      ],
+      "fg_frac": 0.5695,
+      "elongation": 1.138,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-8_б.jpg",
+      "size": [
+        812,
+        916
+      ],
+      "fg_frac": 0.5596,
+      "elongation": 1.128,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-8_в.jpg",
+      "size": [
+        797,
+        916
+      ],
+      "fg_frac": 0.5746,
+      "elongation": 1.149,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-9_а.jpg",
+      "size": [
+        727,
+        916
+      ],
+      "fg_frac": 0.5311,
+      "elongation": 1.26,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-9_б.jpg",
+      "size": [
+        661,
+        916
+      ],
+      "fg_frac": 0.4807,
+      "elongation": 1.386,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_14-9_в.jpg",
+      "size": [
+        672,
+        916
+      ],
+      "fg_frac": 0.4999,
+      "elongation": 1.363,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_15-6_field_1781679235796.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.772,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_15-6_field_1781679260000.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7724,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-1_а.jpg",
+      "size": [
+        507,
+        586
+      ],
+      "fg_frac": 0.7698,
+      "elongation": 1.156,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-1_б.jpg",
+      "size": [
+        509,
+        586
+      ],
+      "fg_frac": 0.7689,
+      "elongation": 1.151,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-1_в.jpg",
+      "size": [
+        507,
+        586
+      ],
+      "fg_frac": 0.7553,
+      "elongation": 1.156,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-2_а.jpg",
+      "size": [
+        1041,
+        916
+      ],
+      "fg_frac": 0.8328,
+      "elongation": 1.136,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-2_б.jpg",
+      "size": [
+        1021,
+        916
+      ],
+      "fg_frac": 0.8322,
+      "elongation": 1.115,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-2_в.jpg",
+      "size": [
+        1074,
+        916
+      ],
+      "fg_frac": 0.8245,
+      "elongation": 1.172,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-3_а.jpg",
+      "size": [
+        991,
+        916
+      ],
+      "fg_frac": 0.8643,
+      "elongation": 1.082,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-3_б.jpg",
+      "size": [
+        1032,
+        916
+      ],
+      "fg_frac": 0.85,
+      "elongation": 1.127,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-3_в.jpg",
+      "size": [
+        1043,
+        916
+      ],
+      "fg_frac": 0.8481,
+      "elongation": 1.139,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-4_а.jpg",
+      "size": [
+        1021,
+        916
+      ],
+      "fg_frac": 0.8495,
+      "elongation": 1.115,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-4_б.jpg",
+      "size": [
+        1021,
+        916
+      ],
+      "fg_frac": 0.8533,
+      "elongation": 1.115,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-4_в.jpg",
+      "size": [
+        1023,
+        916
+      ],
+      "fg_frac": 0.8515,
+      "elongation": 1.117,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-5_а.jpg",
+      "size": [
+        1021,
+        916
+      ],
+      "fg_frac": 0.8418,
+      "elongation": 1.115,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-5_б.jpg",
+      "size": [
+        1021,
+        916
+      ],
+      "fg_frac": 0.8428,
+      "elongation": 1.115,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-5_в.jpg",
+      "size": [
+        1019,
+        916
+      ],
+      "fg_frac": 0.8485,
+      "elongation": 1.112,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-6_а.jpg",
+      "size": [
+        1019,
+        916
+      ],
+      "fg_frac": 0.8461,
+      "elongation": 1.112,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-6_б.jpg",
+      "size": [
+        1019,
+        916
+      ],
+      "fg_frac": 0.8334,
+      "elongation": 1.112,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-6_в.jpg",
+      "size": [
+        1026,
+        916
+      ],
+      "fg_frac": 0.8494,
+      "elongation": 1.12,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-7_а.jpg",
+      "size": [
+        995,
+        916
+      ],
+      "fg_frac": 0.8784,
+      "elongation": 1.086,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-7_б.jpg",
+      "size": [
+        984,
+        916
+      ],
+      "fg_frac": 0.8656,
+      "elongation": 1.074,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-8_а.jpg",
+      "size": [
+        1297,
+        916
+      ],
+      "fg_frac": 0.8062,
+      "elongation": 1.416,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-8_б.jpg",
+      "size": [
+        1297,
+        916
+      ],
+      "fg_frac": 0.8025,
+      "elongation": 1.416,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_16-9_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8909,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_16-9_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8826,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": [
+        "fg_too_large"
+      ]
+    },
+    {
+      "file": "уд85_16-9_в.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.8641,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-2_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.7882,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-2_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.7878,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-3_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.7361,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-3_б.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.734,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-3_в.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.7407,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-4_а.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.792,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-4_б.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.7705,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-4_в.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.7668,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-5_а.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.5421,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-5_б.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.5276,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-5_в.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.5321,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-6_а.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.728,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-6_б.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.6888,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_17-6_в.jpg",
+      "size": [
+        1600,
+        1067
+      ],
+      "fg_frac": 0.6893,
+      "elongation": 1.5,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781679418141.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7606,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781679434696.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7725,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781679619798.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7554,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781679679909.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7762,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680010036.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7715,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680042474.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7743,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680229760.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7739,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680264370.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7768,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680337228.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7745,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680358906.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7719,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680425482.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7568,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680462449.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7752,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680532745.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7766,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680571738.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7784,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680611274.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7703,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680642872.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7746,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680687497.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7774,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_field_1781680713570.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "fg_frac": 0.7743,
+      "elongation": 1.778,
+      "installation_shot": true,
+      "frame_cropped": false,
+      "artifact_cropped": false,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_а.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.7778,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_б.jpg",
+      "size": [
+        1008,
+        916
+      ],
+      "fg_frac": 0.8034,
+      "elongation": 1.1,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    },
+    {
+      "file": "уд85_18-1_в.jpg",
+      "size": [
+        1472,
+        916
+      ],
+      "fg_frac": 0.7846,
+      "elongation": 1.607,
+      "installation_shot": false,
+      "frame_cropped": true,
+      "artifact_cropped": true,
+      "suspicious": []
+    }
+  ]
+}
