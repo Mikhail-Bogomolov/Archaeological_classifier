@@ -61,6 +61,35 @@ class TestCalibration(unittest.TestCase):
         self.assertLess(report.ece, 0.15)
 
 
+class TestItemFailures(unittest.TestCase):
+    def test_summarize_item_failures_flags_all_wrong(self):
+        from app.ml.evaluate_classifier import _summarize_item_failures
+
+        by_item = {
+            "ok-item": {
+                "true_idx": 0,
+                "preds": [0, 0],
+                "oks": [True, True],
+                "paths": ["a.jpg", "b.jpg"],
+                "confs": [0.9, 0.8],
+            },
+            "bad-item": {
+                "true_idx": 3,
+                "preds": [1, 1, 1],
+                "oks": [False, False, False],
+                "paths": ["x_a.jpg", "x_b.jpg", "x_v.jpg"],
+                "confs": [0.9, 0.85, 0.8],
+            },
+        }
+        correct, total, failed = _summarize_item_failures(by_item)
+        self.assertEqual(correct, 1)
+        self.assertEqual(total, 2)
+        self.assertEqual(len(failed), 1)
+        self.assertTrue(failed[0]["all_wrong"])
+        self.assertEqual(failed[0]["item_key"], "bad-item")
+        self.assertEqual(failed[0]["majority_wrong_pred"], "ножи")
+
+
 class TestTexture(unittest.TestCase):
     def test_texture_dim(self):
         self.assertEqual(texture_dim(), 15)

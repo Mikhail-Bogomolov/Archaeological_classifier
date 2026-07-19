@@ -52,6 +52,9 @@ py -m app.ml.evaluate_classifier --split val --calibrate
 py -m app.ml.evaluate_feature_classifier --split test --json-out reports/feature_test.json
 ```
 
+`--calibrate` пишет `extra.calibration` (в т.ч. `suggested_threshold`) в `object_classifier.pt`; pipeline подхватывает порог при загрузке.  
+В отчёте сети 1 также печатается список проблемных `item_key` (не все ракурсы верны).
+
 Рядом с JSON сохраняются PNG:
 - `reports/object_test.png` — confusion heatmap
 - `reports/object_test_bars.png` — precision/recall/F1 по классам
@@ -91,4 +94,4 @@ py -m unittest discover -s tests -v
 ## Конфигурация
 
 Гиперпараметры: `app/ml/training_config.py`  
-Порог «низкая уверенность»: `DEFAULT_INFERENCE.object_low_conf_threshold` (калибровка: `--calibrate`).
+Порог «низкая уверенность»: из `extra.calibration` в `.pt`, иначе `DEFAULT_INFERENCE.object_low_conf_threshold`.

@@ -112,6 +112,252 @@
     "item_accuracy": 0.8095238095238095,
     "item_correct": 34,
     "item_total": 42,
+    "failed_items": [
+      {
+        "item_key": "14-11",
+        "true_class": "наконечники стрел",
+        "majority_wrong_pred": "ножи",
+        "n_views": 4,
+        "n_wrong": 4,
+        "all_wrong": true,
+        "mean_conf_wrong": 0.9099213629961014,
+        "files": [
+          {
+            "file": "уд85_14-11_а.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.9297882318496704
+          },
+          {
+            "file": "уд85_14-11_б.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.941868245601654
+          },
+          {
+            "file": "уд85_14-11_в.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.9217382669448853
+          },
+          {
+            "file": "уд85_14-11_г.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.8462907075881958
+          }
+        ]
+      },
+      {
+        "item_key": "4-2",
+        "true_class": "ножи",
+        "majority_wrong_pred": "наконечники стрел",
+        "n_views": 4,
+        "n_wrong": 3,
+        "all_wrong": false,
+        "mean_conf_wrong": 0.46385518709818524,
+        "files": [
+          {
+            "file": "уд85_4-2_а.jpg",
+            "pred": "наконечники стрел",
+            "ok": false,
+            "conf": 0.37874835729599
+          },
+          {
+            "file": "уд85_4-2_б.jpg",
+            "pred": "наконечники стрел",
+            "ok": false,
+            "conf": 0.5691023468971252
+          },
+          {
+            "file": "уд85_4-2_в.jpg",
+            "pred": "удила",
+            "ok": false,
+            "conf": 0.44371485710144043
+          },
+          {
+            "file": "уд85_4-2_г.jpg",
+            "pred": "ножи",
+            "ok": true,
+            "conf": 0.4597180187702179
+          }
+        ]
+      },
+      {
+        "item_key": "8-62",
+        "true_class": "накладки",
+        "majority_wrong_pred": "ножи",
+        "n_views": 3,
+        "n_wrong": 2,
+        "all_wrong": false,
+        "mean_conf_wrong": 0.8539251685142517,
+        "files": [
+          {
+            "file": "уд85_8-62_а.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.8698991537094116
+          },
+          {
+            "file": "уд85_8-62_б.jpg",
+            "pred": "накладки",
+            "ok": true,
+            "conf": 0.48599937558174133
+          },
+          {
+            "file": "уд85_8-62_в.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.8379511833190918
+          }
+        ]
+      },
+      {
+        "item_key": "9-65",
+        "true_class": "кельты",
+        "majority_wrong_pred": "ножи",
+        "n_views": 4,
+        "n_wrong": 1,
+        "all_wrong": false,
+        "mean_conf_wrong": 0.9280341267585754,
+        "files": [
+          {
+            "file": "уд85_9-65_а.jpg",
+            "pred": "кельты",
+            "ok": true,
+            "conf": 0.8697608113288879
+          },
+          {
+            "file": "уд85_9-65_б.jpg",
+            "pred": "кельты",
+            "ok": true,
+            "conf": 0.5652341842651367
+          },
+          {
+            "file": "уд85_9-65_в.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.9280341267585754
+          },
+          {
+            "file": "уд85_9-65_г.jpg",
+            "pred": "кельты",
+            "ok": true,
+            "conf": 0.9263856410980225
+          }
+        ]
+      },
+      {
+        "item_key": "8-49",
+        "true_class": "ножи",
+        "majority_wrong_pred": "удила",
+        "n_views": 3,
+        "n_wrong": 1,
+        "all_wrong": false,
+        "mean_conf_wrong": 0.8955783247947693,
+        "files": [
+          {
+            "file": "уд85_8-49_а.jpg",
+            "pred": "ножи",
+            "ok": true,
+            "conf": 0.9393641352653503
+          },
+          {
+            "file": "уд85_8-49_б.jpg",
+            "pred": "ножи",
+            "ok": true,
+            "conf": 0.9573178887367249
+          },
+          {
+            "file": "уд85_8-49_в.jpg",
+            "pred": "удила",
+            "ok": false,
+            "conf": 0.8955783247947693
+          }
+        ]
+      },
+      {
+        "item_key": "4-15",
+        "true_class": "наконечники стрел",
+        "majority_wrong_pred": "ножи",
+        "n_views": 3,
+        "n_wrong": 1,
+        "all_wrong": false,
+        "mean_conf_wrong": 0.7868333458900452,
+        "files": [
+          {
+            "file": "уд85_4-15_а.jpg",
+            "pred": "наконечники стрел",
+            "ok": true,
+            "conf": 0.5181490182876587
+          },
+          {
+            "file": "уд85_4-15_б.jpg",
+            "pred": "наконечники стрел",
+            "ok": true,
+            "conf": 0.5558964610099792
+          },
+          {
+            "file": "уд85_4-15_в.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.7868333458900452
+          }
+        ]
+      },
+      {
+        "item_key": "25-7",
+        "true_class": "накладки",
+        "majority_wrong_pred": "ножи",
+        "n_views": 2,
+        "n_wrong": 1,
+        "all_wrong": false,
+        "mean_conf_wrong": 0.5672728419303894,
+        "files": [
+          {
+            "file": "уд85_25-7_а.jpg",
+            "pred": "ножи",
+            "ok": false,
+            "conf": 0.5672728419303894
+          },
+          {
+            "file": "уд85_25-7_б.jpg",
+            "pred": "накладки",
+            "ok": true,
+            "conf": 0.6432355642318726
+          }
+        ]
+      },
+      {
+        "item_key": "14-8",
+        "true_class": "ножи",
+        "majority_wrong_pred": "накладки",
+        "n_views": 3,
+        "n_wrong": 1,
+        "all_wrong": false,
+        "mean_conf_wrong": 0.4338766634464264,
+        "files": [
+          {
+            "file": "уд85_14-8_а.jpg",
+            "pred": "ножи",
+            "ok": true,
+            "conf": 0.7388342022895813
+          },
+          {
+            "file": "уд85_14-8_б.jpg",
+            "pred": "ножи",
+            "ok": true,
+            "conf": 0.6697665452957153
+          },
+          {
+            "file": "уд85_14-8_в.jpg",
+            "pred": "накладки",
+            "ok": false,
+            "conf": 0.4338766634464264
+          }
+        ]
+      }
+    ],
     "mean_confidence": 0.896219807437488,
     "mean_confidence_correct": 0.9136513999057194,
     "mean_confidence_wrong": 0.739335475223405,
