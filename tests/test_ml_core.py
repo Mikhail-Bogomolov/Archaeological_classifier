@@ -106,10 +106,54 @@ class TestSohrannostNormalize(unittest.TestCase):
             "целый",
         )
 
+    def test_coarse_weak_heads(self):
+        from app.ml.table_normalization import (
+            coarse_kreplenie,
+            coarse_nakladka_forma,
+            coarse_tip_okonchania,
+            normalize_cell_value,
+        )
+
+        self.assertEqual(
+            coarse_tip_okonchania("подтреугольно-кольчатое с округлым отверстием"),
+            "подтреугольное",
+        )
+        self.assertEqual(coarse_tip_okonchania("овально-кольчатое"), "кольчатое")
+        self.assertEqual(coarse_kreplenie("шпенек"), "шпеньки")
+        self.assertEqual(coarse_kreplenie("петелька"), "прочее")
+        self.assertEqual(coarse_nakladka_forma("круглая с зубчатым краем"), "круглая")
+        self.assertEqual(
+            normalize_cell_value("удила", "тип_окончания", "кольчатое"),
+            "кольчатое",
+        )
+
 
 class TestTexture(unittest.TestCase):
     def test_texture_dim(self):
-        self.assertEqual(texture_dim(), 15)
+        self.assertEqual(texture_dim(), 17)
+
+    def test_geometry_appended(self):
+        from PIL import Image
+
+        from app.ml.texture_features import extract_texture_vector
+
+        img = Image.new("RGB", (200, 80), color=(200, 200, 200))
+        # тёмный вытянутый «предмет» по центру
+        for x in range(40, 160):
+            for y in range(30, 50):
+                img.putpixel((x, y), (40, 40, 40))
+        vec = extract_texture_vector(img)
+        self.assertEqual(len(vec), 17)
+        self.assertGreater(float(vec[-2]), 0.2)  # aspect_n
+        self.assertGreater(float(vec[-1]), 0.0)  # solidity
+
+
+class TestConfusedItem(unittest.TestCase):
+    def test_14_11_flagged(self):
+        from app.ml.table_normalization import is_confused_item
+
+        self.assertTrue(is_confused_item("уд85_14-11_а.jpg"))
+        self.assertFalse(is_confused_item("уд85_9-1_а.jpg"))
 
 
 if __name__ == "__main__":

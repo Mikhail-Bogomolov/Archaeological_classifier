@@ -180,6 +180,7 @@ async def perform_scan(
         if data:
             contents = data
             image_mime = file.content_type or "application/octet-stream"
+            source_path = file.filename
 
     if contents is None:
         try:

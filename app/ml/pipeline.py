@@ -24,6 +24,7 @@ from app.ml.encoders import (
 )
 from app.ml.models import FeatureClassifierNet, ObjectClassifierNet
 from app.ml.preprocess import classifier_preprocess, cv_preprocess
+from app.ml.table_normalization import is_confused_item
 from app.ml.training_config import DEFAULT_INFERENCE, load_state_dict
 
 
@@ -38,6 +39,7 @@ class PredictionResult:
     object_confidence: float
     is_demo: bool
     preprocess_meta: dict
+    warning: str | None = None
 
 
 class ArchaeologyClassifierPipeline:
@@ -163,6 +165,15 @@ class ArchaeologyClassifierPipeline:
         if not is_demo and object_conf < self.object_low_conf_threshold:
             description += " Низкая уверенность — результат может быть неточным."
 
+        warning: str | None = None
+        path_hint = str(source_path) if source_path else ""
+        if not is_demo and path_hint and is_confused_item(path_hint):
+            warning = (
+                "Этот тип предмета исторически часто путается моделью — "
+                "рекомендуется ручная проверка."
+            )
+            description += f" {warning}"
+
         return PredictionResult(
             name=display_name,
             description=description,
@@ -173,6 +184,7 @@ class ArchaeologyClassifierPipeline:
             object_confidence=object_conf,
             is_demo=is_demo,
             preprocess_meta=meta,
+            warning=warning,
         )
 
     @torch.no_grad()
@@ -212,7 +224,7 @@ class ArchaeologyClassifierPipeline:
         return ["Признаки: модуль признаков ещё не обучен"]
 
     def to_api_dict(self, result: PredictionResult) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "name": result.name,
             "description": result.description,
             "category": result.category,
@@ -221,6 +233,9 @@ class ArchaeologyClassifierPipeline:
             "object_class": result.object_class,
             "is_demo": result.is_demo,
         }
+        if result.warning:
+            payload["warning"] = result.warning
+        return payload
 
 
 _pipeline: ArchaeologyClassifierPipeline | None = None

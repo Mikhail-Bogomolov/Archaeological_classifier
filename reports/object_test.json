@@ -3,12 +3,12 @@
   "split": "test",
   "n_samples": 140,
   "accuracy": 0.9,
-  "macro_precision": 0.8931308593487296,
-  "macro_recall": 0.8716892911010558,
-  "macro_f1": 0.8790680809586494,
-  "weighted_precision": 0.9033237002549819,
+  "macro_precision": 0.8815039295070255,
+  "macro_recall": 0.8783257918552035,
+  "macro_f1": 0.8784054968101698,
+  "weighted_precision": 0.9016548582995952,
   "weighted_recall": 0.9,
-  "weighted_f1": 0.8993614127212939,
+  "weighted_f1": 0.8999294466055646,
   "micro_precision": 0.9,
   "micro_recall": 0.9,
   "micro_f1": 0.9,
@@ -27,11 +27,11 @@
       "label": "ножи",
       "index": 1,
       "support": 39,
-      "predicted": 43,
-      "tp": 34,
-      "precision": 0.7906976744186046,
-      "recall": 0.8717948717948718,
-      "f1": 0.8292682926829267
+      "predicted": 40,
+      "tp": 33,
+      "precision": 0.825,
+      "recall": 0.8461538461538461,
+      "f1": 0.8354430379746836
     },
     {
       "label": "удила",
@@ -47,11 +47,11 @@
       "label": "наконечники стрел",
       "index": 3,
       "support": 17,
-      "predicted": 14,
-      "tp": 12,
-      "precision": 0.8571428571428571,
-      "recall": 0.7058823529411765,
-      "f1": 0.7741935483870968
+      "predicted": 17,
+      "tp": 13,
+      "precision": 0.7647058823529411,
+      "recall": 0.7647058823529411,
+      "f1": 0.7647058823529412
     },
     {
       "label": "накладки",
@@ -74,9 +74,9 @@
     ],
     [
       0,
-      34,
+      33,
       2,
-      2,
+      3,
       1
     ],
     [
@@ -88,16 +88,16 @@
     ],
     [
       0,
-      5,
+      4,
       0,
-      12,
+      13,
       0
     ],
     [
       0,
-      3,
+      2,
       0,
-      0,
+      1,
       12
     ]
   ],
@@ -109,8 +109,8 @@
     "накладки"
   ],
   "extra": {
-    "item_accuracy": 0.8095238095238095,
-    "item_correct": 34,
+    "item_accuracy": 0.8333333333333334,
+    "item_correct": 35,
     "item_total": 42,
     "failed_items": [
       {
@@ -120,31 +120,31 @@
         "n_views": 4,
         "n_wrong": 4,
         "all_wrong": true,
-        "mean_conf_wrong": 0.9099213629961014,
+        "mean_conf_wrong": 0.8324074894189835,
         "files": [
           {
             "file": "уд85_14-11_а.jpg",
             "pred": "ножи",
             "ok": false,
-            "conf": 0.9297882318496704
+            "conf": 0.8809071779251099
           },
           {
             "file": "уд85_14-11_б.jpg",
             "pred": "ножи",
             "ok": false,
-            "conf": 0.941868245601654
+            "conf": 0.8859996199607849
           },
           {
             "file": "уд85_14-11_в.jpg",
             "pred": "ножи",
             "ok": false,
-            "conf": 0.9217382669448853
+            "conf": 0.881737232208252
           },
           {
             "file": "уд85_14-11_г.jpg",
             "pred": "ножи",
             "ok": false,
-            "conf": 0.8462907075881958
+            "conf": 0.6809859275817871
           }
         ]
       },
@@ -153,33 +153,33 @@
         "true_class": "ножи",
         "majority_wrong_pred": "наконечники стрел",
         "n_views": 4,
-        "n_wrong": 3,
-        "all_wrong": false,
-        "mean_conf_wrong": 0.46385518709818524,
+        "n_wrong": 4,
+        "all_wrong": true,
+        "mean_conf_wrong": 0.6481547355651855,
         "files": [
           {
             "file": "уд85_4-2_а.jpg",
             "pred": "наконечники стрел",
             "ok": false,
-            "conf": 0.37874835729599
+            "conf": 0.7407414317131042
           },
           {
             "file": "уд85_4-2_б.jpg",
             "pred": "наконечники стрел",
             "ok": false,
-            "conf": 0.5691023468971252
+            "conf": 0.7058858275413513
           },
           {
             "file": "уд85_4-2_в.jpg",
-            "pred": "удила",
+            "pred": "наконечники стрел",
             "ok": false,
-            "conf": 0.44371485710144043
+            "conf": 0.556488573551178
           },
           {
             "file": "уд85_4-2_г.jpg",
-            "pred": "ножи",
-            "ok": true,
-            "conf": 0.4597180187702179
+            "pred": "удила",
+            "ok": false,
+            "conf": 0.5895031094551086
           }
         ]
       },
@@ -190,60 +190,25 @@
         "n_views": 3,
         "n_wrong": 2,
         "all_wrong": false,
-        "mean_conf_wrong": 0.8539251685142517,
+        "mean_conf_wrong": 0.509197324514389,
         "files": [
           {
             "file": "уд85_8-62_а.jpg",
             "pred": "ножи",
             "ok": false,
-            "conf": 0.8698991537094116
+            "conf": 0.6418390870094299
           },
           {
             "file": "уд85_8-62_б.jpg",
             "pred": "накладки",
             "ok": true,
-            "conf": 0.48599937558174133
+            "conf": 0.6489325761795044
           },
           {
             "file": "уд85_8-62_в.jpg",
             "pred": "ножи",
             "ok": false,
-            "conf": 0.8379511833190918
-          }
-        ]
-      },
-      {
-        "item_key": "9-65",
-        "true_class": "кельты",
-        "majority_wrong_pred": "ножи",
-        "n_views": 4,
-        "n_wrong": 1,
-        "all_wrong": false,
-        "mean_conf_wrong": 0.9280341267585754,
-        "files": [
-          {
-            "file": "уд85_9-65_а.jpg",
-            "pred": "кельты",
-            "ok": true,
-            "conf": 0.8697608113288879
-          },
-          {
-            "file": "уд85_9-65_б.jpg",
-            "pred": "кельты",
-            "ok": true,
-            "conf": 0.5652341842651367
-          },
-          {
-            "file": "уд85_9-65_в.jpg",
-            "pred": "ножи",
-            "ok": false,
-            "conf": 0.9280341267585754
-          },
-          {
-            "file": "уд85_9-65_г.jpg",
-            "pred": "кельты",
-            "ok": true,
-            "conf": 0.9263856410980225
+            "conf": 0.37655556201934814
           }
         ]
       },
@@ -254,77 +219,60 @@
         "n_views": 3,
         "n_wrong": 1,
         "all_wrong": false,
-        "mean_conf_wrong": 0.8955783247947693,
+        "mean_conf_wrong": 0.8612480163574219,
         "files": [
           {
             "file": "уд85_8-49_а.jpg",
             "pred": "ножи",
             "ok": true,
-            "conf": 0.9393641352653503
+            "conf": 0.7874084115028381
           },
           {
             "file": "уд85_8-49_б.jpg",
             "pred": "ножи",
             "ok": true,
-            "conf": 0.9573178887367249
+            "conf": 0.8202404379844666
           },
           {
             "file": "уд85_8-49_в.jpg",
             "pred": "удила",
             "ok": false,
-            "conf": 0.8955783247947693
+            "conf": 0.8612480163574219
           }
         ]
       },
       {
-        "item_key": "4-15",
-        "true_class": "наконечники стрел",
+        "item_key": "9-65",
+        "true_class": "кельты",
         "majority_wrong_pred": "ножи",
-        "n_views": 3,
+        "n_views": 4,
         "n_wrong": 1,
         "all_wrong": false,
-        "mean_conf_wrong": 0.7868333458900452,
+        "mean_conf_wrong": 0.711588978767395,
         "files": [
           {
-            "file": "уд85_4-15_а.jpg",
-            "pred": "наконечники стрел",
+            "file": "уд85_9-65_а.jpg",
+            "pred": "кельты",
             "ok": true,
-            "conf": 0.5181490182876587
+            "conf": 0.8656113743782043
           },
           {
-            "file": "уд85_4-15_б.jpg",
-            "pred": "наконечники стрел",
+            "file": "уд85_9-65_б.jpg",
+            "pred": "кельты",
             "ok": true,
-            "conf": 0.5558964610099792
+            "conf": 0.4827004671096802
           },
           {
-            "file": "уд85_4-15_в.jpg",
+            "file": "уд85_9-65_в.jpg",
             "pred": "ножи",
             "ok": false,
-            "conf": 0.7868333458900452
-          }
-        ]
-      },
-      {
-        "item_key": "25-7",
-        "true_class": "накладки",
-        "majority_wrong_pred": "ножи",
-        "n_views": 2,
-        "n_wrong": 1,
-        "all_wrong": false,
-        "mean_conf_wrong": 0.5672728419303894,
-        "files": [
-          {
-            "file": "уд85_25-7_а.jpg",
-            "pred": "ножи",
-            "ok": false,
-            "conf": 0.5672728419303894
+            "conf": 0.711588978767395
           },
           {
-            "file": "уд85_25-7_б.jpg",
-            "pred": "накладки",
+            "file": "уд85_9-65_г.jpg",
+            "pred": "кельты",
             "ok": true,
-            "conf": 0.6432355642318726
+            "conf": 0.9513212442398071
           }
         ]
       },
@@ -335,32 +283,55 @@
         "n_views": 3,
         "n_wrong": 1,
         "all_wrong": false,
-        "mean_conf_wrong": 0.4338766634464264,
+        "mean_conf_wrong": 0.5747039914131165,
         "files": [
           {
             "file": "уд85_14-8_а.jpg",
             "pred": "ножи",
             "ok": true,
-            "conf": 0.7388342022895813
+            "conf": 0.6080211400985718
           },
           {
             "file": "уд85_14-8_б.jpg",
             "pred": "ножи",
             "ok": true,
-            "conf": 0.6697665452957153
+            "conf": 0.4598047435283661
           },
           {
             "file": "уд85_14-8_в.jpg",
             "pred": "накладки",
             "ok": false,
-            "conf": 0.4338766634464264
+            "conf": 0.5747039914131165
+          }
+        ]
+      },
+      {
+        "item_key": "25-7",
+        "true_class": "накладки",
+        "majority_wrong_pred": "наконечники стрел",
+        "n_views": 2,
+        "n_wrong": 1,
+        "all_wrong": false,
+        "mean_conf_wrong": 0.5336835384368896,
+        "files": [
+          {
+            "file": "уд85_25-7_а.jpg",
+            "pred": "наконечники стрел",
+            "ok": false,
+            "conf": 0.5336835384368896
+          },
+          {
+            "file": "уд85_25-7_б.jpg",
+            "pred": "накладки",
+            "ok": true,
+            "conf": 0.7629275321960449
           }
         ]
       }
     ],
-    "mean_confidence": 0.896219807437488,
-    "mean_confidence_correct": 0.9136513999057194,
-    "mean_confidence_wrong": 0.739335475223405,
+    "mean_confidence": 0.8780589540089879,
+    "mean_confidence_correct": 0.8992570276771273,
+    "mean_confidence_wrong": 0.6872762909957341,
     "split_seed": 42,
     "val_ratio": 0.15,
     "test_ratio": 0.15

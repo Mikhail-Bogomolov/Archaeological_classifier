@@ -24,8 +24,11 @@ CONFUSED_ITEM_PREFIXES: tuple[str, ...] = (
     "уд85_8-26",
     "уд85_8-49",
     "уд85_14-11",
+    "уд85_4-15",
     "уд85_8-62",
     "уд85_25-7",
+    "уд85_14-2",
+    "уд85_42-42",
 )
 
 GENERIC_ALIASES: dict[str, str] = {
@@ -164,6 +167,62 @@ def coarse_sohrannost(raw: object) -> str | None:
     return text
 
 
+def coarse_tip_okonchania(raw: object) -> str | None:
+    """Удила:тип_окончания — 13 вариантов → 3 крупных класса."""
+    text = _clean(raw)
+    if not text or text in NOT_SPECIFIED_VALUES:
+        return None
+    if "стремеч" in text or "рамк" in text:
+        return "прочее"
+    if "подтреугол" in text:
+        return "подтреугольное"
+    # «кольчатое» / «кольцевидное» / «овально-кольчатое» / «трапециевидное кольчатое»
+    if "кольч" in text or "овальн" in text or "трапец" in text:
+        return "кольчатое"
+    return "прочее"
+
+
+def coarse_kreplenie(raw: object) -> str | None:
+    """Накладки:крепление — 6 вариантов → 3."""
+    text = _clean(raw)
+    if not text or text in NOT_SPECIFIED_VALUES:
+        return None
+    text = KREPLENIE_ALIASES.get(text, text)
+    if "шпен" in text:
+        return "шпеньки"
+    if "отверст" in text:
+        return "через отверстия"
+    return "прочее"
+
+
+def coarse_nakladka_forma(raw: object) -> str | None:
+    """Накладки:форма — 15 вариантов → 4."""
+    text = _clean(raw)
+    if not text or text in NOT_SPECIFIED_VALUES:
+        return None
+    if "кругл" in text or "дисков" in text:
+        return "круглая"
+    if "овал" in text or "капле" in text or "подоваль" in text:
+        return "овальная"
+    if "прямоуг" in text or "подпрямоуг" in text:
+        return "прямоугольная"
+    if any(
+        x in text
+        for x in (
+            "лепест",
+            "ажур",
+            "фигур",
+            "меч",
+            "частн",
+            "конус",
+            "полусфер",
+            "зубчат",
+        )
+    ):
+        return "фигурная"
+    return "фигурная"
+
+
 def normalize_cell_value(class_name: str, feature_name: str, raw: object) -> str | None:
     """Нормализация одной ячейки признака для Excel и обучения."""
     text = _clean(raw)
@@ -173,11 +232,17 @@ def normalize_cell_value(class_name: str, feature_name: str, raw: object) -> str
     if feature_name == "сохранность":
         return coarse_sohrannost(text)
 
-    if feature_name == "форма_пера" and class_name == "наконечники стрел":
-        return coarse_forma_pera(text)
+    if feature_name == "тип_окончания" and class_name == "удила":
+        return coarse_tip_okonchania(text)
 
     if feature_name == "крепление" and class_name == "накладки":
-        return KREPLENIE_ALIASES.get(text, text)
+        return coarse_kreplenie(text)
+
+    if feature_name == "форма" and class_name == "накладки":
+        return coarse_nakladka_forma(text)
+
+    if feature_name == "форма_пера" and class_name == "наконечники стрел":
+        return coarse_forma_pera(text)
 
     if feature_name == "материал":
         if "бронза" in text and "олово" in text:

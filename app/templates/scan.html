@@ -68,6 +68,11 @@
         <p style="margin:8px 0 0;font-size:var(--text-base)">
             Предсказание: <b>{{ scan.predicted_category }}</b> · {{ scan.predicted_confidence }}%
         </p>
+        {% if scan.warning %}
+        <p style="margin:10px 0 0;padding:8px 10px;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;font-size:var(--text-sm);color:#9a3412">
+            {{ scan.warning }}
+        </p>
+        {% endif %}
 
         {% if scan.class_confirmed %}
         <p style="margin:10px 0 0;font-size:var(--text-base);color:#166534">

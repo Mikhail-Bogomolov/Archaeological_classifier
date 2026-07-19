@@ -1,4 +1,4 @@
-"""Текстура поверхности предмета — 15 чисел для сети 1."""
+"""Текстура + геометрия предмета для сети 1/2."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ LBP_POINTS = 8
 LBP_RADIUS = 1
 GLCM_LEVELS = 32
 GLCM_PROPS = ("contrast", "dissimilarity", "homogeneity", "energy", "correlation")
+GEOMETRY_DIM = 2  # aspect_ratio (elongation), solidity
 
 
 def _lbp_histogram(gray: np.ndarray) -> np.ndarray:
@@ -48,18 +49,40 @@ def _glcm_features(gray: np.ndarray) -> np.ndarray:
     )
 
 
-def extract_texture_vector(pil: Image.Image, size: int = TEXTURE_SIZE) -> np.ndarray:
-    """Считает 15 признаков текстуры по серому фото.
+def extract_geometry_features(pil: Image.Image) -> np.ndarray:
+    """Пропорции bbox и заполненность маски (нож vs наконечник).
 
-    По умолчанию resize до 224×224. Для высокого разрешения можно передать
-    больший size или считать по кропу до resize в CNN (см. training_config).
+    aspect_ratio = max(side)/min(side)  (инвариантно к повороту кадра)
+    solidity = площадь маски / площадь bbox
     """
+    from app.ml.preprocess import _foreground_mask
+
+    mask = _foreground_mask(pil)
+    fg = int(mask.sum())
+    if fg < 40:
+        return np.array([1.0, 0.5], dtype=np.float32)
+
+    ys, xs = np.where(mask)
+    bw = int(xs.max() - xs.min() + 1)
+    bh = int(ys.max() - ys.min() + 1)
+    short = max(min(bw, bh), 1)
+    long = max(bw, bh)
+    aspect = float(long / short)
+    # нормируем к ~[0, 1]: типичные 1..5 → /5
+    aspect_n = min(aspect / 5.0, 1.0)
+    solidity = float(fg / max(bw * bh, 1))
+    solidity = min(max(solidity, 0.0), 1.0)
+    return np.array([aspect_n, solidity], dtype=np.float32)
+
+
+def extract_texture_vector(pil: Image.Image, size: int = TEXTURE_SIZE) -> np.ndarray:
+    """15 текстурных + 2 геометрических признака."""
     gray = np.array(pil.convert("L").resize((size, size), Image.LANCZOS), dtype=np.uint8)
     lbp = _lbp_histogram(gray)
     glcm = _glcm_features(gray)
-    vec = np.concatenate([lbp, glcm]).astype(np.float32)
-    return vec
+    geom = extract_geometry_features(pil)
+    return np.concatenate([lbp, glcm, geom]).astype(np.float32)
 
 
 def texture_dim() -> int:
-    return 10 + len(GLCM_PROPS)
+    return 10 + len(GLCM_PROPS) + GEOMETRY_DIM
