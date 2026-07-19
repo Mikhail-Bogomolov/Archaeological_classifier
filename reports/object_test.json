@@ -1,0 +1,122 @@
+{
+  "task": "object_classification",
+  "split": "test",
+  "n_samples": 140,
+  "accuracy": 0.9,
+  "macro_precision": 0.8931308593487296,
+  "macro_recall": 0.8716892911010558,
+  "macro_f1": 0.8790680809586494,
+  "weighted_precision": 0.9033237002549819,
+  "weighted_recall": 0.9,
+  "weighted_f1": 0.8993614127212939,
+  "micro_precision": 0.9,
+  "micro_recall": 0.9,
+  "micro_f1": 0.9,
+  "per_class": [
+    {
+      "label": "кельты",
+      "index": 0,
+      "support": 52,
+      "predicted": 51,
+      "tp": 51,
+      "precision": 1.0,
+      "recall": 0.9807692307692307,
+      "f1": 0.9902912621359222
+    },
+    {
+      "label": "ножи",
+      "index": 1,
+      "support": 39,
+      "predicted": 43,
+      "tp": 34,
+      "precision": 0.7906976744186046,
+      "recall": 0.8717948717948718,
+      "f1": 0.8292682926829267
+    },
+    {
+      "label": "удила",
+      "index": 2,
+      "support": 17,
+      "predicted": 19,
+      "tp": 17,
+      "precision": 0.8947368421052632,
+      "recall": 1.0,
+      "f1": 0.9444444444444444
+    },
+    {
+      "label": "наконечники стрел",
+      "index": 3,
+      "support": 17,
+      "predicted": 14,
+      "tp": 12,
+      "precision": 0.8571428571428571,
+      "recall": 0.7058823529411765,
+      "f1": 0.7741935483870968
+    },
+    {
+      "label": "накладки",
+      "index": 4,
+      "support": 15,
+      "predicted": 13,
+      "tp": 12,
+      "precision": 0.9230769230769231,
+      "recall": 0.8,
+      "f1": 0.8571428571428571
+    }
+  ],
+  "confusion": [
+    [
+      51,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      34,
+      2,
+      2,
+      1
+    ],
+    [
+      0,
+      0,
+      17,
+      0,
+      0
+    ],
+    [
+      0,
+      5,
+      0,
+      12,
+      0
+    ],
+    [
+      0,
+      3,
+      0,
+      0,
+      12
+    ]
+  ],
+  "labels": [
+    "кельты",
+    "ножи",
+    "удила",
+    "наконечники стрел",
+    "накладки"
+  ],
+  "extra": {
+    "item_accuracy": 0.8095238095238095,
+    "item_correct": 34,
+    "item_total": 42,
+    "mean_confidence": 0.896219807437488,
+    "mean_confidence_correct": 0.9136513999057194,
+    "mean_confidence_wrong": 0.739335475223405,
+    "split_seed": 42,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15
+  }
+}

@@ -17,7 +17,6 @@ siberiana-hakaton/
 
 # Camera captures / local artifacts
 data/photos_from_camera/
-reports/
 orange_pi_deploy.zip
 test_img_*.jpg
 

@@ -1,0 +1,119 @@
+{
+  "task": "object_classification",
+  "split": "val",
+  "n_samples": 142,
+  "accuracy": 0.8943661971830986,
+  "macro_precision": 0.86126267281106,
+  "macro_recall": 0.8801206636500755,
+  "macro_f1": 0.8640067295239711,
+  "weighted_precision": 0.9095810345946648,
+  "weighted_recall": 0.8943661971830986,
+  "weighted_f1": 0.8959991841244878,
+  "micro_precision": 0.8943661971830986,
+  "micro_recall": 0.8943661971830986,
+  "micro_f1": 0.8943661971830986,
+  "per_class": [
+    {
+      "label": "кельты",
+      "index": 0,
+      "support": 52,
+      "predicted": 52,
+      "tp": 52,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "label": "ножи",
+      "index": 1,
+      "support": 39,
+      "predicted": 31,
+      "tp": 30,
+      "precision": 0.967741935483871,
+      "recall": 0.7692307692307693,
+      "f1": 0.8571428571428572
+    },
+    {
+      "label": "удила",
+      "index": 2,
+      "support": 19,
+      "predicted": 25,
+      "tp": 19,
+      "precision": 0.76,
+      "recall": 1.0,
+      "f1": 0.8636363636363636
+    },
+    {
+      "label": "наконечники стрел",
+      "index": 3,
+      "support": 17,
+      "predicted": 20,
+      "tp": 13,
+      "precision": 0.65,
+      "recall": 0.7647058823529411,
+      "f1": 0.7027027027027027
+    },
+    {
+      "label": "накладки",
+      "index": 4,
+      "support": 15,
+      "predicted": 14,
+      "tp": 13,
+      "precision": 0.9285714285714286,
+      "recall": 0.8666666666666667,
+      "f1": 0.896551724137931
+    }
+  ],
+  "confusion": [
+    [
+      52,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      30,
+      1,
+      7,
+      1
+    ],
+    [
+      0,
+      0,
+      19,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      4,
+      13,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      13
+    ]
+  ],
+  "labels": [
+    "кельты",
+    "ножи",
+    "удила",
+    "наконечники стрел",
+    "накладки"
+  ],
+  "extra": {
+    "item_accuracy": 0.8571428571428571,
+    "item_correct": 36,
+    "item_total": 42,
+    "mean_confidence": 0.8611403989120269,
+    "mean_confidence_correct": 0.8956849115101371,
+    "mean_confidence_wrong": 0.5686635255813599
+  }
+}
