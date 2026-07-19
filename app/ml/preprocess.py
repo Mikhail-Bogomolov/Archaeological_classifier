@@ -142,8 +142,12 @@ def _crop_from_mask(
         return pil
 
     x, y, bw, bh = cv2.boundingRect(best)
-    pad = 0.10 if ui else 0.08
+    # Больше поля вокруг предмета — лучше видны пропорции относительно фона.
+    pad = 0.22 if ui else 0.18
     mx, my = int(bw * pad), int(bh * pad)
+    # Минимум в пикселях, чтобы тонкие объекты (ножи) не оставались «впритык».
+    mx = max(mx, int(sw * 0.04))
+    my = max(my, int(sh * 0.04))
     x0 = max(0, x - mx)
     y0 = max(0, y - my)
     x1 = min(sw, x + bw + mx)
@@ -268,7 +272,7 @@ def _foreground_mask(pil: Image.Image) -> np.ndarray:
 
 def crop_to_foreground_bbox(
     pil: Image.Image,
-    pad_ratio: float = 0.06,
+    pad_ratio: float = 0.14,
     max_coverage: float = 0.90,
     min_coverage: float = 0.0,
 ) -> Image.Image:
@@ -284,9 +288,9 @@ def crop_to_foreground_bbox(
     bw, bh = x1 - x0 + 1, y1 - y0 + 1
     elong = bh / max(bw, 1)
     if elong > 2.2:
-        pad_ratio = max(pad_ratio, 0.14)
-    pad_x = max(2, int(bw * pad_ratio))
-    pad_y = max(2, int(bh * pad_ratio))
+        pad_ratio = max(pad_ratio, 0.22)
+    pad_x = max(2, int(bw * pad_ratio), int(w * 0.03))
+    pad_y = max(2, int(bh * pad_ratio), int(h * 0.03))
     left = max(0, x0 - pad_x)
     top = max(0, y0 - pad_y)
     right = min(w, x1 + 1 + pad_x)
@@ -319,10 +323,12 @@ def _preview_bbox_settings(
 ) -> tuple[float, float, float]:
     """pad_ratio, max_coverage, min_coverage."""
     if installation:
-        return 0.16, 0.72, 0.42
+        return 0.24, 0.78, 0.38
     if object_class == "ножи":
-        return 0.20, 0.82, 0.30
-    return 0.08, 0.86, 0.18
+        return 0.28, 0.88, 0.28
+    if object_class == "наконечники стрел":
+        return 0.24, 0.86, 0.28
+    return 0.18, 0.88, 0.16
 
 
 def _content_center_fraction(pil: Image.Image) -> tuple[float, float]:
@@ -662,7 +668,8 @@ def _validate_ui_preview(
     min_area = 0.04 if installation else 0.05
     if area_ratio < min_area and fg_frac < 0.08:
         return False, "crop_too_tight"
-    if area_ratio > 0.88:
+    # С более широким pad допустим чуть больший кадр
+    if area_ratio > 0.94:
         return False, "crop_too_weak"
 
     aspect = ow / max(oh, 1)
