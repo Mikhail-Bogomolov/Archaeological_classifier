@@ -4,14 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Сканирование</title>
-    <link rel="stylesheet" href="/static/small-screen.css">
+    <link rel="stylesheet" href="/static/small-screen.css?v=4">
+    {% if not scan %}
+    <style>
+        body.scan-page--start { padding-top: 36px !important; }
+        body.scan-page--start .scan-header--start {
+            padding-top: 20px !important;
+            padding-bottom: 14px !important;
+            margin-top: 0 !important;
+        }
+        body.scan-page--start .scan-back-link {
+            display: inline-flex !important;
+            align-items: center !important;
+            min-height: 56px !important;
+            padding: 12px 18px !important;
+            font-size: 18px !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            text-decoration: none !important;
+            background: #fff !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 10px !important;
+        }
+        body.scan-page--start .scan-start-panel {
+            margin-top: 20px !important;
+        }
+    </style>
+    {% endif %}
 </head>
-<body class="small-screen bg-gray-50 min-h-screen">
+<body class="small-screen bg-gray-50 min-h-screen{% if not scan %} scan-page--start{% endif %}">
 
-<header class="scan-header page-pad bg-white border-b border-gray-200">
+<header class="scan-header page-pad bg-white border-b border-gray-200{% if not scan %} scan-header--start{% endif %}">
     <div class="scan-header-main">
-        <a href="/" style="font-size:var(--text-sm);color:#6b7280;text-decoration:none">← Список</a>
-        <h1 class="title-section" style="margin-top:6px">Сканирование</h1>
+        <a href="/" class="scan-back-link">← Список</a>
+        <h1 class="title-section scan-title">Сканирование</h1>
     </div>
     {% if scan and scan.class_confirmed %}
     <form action="/scan/rescan" method="POST" class="scan-rescan-form">
@@ -93,7 +119,7 @@
 </div>
 
 {% else %}
-<div class="page-pad card" style="margin:var(--pad)">
+<div class="page-pad card scan-start-panel">
     <p style="font-size:var(--text-base);color:#6b7280;margin:0 0 10px">
         Загрузите фото с установки или нажмите «Начать сканирование» без файла — снимок с камеры ПК.
     </p>

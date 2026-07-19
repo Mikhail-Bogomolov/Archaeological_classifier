@@ -70,15 +70,31 @@ def add_object(
         return int(cur.lastrowid)
 
 
-def _filter_clause(category: str | None) -> tuple[str, list[Any]]:
+def _filter_clause(
+    category: str | None = None,
+    on_date: date | None = None,
+) -> tuple[str, list[Any]]:
+    clauses: list[str] = []
+    params: list[Any] = []
     cat = (category or "").strip()
-    if not cat:
+    if cat:
+        clauses.append("category = ?")
+        params.append(cat)
+    if on_date is not None:
+        # даты в БД: «DD.MM.YYYY HH:MM» или «DD.MM.YYYY»
+        day_prefix = on_date.strftime("%d.%m.%Y")
+        clauses.append("date LIKE ?")
+        params.append(f"{day_prefix}%")
+    if not clauses:
         return "", []
-    return "WHERE category = ?", [cat]
+    return "WHERE " + " AND ".join(clauses), params
 
 
-def count_objects(category: str | None = None) -> int:
-    clause, params = _filter_clause(category)
+def count_objects(
+    category: str | None = None,
+    on_date: date | None = None,
+) -> int:
+    clause, params = _filter_clause(category, on_date)
     with _connect() as conn:
         row = conn.execute(f"SELECT COUNT(*) AS cnt FROM objects {clause}", params).fetchone()
         return int(row["cnt"]) if row else 0
@@ -88,10 +104,11 @@ def list_objects_paginated(
     page: int = 1,
     per_page: int = PAGE_SIZE,
     category: str | None = None,
+    on_date: date | None = None,
 ) -> list[dict[str, Any]]:
     page = max(1, page)
     offset = (page - 1) * per_page
-    clause, params = _filter_clause(category)
+    clause, params = _filter_clause(category, on_date)
     with _connect() as conn:
         rows = conn.execute(
             f"""
@@ -189,8 +206,9 @@ def pagination_meta(
     page: int,
     per_page: int = PAGE_SIZE,
     category: str | None = None,
+    on_date: date | None = None,
 ) -> dict[str, int]:
-    total = count_objects(category)
+    total = count_objects(category, on_date)
     total_pages = max(1, math.ceil(total / per_page)) if total else 1
     page = min(max(1, page), total_pages)
     return {

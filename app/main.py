@@ -45,19 +45,57 @@ async def home(
     request: Request,
     page: int = Query(1, ge=1),
     category: str = Query(""),
+    filter: str = Query(""),
+    day: str = Query(""),
 ):
     global pending_scan
     pending_scan = None
     db.init_db()
-    selected = category.strip()
-    if selected and selected not in OBJECT_CLASSES:
+
+    filter_mode = (filter or "").strip().lower()
+    selected = (category or "").strip()
+    selected_day: date | None = None
+    day_iso = ""
+
+    if filter_mode == "day" or (not selected and day.strip()):
+        filter_mode = "day"
         selected = ""
-    meta = db.pagination_meta(page, category=selected or None)
-    objects = db.list_objects_paginated(
-        meta["page"],
-        meta["per_page"],
-        category=selected or None,
-    )
+        try:
+            selected_day = date.fromisoformat(day.strip())
+            day_iso = selected_day.isoformat()
+        except ValueError:
+            selected_day = None
+            day_iso = ""
+    elif selected and selected not in OBJECT_CLASSES:
+        selected = ""
+        filter_mode = ""
+    elif selected:
+        filter_mode = "category"
+
+    if filter_mode == "day" and selected_day is None:
+        meta = {
+            "page": 1,
+            "per_page": db.PAGE_SIZE,
+            "total_count": 0,
+            "total_pages": 1,
+            "has_prev": False,
+            "has_next": False,
+            "prev_page": 1,
+            "next_page": 1,
+        }
+        objects = []
+    else:
+        meta = db.pagination_meta(
+            page,
+            category=selected or None,
+            on_date=selected_day,
+        )
+        objects = db.list_objects_paginated(
+            meta["page"],
+            meta["per_page"],
+            category=selected or None,
+            on_date=selected_day,
+        )
     return templates.TemplateResponse(
         request=request,
         name="index.html",
@@ -72,8 +110,10 @@ async def home(
             "next_page": meta["next_page"],
             "per_page": meta["per_page"],
             "selected_category": selected,
+            "filter_mode": filter_mode,
+            "selected_day": day_iso,
             "object_classes": OBJECT_CLASSES,
-        }
+        },
     )
 
 

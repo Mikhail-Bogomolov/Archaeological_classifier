@@ -86,6 +86,44 @@ body.small-screen {
     min-width: 0;
 }
 
+.small-screen .scan-back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 14px;
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: #0f172a;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.small-screen .scan-header--start .scan-back-link {
+    min-height: 56px;
+    padding: 12px 18px;
+    font-size: 18px;
+}
+
+.small-screen .scan-title {
+    margin-top: 8px;
+}
+
+.small-screen .scan-page--start .scan-header--start {
+    padding-top: 20px;
+    padding-bottom: 14px;
+}
+
+.small-screen.scan-page--start {
+    padding-top: 36px;
+}
+
+.small-screen .scan-start-panel {
+    margin: 20px var(--pad) var(--pad);
+    padding-top: 18px;
+}
+
 .small-screen .scan-rescan-form {
     flex-shrink: 0;
     margin: 0;

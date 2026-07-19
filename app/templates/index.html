@@ -4,9 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Археологический классификатор</title>
-    <link rel="stylesheet" href="/static/small-screen.css">
-    <link rel="stylesheet" href="/static/home.css">
-</head>
+    <link rel="stylesheet" href="/static/small-screen.css?v=3">
+    <link rel="stylesheet" href="/static/home.css?v=3">
+    <style>
+        /* Страховка: стрелки справа от списка (не зависят от кэша home.css) */
+        .ui-list-with-scroll {
+            position: relative !important;
+            display: block !important;
+            padding-right: 64px !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+        }
+        .ui-object-list {
+            display: block !important;
+            width: 100% !important;
+            max-height: min(52vh, 420px) !important;
+            overflow-y: auto !important;
+            box-sizing: border-box !important;
+        }
+        .ui-list-scroll-btns {
+            position: absolute !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 56px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+            margin: 0 !important;
+            z-index: 2 !important;
+        }
+        .ui-scroll-btn {
+            flex: 1 1 0 !important;
+            width: 56px !important;
+            min-height: 64px !important;
+            display: block !important;
+        }
+    </style></head>
 <body class="small-screen home-page">
 
 <header class="ui-header">
@@ -21,70 +55,100 @@
         НАЧАТЬ СКАНИРОВАНИЕ
     </a>
 
-    <form class="ui-filter-wrap" method="get" action="/">
-        <label for="category-filter" class="ui-filter-label">Класс</label>
-        <select id="category-filter" name="category" class="ui-filter-select" onchange="this.form.submit()">
-            <option value="">Все объекты</option>
+    <form class="ui-filter-wrap" method="get" action="/" id="filter-form">
+        <label for="filter-select" class="ui-filter-label">Фильтр</label>
+        <select id="filter-select" class="ui-filter-select">
+            <option value="all" {% if not filter_mode %}selected{% endif %}>Все объекты</option>
+            <option value="day" {% if filter_mode == "day" %}selected{% endif %}>по дню</option>
             {% for cls in object_classes %}
-            <option value="{{ cls }}" {% if selected_category == cls %}selected{% endif %}>{{ cls }}</option>
+            <option
+                value="cat:{{ cls }}"
+                {% if filter_mode == "category" and selected_category == cls %}selected{% endif %}
+            >{{ cls }}</option>
             {% endfor %}
         </select>
+        <input type="hidden" name="filter" id="filter-mode" value="{{ filter_mode }}">
+        <input type="hidden" name="category" id="filter-category" value="{{ selected_category }}">
+        <div class="ui-day-wrap" id="day-wrap" {% if filter_mode != "day" %}hidden{% endif %}>
+            <label for="filter-day" class="ui-filter-label">День</label>
+            <input
+                type="date"
+                id="filter-day"
+                name="day"
+                class="ui-filter-select"
+                value="{{ selected_day }}"
+            >
+        </div>
     </form>
 
-    {% if selected_category %}
+    {% if filter_mode == "category" or filter_mode == "day" %}
     <a href="/" class="ui-btn-show-all">УВИДЕТЬ ВСЕ ОБЪЕКТЫ</a>
     {% endif %}
 
     <h2 class="ui-list-title">
-        {% if selected_category %}
+        {% if filter_mode == "category" and selected_category %}
         {{ selected_category }} ({{ total_count }})
+        {% elif filter_mode == "day" and selected_day %}
+        {{ selected_day }} ({{ total_count }})
+        {% elif filter_mode == "day" %}
+        По дню ({{ total_count }})
         {% else %}
         Объекты ({{ total_count }})
         {% endif %}
     </h2>
 
-    <div class="ui-object-list">
-        {% for obj in objects %}
-        <a href="/object/{{ obj.id }}" class="ui-object-card">
-            <img
-                src="/object/{{ obj.id }}/thumbnail?size=48"
-                width="48"
-                height="48"
-                alt=""
-                class="ui-object-thumb"
-                loading="lazy"
-            >
-            <div class="ui-object-info">
-                <strong>{{ obj.name }}</strong>
-                <span class="ui-object-cat">{{ obj.category }}</span>
-                <span class="ui-object-date">{{ obj.date }}</span>
-            </div>
-            <span class="ui-badge {% if obj.confidence >= 92 %}ui-badge--green{% else %}ui-badge--orange{% endif %}">
-                {{ obj.confidence }}%
-            </span>
-            <span class="ui-chevron" aria-hidden="true">›</span>
-        </a>
-        {% else %}
-        <p class="ui-empty">
-            {% if selected_category %}
-            Нет объектов класса «{{ selected_category }}».
+    <div class="ui-list-with-scroll">
+        <div class="ui-object-list" id="object-list">
+            {% for obj in objects %}
+            <a href="/object/{{ obj.id }}" class="ui-object-card">
+                <img
+                    src="/object/{{ obj.id }}/thumbnail?size=40"
+                    width="40"
+                    height="40"
+                    alt=""
+                    class="ui-object-thumb"
+                    loading="lazy"
+                >
+                <div class="ui-object-info">
+                    <strong>{{ obj.name }}</strong>
+                    <span class="ui-object-cat">{{ obj.category }}</span>
+                    <span class="ui-object-date">{{ obj.date }}</span>
+                </div>
+                <span class="ui-badge {% if obj.confidence >= 92 %}ui-badge--green{% else %}ui-badge--orange{% endif %}">
+                    {{ obj.confidence }}%
+                </span>
+                <span class="ui-chevron" aria-hidden="true">›</span>
+            </a>
             {% else %}
-            Объектов нет. Нажмите «Начать сканирование».
-            {% endif %}
-        </p>
-        {% endfor %}
+            <p class="ui-empty">
+                {% if filter_mode == "category" and selected_category %}
+                Нет объектов класса «{{ selected_category }}».
+                {% elif filter_mode == "day" and selected_day %}
+                Нет объектов за {{ selected_day }}.
+                {% elif filter_mode == "day" %}
+                Выберите день в календаре.
+                {% else %}
+                Объектов нет. Нажмите «Начать сканирование».
+                {% endif %}
+            </p>
+            {% endfor %}
+        </div>
+        <div class="ui-list-scroll-btns" aria-label="Листание списка">
+            <button type="button" class="ui-scroll-btn" id="scroll-up" title="Вверх">▲</button>
+            <button type="button" class="ui-scroll-btn" id="scroll-down" title="Вниз">▼</button>
+        </div>
     </div>
 
     {% if total_pages > 1 %}
     <div class="ui-pager">
         {% if has_prev %}
-        <a href="/?page={{ prev_page }}{% if selected_category %}&amp;category={{ selected_category | urlencode }}{% endif %}">← Назад</a>
+        <a href="/?page={{ prev_page }}{% if filter_mode == 'day' %}&amp;filter=day&amp;day={{ selected_day }}{% elif selected_category %}&amp;filter=category&amp;category={{ selected_category | urlencode }}{% endif %}">← Назад</a>
         {% else %}
         <span class="disabled">← Назад</span>
         {% endif %}
         <span>{{ page }}/{{ total_pages }}</span>
         {% if has_next %}
-        <a href="/?page={{ next_page }}{% if selected_category %}&amp;category={{ selected_category | urlencode }}{% endif %}">Вперёд →</a>
+        <a href="/?page={{ next_page }}{% if filter_mode == 'day' %}&amp;filter=day&amp;day={{ selected_day }}{% elif selected_category %}&amp;filter=category&amp;category={{ selected_category | urlencode }}{% endif %}">Вперёд →</a>
         {% else %}
         <span class="disabled">Вперёд →</span>
         {% endif %}
@@ -101,5 +165,66 @@
     </a>
 </div>
 
+<script>
+(function () {
+    var form = document.getElementById("filter-form");
+    var select = document.getElementById("filter-select");
+    var modeInput = document.getElementById("filter-mode");
+    var categoryInput = document.getElementById("filter-category");
+    var dayWrap = document.getElementById("day-wrap");
+    var dayInput = document.getElementById("filter-day");
+    if (!form || !select) {
+        return;
+    }
+
+    select.addEventListener("change", function () {
+        var value = select.value || "all";
+        if (value === "day") {
+            modeInput.value = "day";
+            categoryInput.value = "";
+            dayWrap.hidden = false;
+            if (dayInput.value) {
+                form.submit();
+            }
+            return;
+        }
+        dayWrap.hidden = true;
+        dayInput.value = "";
+        if (value.indexOf("cat:") === 0) {
+            modeInput.value = "category";
+            categoryInput.value = value.slice(4);
+            form.submit();
+            return;
+        }
+        modeInput.value = "";
+        categoryInput.value = "";
+        form.submit();
+    });
+
+    if (dayInput) {
+        dayInput.addEventListener("change", function () {
+            if (!dayInput.value) {
+                return;
+            }
+            modeInput.value = "day";
+            categoryInput.value = "";
+            form.submit();
+        });
+    }
+
+    var list = document.getElementById("object-list");
+    var up = document.getElementById("scroll-up");
+    var down = document.getElementById("scroll-down");
+    var step = 96;
+    if (list && up && down) {
+        up.addEventListener("click", function () {
+            list.scrollBy({ top: -step, behavior: "smooth" });
+        });
+        down.addEventListener("click", function () {
+            list.scrollBy({ top: step, behavior: "smooth" });
+        });
+    }
+})();
+</script>
 </body>
 </html>
