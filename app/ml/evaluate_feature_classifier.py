@@ -1,8 +1,9 @@
 """
-Бенчмарк сети 2: accuracy, precision, recall, F1 по каждому признаку.
+Бенчмарк сети 2: accuracy, precision, recall, F1 по каждому признаку и по типам объектов.
 
     python -m app.ml.evaluate_feature_classifier
-    python -m app.ml.evaluate_feature_classifier --json-out reports/features_val.json
+    python -m app.ml.evaluate_feature_classifier --split test --json-out reports/feature_test.json
+    python -m app.ml.evaluate_feature_classifier --class ножи
 """
 
 from __future__ import annotations
@@ -10,14 +11,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
+from typing import Any
 
 import torch
 from torch.utils.data import DataLoader
 
 from app.ml.augmentations import build_val_transforms
-from app.ml.config import FEATURE_MODEL_FILE, MODELS_DIR
+from app.ml.config import FEATURE_MODEL_FILE, MODELS_DIR, OBJECT_CLASSES
 from app.ml.evaluation_metrics import (
     BenchmarkReport,
     compute_benchmark_report,
@@ -28,6 +30,83 @@ from app.ml.models import FeatureClassifierNet
 from app.ml.splits import DEFAULT_SPLIT_SEED, DEFAULT_TEST_RATIO, DEFAULT_VAL_RATIO
 
 
+def _split_attr_key(attr_key: str) -> tuple[str, str]:
+    class_name, feature_name = attr_key.split(":", 1)
+    return class_name, feature_name
+
+
+def _summarize_by_class(
+    per_head_reports: dict[str, BenchmarkReport],
+    photos_by_class: dict[str, int],
+) -> dict[str, dict[str, Any]]:
+    """Сводка по типу объекта: все головы вида «класс:признак»."""
+    by_class: dict[str, dict[str, Any]] = {}
+
+    for class_name in OBJECT_CLASSES:
+        heads_for_class = {
+            key.split(":", 1)[1]: rep
+            for key, rep in per_head_reports.items()
+            if key.startswith(f"{class_name}:")
+        }
+        if not heads_for_class:
+            continue
+
+        class_correct = 0
+        class_labels = 0
+        macro_f1_values: list[float] = []
+        head_payload: dict[str, Any] = {}
+
+        for feat in sorted(heads_for_class):
+            rep = heads_for_class[feat]
+            head_payload[feat] = rep.to_dict()
+            macro_f1_values.append(rep.macro_f1)
+            class_correct += sum(rep.confusion[i][i] for i in range(len(rep.labels)))
+            class_labels += rep.n_samples
+
+        by_class[class_name] = {
+            "n_photos": photos_by_class.get(class_name, 0),
+            "n_labels": class_labels,
+            "n_heads": len(heads_for_class),
+            "overall_accuracy": class_correct / max(class_labels, 1),
+            "mean_macro_f1": sum(macro_f1_values) / max(len(macro_f1_values), 1),
+            "heads": head_payload,
+        }
+
+    return by_class
+
+
+def _print_by_class_summary(by_class: dict[str, dict[str, Any]], split: str) -> None:
+    print(f"\n=== По типам объектов ({split}) ===")
+    print(
+        f"  {'класс':<22} {'фото':>5} {'меток':>6} "
+        f"{'acc':>7} {'macro-F1':>9}"
+    )
+    for class_name in OBJECT_CLASSES:
+        row = by_class.get(class_name)
+        if not row:
+            continue
+        print(
+            f"  {class_name:<22} {row['n_photos']:5d} {row['n_labels']:6d} "
+            f"{row['overall_accuracy']:6.1%} {row['mean_macro_f1']:8.1%}"
+        )
+
+    for class_name in OBJECT_CLASSES:
+        row = by_class.get(class_name)
+        if not row:
+            continue
+        print(
+            f"\n--- {class_name} "
+            f"(фото={row['n_photos']}, меток={row['n_labels']}, "
+            f"acc={row['overall_accuracy']:.1%}, macro-F1={row['mean_macro_f1']:.1%}) ---"
+        )
+        print(f"  {'признак':<22} {'меток':>6} {'acc':>7} {'macro-F1':>9}")
+        for feat, head in sorted(row["heads"].items()):
+            print(
+                f"  {feat:<22} {head['n_samples']:6d} "
+                f"{head['accuracy']:6.1%} {head['macro_f1']:8.1%}"
+            )
+
+
 @torch.no_grad()
 def main() -> None:
     parser = argparse.ArgumentParser(description="Бенчмарк сети признаков")
@@ -36,6 +115,12 @@ def main() -> None:
         choices=("train", "val", "test"),
         default="test",
         help="test — holdout для честной оценки",
+    )
+    parser.add_argument(
+        "--class",
+        dest="object_class",
+        default="",
+        help="Только один тип объекта (например: ножи)",
     )
     parser.add_argument("--seed", type=int, default=DEFAULT_SPLIT_SEED)
     parser.add_argument("--val-ratio", type=float, default=DEFAULT_VAL_RATIO)
@@ -57,7 +142,24 @@ def main() -> None:
         action="store_true",
         help="Не сохранять PNG визуализацию",
     )
+    parser.add_argument(
+        "--no-head-detail",
+        action="store_true",
+        help="Не печатать детальный отчёт по каждому значению признака",
+    )
     args = parser.parse_args()
+
+    if args.split != "test":
+        print(
+            f"Внимание: метрики на split={args.split!r}. "
+            "Для честной оценки используйте --split test."
+        )
+
+    if args.object_class and args.object_class not in OBJECT_CLASSES:
+        raise SystemExit(
+            f"Неизвестный класс {args.object_class!r}. "
+            f"Допустимо: {', '.join(OBJECT_CLASSES)}"
+        )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     weights = Path(MODELS_DIR) / FEATURE_MODEL_FILE
@@ -85,7 +187,16 @@ def main() -> None:
     )
     loader = DataLoader(ds, batch_size=32, shuffle=False, collate_fn=collate_features)
 
+    photos_by_class = Counter(
+        OBJECT_CLASSES[s["class_idx"]] for s in ds.samples
+    )
+
     attr_keys = ds.attr_keys
+    if args.object_class:
+        attr_keys = [k for k in attr_keys if k.startswith(f"{args.object_class}:")]
+        if not attr_keys:
+            raise SystemExit(f"В vocab нет голов для класса {args.object_class!r}")
+
     y_true_by_attr: dict[str, list[int]] = defaultdict(list)
     y_pred_by_attr: dict[str, list[int]] = defaultdict(list)
 
@@ -98,7 +209,9 @@ def main() -> None:
         else:
             logits = model(x, one_hot)
 
-        for i, key in enumerate(attr_keys):
+        for i, key in enumerate(ds.attr_keys):
+            if key not in attr_keys:
+                continue
             y = targets[:, i]
             mask = y >= 0
             if mask.sum() == 0:
@@ -109,6 +222,8 @@ def main() -> None:
 
     print(f"\n=== Бенчмарк: feature_classification ({args.split}) ===")
     print(f"texture={use_texture}, heads={len(attr_keys)}")
+    if args.object_class:
+        print(f"фильтр класса: {args.object_class}")
 
     per_head_reports: dict[str, BenchmarkReport] = {}
     macro_f1_values: list[float] = []
@@ -137,22 +252,28 @@ def main() -> None:
         total_correct += sum(head_report.confusion[i][i] for i in range(len(labels)))
         total_labels += len(y_true)
 
-        print(f"\n--- {key} (n={head_report.n_samples}) ---")
-        print(
-            f"Acc={head_report.accuracy:.1%}  "
-            f"macro P/R/F1={head_report.macro_precision:.1%}/"
-            f"{head_report.macro_recall:.1%}/{head_report.macro_f1:.1%}  "
-            f"weighted F1={head_report.weighted_f1:.1%}"
-        )
-        print(f"  {'значение':<28} {'sup':>5} {'prec':>7} {'rec':>7} {'f1':>7}")
-        for row in head_report.per_class:
-            if row.support == 0 and row.predicted == 0:
-                continue
-            label = row.label[:28]
+        if not args.no_head_detail:
+            print(f"\n--- {key} (n={head_report.n_samples}) ---")
             print(
-                f"  {label:<28} {row.support:5d} "
-                f"{row.precision:6.1%} {row.recall:6.1%} {row.f1:6.1%}"
+                f"Acc={head_report.accuracy:.1%}  "
+                f"macro P/R/F1={head_report.macro_precision:.1%}/"
+                f"{head_report.macro_recall:.1%}/{head_report.macro_f1:.1%}  "
+                f"weighted F1={head_report.weighted_f1:.1%}"
             )
+            print(f"  {'значение':<28} {'sup':>5} {'prec':>7} {'rec':>7} {'f1':>7}")
+            for row in head_report.per_class:
+                if row.support == 0 and row.predicted == 0:
+                    continue
+                label = row.label[:28]
+                print(
+                    f"  {label:<28} {row.support:5d} "
+                    f"{row.precision:6.1%} {row.recall:6.1%} {row.f1:6.1%}"
+                )
+
+    by_class = _summarize_by_class(per_head_reports, dict(photos_by_class))
+    if args.object_class:
+        by_class = {k: v for k, v in by_class.items() if k == args.object_class}
+    _print_by_class_summary(by_class, args.split)
 
     overall_acc = total_correct / max(total_labels, 1)
     mean_macro_f1 = sum(macro_f1_values) / max(len(macro_f1_values), 1)
@@ -171,8 +292,11 @@ def main() -> None:
             "overall_accuracy": overall_acc,
             "mean_macro_f1": mean_macro_f1,
             "total_labels": total_labels,
+            "by_class": by_class,
             "heads": {key: rep.to_dict() for key, rep in per_head_reports.items()},
         }
+        if args.object_class:
+            payload["filter_class"] = args.object_class
         out = Path(args.json_out)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(

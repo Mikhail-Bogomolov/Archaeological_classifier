@@ -50,7 +50,11 @@ py -m app.ml.train_feature_classifier --epochs 40
 py -m app.ml.evaluate_classifier --split test --json-out reports/object_test.json
 py -m app.ml.evaluate_classifier --split val --calibrate
 py -m app.ml.evaluate_feature_classifier --split test --json-out reports/feature_test.json
+py -m app.ml.evaluate_feature_classifier --split test --class ножи
 ```
+
+Сеть 1: один отчёт с `per_class` (кельты, ножи, …).  
+Сеть 2: головы вида `класс:признак` (например `ножи:материал`); в JSON и консоли есть сводка **`by_class`** — accuracy и macro-F1 по каждому типу объекта и по каждому признаку внутри типа.
 
 `--calibrate` пишет `extra.calibration` (в т.ч. `suggested_threshold`) в `object_classifier.pt`; pipeline подхватывает порог при загрузке.  
 В отчёте сети 1 также печатается список проблемных `item_key` (не все ракурсы верны).

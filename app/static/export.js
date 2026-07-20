@@ -8,8 +8,8 @@
     var bounds = window.EXPORT_BOUNDS || {};
     var startDate = null;
     var endDate = null;
-    var leftMonth = new Date();
-    var rightMonth = new Date();
+    var activeField = null;
+    var viewMonth = new Date();
 
     function parseIso(s) {
         if (!s) return null;
@@ -95,8 +95,14 @@
         } else if (startDate) {
             summary.textContent = "Выбрано начало: " + toDisplay(startDate) + ". Укажите конец периода.";
         } else {
-            summary.textContent = "Оставьте период пустым и скачайте — выгрузятся все объекты.";
+            summary.textContent = "Оставьте период пустым — выгрузятся все объекты.";
         }
+
+        document.querySelectorAll(".export-cal-toggle").forEach(function (btn) {
+            var field = btn.getAttribute("data-field");
+            var role = field === "start" ? "start" : "end";
+            btn.classList.toggle("is-active", activeField === role);
+        });
     }
 
     function pluralDays(n) {
@@ -123,7 +129,7 @@
             }
         }
         updateFields();
-        renderCalendars();
+        renderCalendar();
     }
 
     function buildCalendar(container, monthDate, calRole) {
@@ -138,12 +144,8 @@
         prev.className = "mini-cal-nav";
         prev.textContent = "‹";
         prev.addEventListener("click", function () {
-            if (calRole === "start") {
-                leftMonth = new Date(leftMonth.getFullYear(), leftMonth.getMonth() - 1, 1);
-            } else {
-                rightMonth = new Date(rightMonth.getFullYear(), rightMonth.getMonth() - 1, 1);
-            }
-            renderCalendars();
+            viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1);
+            renderCalendar();
         });
         var title = document.createElement("div");
         title.className = "mini-cal-title";
@@ -153,12 +155,8 @@
         next.className = "mini-cal-nav";
         next.textContent = "›";
         next.addEventListener("click", function () {
-            if (calRole === "start") {
-                leftMonth = new Date(leftMonth.getFullYear(), leftMonth.getMonth() + 1, 1);
-            } else {
-                rightMonth = new Date(rightMonth.getFullYear(), rightMonth.getMonth() + 1, 1);
-            }
-            renderCalendars();
+            viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+            renderCalendar();
         });
         head.appendChild(prev);
         head.appendChild(title);
@@ -215,21 +213,48 @@
         container.appendChild(daysGrid);
     }
 
-    function renderCalendars() {
+    function renderCalendar() {
+        var panel = document.getElementById("calendars-panel");
         var row = document.getElementById("calendars-row");
-        if (!row) return;
+        if (!panel || !row) return;
+
+        if (!activeField) {
+            panel.hidden = true;
+            panel.classList.remove("is-open");
+            row.innerHTML = "";
+            return;
+        }
+
+        panel.hidden = false;
+        panel.classList.add("is-open");
         row.innerHTML = "";
 
-        var left = document.createElement("div");
-        left.className = "mini-cal";
-        var right = document.createElement("div");
-        right.className = "mini-cal";
+        var cal = document.createElement("div");
+        cal.className = "mini-cal mini-cal--large";
+        buildCalendar(cal, viewMonth, activeField);
+        row.appendChild(cal);
+    }
 
-        buildCalendar(left, leftMonth, "start");
-        buildCalendar(right, rightMonth, "end");
+    function openCalendar(field) {
+        if (activeField === field) {
+            activeField = null;
+            updateFields();
+            renderCalendar();
+            return;
+        }
 
-        row.appendChild(left);
-        row.appendChild(right);
+        activeField = field;
+        var anchor = field === "start" ? startDate : endDate;
+        if (anchor) {
+            viewMonth = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+        } else {
+            var min = parseIso(bounds.min);
+            var max = parseIso(bounds.max);
+            var ref = min || max || new Date();
+            viewMonth = new Date(ref.getFullYear(), ref.getMonth(), 1);
+        }
+        updateFields();
+        renderCalendar();
     }
 
     function initDefaults() {
@@ -238,19 +263,22 @@
         if (min && max) {
             startDate = new Date(min);
             endDate = new Date(max);
-            leftMonth = new Date(min.getFullYear(), min.getMonth(), 1);
-            rightMonth = new Date(max.getFullYear(), max.getMonth(), 1);
-        } else {
-            var now = new Date();
-            leftMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            rightMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         }
+        viewMonth = startDate
+            ? new Date(startDate.getFullYear(), startDate.getMonth(), 1)
+            : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     }
 
     document.addEventListener("DOMContentLoaded", function () {
         initDefaults();
         updateFields();
-        renderCalendars();
+
+        document.querySelectorAll(".export-cal-toggle").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var field = btn.getAttribute("data-field");
+                openCalendar(field === "start" ? "start" : "end");
+            });
+        });
 
         var form = document.getElementById("export-form");
         if (form) {
@@ -269,8 +297,9 @@
             clearBtn.addEventListener("click", function () {
                 startDate = null;
                 endDate = null;
+                activeField = null;
                 updateFields();
-                renderCalendars();
+                renderCalendar();
             });
         }
     });

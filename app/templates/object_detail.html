@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>{{ obj.name }}</title>
-    <link rel="stylesheet" href="/static/small-screen.css">
+    <link rel="stylesheet" href="/static/small-screen.css?v=5">
 </head>
-<body class="small-screen bg-gray-50">
+<body class="small-screen bg-gray-50 object-detail-page">
 
-<header class="page-pad bg-white border-b border-gray-200">
-    <a href="/" style="font-size:var(--text-sm);color:#6b7280;text-decoration:none">← Список</a>
-    <h1 class="title-section" style="margin-top:6px">{{ obj.name }}</h1>
+<header class="page-pad bg-white border-b border-gray-200 object-detail-header">
+    <a href="/" class="scan-back-link">← Список</a>
+    <h1 class="title-section object-detail-title">{{ obj.name }}</h1>
 </header>
 
-<div class="page-pad" style="display:flex;flex-direction:column;gap:8px">
+<div class="object-detail-body page-pad">
     <div class="card page-pad">
         <img src="{{ obj.image_url }}" alt="" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;background:#f3f4f6">
     </div>

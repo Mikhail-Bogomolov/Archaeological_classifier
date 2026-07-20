@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Сканирование</title>
-    <link rel="stylesheet" href="/static/small-screen.css?v=4">
+    <link rel="stylesheet" href="/static/small-screen.css?v=5">
     {% if not scan %}
     <style>
         body.scan-page--start { padding-top: 36px !important; }
@@ -142,7 +142,7 @@
     >
         <label style="font-size:var(--text-base);display:block;margin-bottom:4px">Фото (необяз.)</label>
         <input type="file" name="file" accept="image/*" style="width:100%;font-size:var(--text-sm);margin-bottom:10px">
-        <button type="submit" class="btn-primary" style="border:none;width:100%">Начать сканирование</button>
+        <button type="submit" class="btn-primary scan-start-btn" style="border:none;width:100%">Начать сканирование</button>
     </form>
 </div>
 {% endif %}

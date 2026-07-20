@@ -19,6 +19,7 @@ from app.camera_capture import CameraCaptureError, capture_jpeg_bytes
 from app.inference import run_inference
 from app.ml.config import OBJECT_CLASSES
 from app.ml.pipeline import get_pipeline
+from app.usb_export import find_usb_mount, safe_export_filename
 from app.ml.preprocess import load_ui_preview_rgb, pil_to_jpeg_bytes
 
 
@@ -118,7 +119,12 @@ async def home(
 
 
 @app.get("/export")
-async def export_page(request: Request):
+async def export_page(
+    request: Request,
+    usb_ok: int = Query(0),
+    usb_error: str = Query(""),
+    file: str = Query(""),
+):
     db.init_db()
     date_bounds = db.get_export_date_bounds()
     return templates.TemplateResponse(
@@ -127,6 +133,9 @@ async def export_page(request: Request):
         context={
             "export_min_date": date_bounds["min_date"],
             "export_max_date": date_bounds["max_date"],
+            "usb_ok": bool(usb_ok),
+            "usb_error": usb_error.strip() or None,
+            "usb_file": file.strip(),
         },
     )
 
@@ -352,6 +361,43 @@ async def export_csv(
         media_type="application/zip",
         headers={"Content-Disposition": f"attachment; filename=objects_export{suffix}.zip"},
     )
+
+
+def _build_export_zip(date_from: str | None, date_to: str | None) -> tuple[bytes, str]:
+    parsed_from = _parse_export_date(date_from)
+    parsed_to = _parse_export_date(date_to)
+    if parsed_from and parsed_to and parsed_from > parsed_to:
+        parsed_from, parsed_to = parsed_to, parsed_from
+    objects = db.list_objects_for_export(date_from=parsed_from, date_to=parsed_to)
+    data = export_objects_csv_zip(objects)
+    suffix = ""
+    if parsed_from or parsed_to:
+        from_part = parsed_from.isoformat() if parsed_from else "start"
+        to_part = parsed_to.isoformat() if parsed_to else "end"
+        suffix = f"_{from_part}_{to_part}"
+    return data, suffix
+
+
+@app.post("/export/usb")
+async def export_to_usb(
+    date_from: str | None = Form(None),
+    date_to: str | None = Form(None),
+):
+    """Записывает ZIP на смонтированную USB-флешку."""
+    db.init_db()
+    mount = find_usb_mount()
+    if mount is None:
+        return RedirectResponse("/export?usb_error=no_usb", status_code=303)
+
+    data, suffix = _build_export_zip(date_from, date_to)
+    filename = safe_export_filename(suffix)
+    target = mount / filename
+    try:
+        target.write_bytes(data)
+    except OSError:
+        return RedirectResponse("/export?usb_error=write_failed", status_code=303)
+
+    return RedirectResponse(f"/export?usb_ok=1&file={filename}", status_code=303)
 
 
 @app.get("/export/xlsx")

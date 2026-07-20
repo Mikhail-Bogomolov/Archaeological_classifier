@@ -51,17 +51,26 @@ body.export-page {
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--ui-navy);
     text-decoration: none;
-    font-size: 22px;
+    font-size: 32px;
     line-height: 1;
-    padding: 4px 8px;
+    min-width: 56px;
+    min-height: 56px;
+    padding: 8px 12px;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: 10px;
+    box-sizing: border-box;
 }
 
 /* Главная */
 .home-main {
     flex: 1;
-    padding: 12px 12px 80px;
+    padding: 12px 12px 16px;
 }
 
 .ui-btn-scan {
@@ -89,6 +98,34 @@ body.export-page {
 }
 
 .ui-btn-scan svg {
+    flex-shrink: 0;
+}
+
+.ui-btn-export-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    background: var(--ui-surface);
+    color: var(--ui-navy);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: 2px solid var(--ui-navy);
+    border-radius: var(--ui-radius);
+    box-sizing: border-box;
+}
+
+.ui-btn-export-inline:active {
+    background: #f8fafc;
+}
+
+.ui-btn-export-inline svg {
     flex-shrink: 0;
 }
 
@@ -315,38 +352,28 @@ body.export-page {
 }
 
 .ui-footer-export {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-    padding: 10px 12px 14px;
-    background: linear-gradient(transparent, var(--ui-bg) 20%);
-    box-sizing: border-box;
+    display: none;
 }
 
-.ui-btn-export-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    min-height: 48px;
-    padding: 12px 16px;
-    background: var(--ui-surface);
-    color: var(--ui-navy);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border: 2px solid var(--ui-navy);
+.export-flash {
+    margin-bottom: 12px;
+    padding: 12px 14px;
     border-radius: var(--ui-radius);
-    box-sizing: border-box;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
 }
 
-.ui-btn-export-footer:active {
-    background: #f8fafc;
+.export-flash--ok {
+    background: var(--ui-green-bg);
+    color: #15803d;
+    border: 1px solid #86efac;
+}
+
+.export-flash--err {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
 }
 
 /* Экспорт */
@@ -372,9 +399,9 @@ body.export-page {
 
 .export-range-display {
     width: 100%;
-    min-height: 44px;
-    padding: 10px 36px 10px 12px;
-    font-size: 15px;
+    min-height: 88px;
+    padding: 14px 64px 14px 16px;
+    font-size: 22px;
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
     background: var(--ui-surface);
@@ -387,27 +414,54 @@ body.export-page {
     position: relative;
 }
 
-.export-range-wrap svg {
+.export-cal-toggle {
     position: absolute;
-    right: 10px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    min-height: 52px;
+    padding: 8px;
+    border: 1px solid var(--ui-border);
+    border-radius: 10px;
+    background: var(--ui-surface);
     color: var(--ui-muted);
-    pointer-events: none;
+    cursor: pointer;
+}
+
+.export-cal-toggle.is-active {
+    border-color: var(--ui-navy);
+    color: var(--ui-navy);
+    background: #eef2ff;
+}
+
+.export-cal-toggle:active {
+    background: #f3f4f6;
 }
 
 .calendars-panel {
     background: var(--ui-surface);
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
-    padding: 10px 8px 12px;
+    padding: 14px 12px 16px;
     margin-bottom: 12px;
+}
+
+.calendars-panel[hidden] {
+    display: none;
 }
 
 .calendars-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
+}
+
+.calendars-row--single {
+    grid-template-columns: 1fr;
 }
 
 .mini-cal {
@@ -430,6 +484,10 @@ body.export-page {
     flex: 1;
 }
 
+.mini-cal--large .mini-cal-title {
+    font-size: 20px;
+}
+
 .mini-cal-nav {
     background: none;
     border: none;
@@ -438,6 +496,12 @@ body.export-page {
     padding: 2px 6px;
     cursor: pointer;
     line-height: 1;
+}
+
+.mini-cal--large .mini-cal-nav {
+    font-size: 28px;
+    min-width: 44px;
+    min-height: 44px;
 }
 
 .mini-cal-weekdays,
@@ -455,6 +519,11 @@ body.export-page {
     padding: 2px 0;
 }
 
+.mini-cal--large .mini-cal-weekdays span {
+    font-size: 14px;
+    padding: 6px 0;
+}
+
 .mini-cal-day {
     font-size: 11px;
     padding: 4px 0;
@@ -464,6 +533,12 @@ body.export-page {
     cursor: pointer;
     color: #111;
     line-height: 1.2;
+}
+
+.mini-cal--large .mini-cal-day {
+    font-size: 20px;
+    padding: 12px 0;
+    min-height: 44px;
 }
 
 .mini-cal-day:disabled {

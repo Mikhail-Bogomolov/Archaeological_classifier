@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Археологический классификатор</title>
-    <link rel="stylesheet" href="/static/small-screen.css?v=3">
-    <link rel="stylesheet" href="/static/home.css?v=3">
+    <link rel="stylesheet" href="/static/small-screen.css?v=5">
+    <link rel="stylesheet" href="/static/home.css?v=4">
     <style>
         /* Страховка: стрелки справа от списка (не зависят от кэша home.css) */
         .ui-list-with-scroll {
@@ -53,6 +53,13 @@
             <path d="M8 5v14l11-7z"/>
         </svg>
         НАЧАТЬ СКАНИРОВАНИЕ
+    </a>
+
+    <a href="/export" class="ui-btn-export-inline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 21h16"/>
+        </svg>
+        ЭКСПОРТ CSV
     </a>
 
     <form class="ui-filter-wrap" method="get" action="/" id="filter-form">
@@ -155,15 +162,6 @@
     </div>
     {% endif %}
 </main>
-
-<div class="ui-footer-export">
-    <a href="/export" class="ui-btn-export-footer">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 21h16"/>
-        </svg>
-        ЭКСПОРТ CSV
-    </a>
-</div>
 
 <script>
 (function () {

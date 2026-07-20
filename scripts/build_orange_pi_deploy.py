@@ -15,6 +15,7 @@ DEPLOY_FILES = [
     "app/camera_capture.py",
     "app/db.py",
     "app/export_markup.py",
+    "app/usb_export.py",
     "app/templates/index.html",
     "app/templates/scan.html",
     "app/templates/object_detail.html",

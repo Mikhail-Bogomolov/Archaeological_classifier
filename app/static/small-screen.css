@@ -325,3 +325,29 @@ body.small-screen {
         transform: rotate(360deg);
     }
 }
+
+/* Карточка объекта */
+.small-screen.object-detail-page {
+    padding-top: 36px;
+}
+
+.small-screen .object-detail-header {
+    padding-top: 20px;
+    padding-bottom: 14px;
+}
+
+.small-screen .object-detail-title {
+    margin-top: 12px;
+}
+
+.small-screen .object-detail-body {
+    padding-top: 18px;
+}
+
+/* Сканирование — крупная кнопка старта */
+.small-screen .scan-start-btn {
+    min-height: 96px;
+    padding: 24px 20px;
+    font-size: 32px;
+    font-weight: 700;
+}
