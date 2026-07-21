@@ -383,7 +383,7 @@ async def export_to_usb(
     date_from: str | None = Form(None),
     date_to: str | None = Form(None),
 ):
-    """Записывает ZIP на смонтированную USB-флешку."""
+    """Запись ZIP на флешку."""
     db.init_db()
     mount = find_usb_mount()
     if mount is None:

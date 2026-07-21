@@ -56,6 +56,9 @@ KANSK_DATASET_DIR = "data/dataset"
 KANSK_PHOTOS_DIR = f"{KANSK_DATASET_DIR}/photos"
 KANSK_TABLES_DIR = f"{KANSK_DATASET_DIR}/tables"
 
+# Фото пустого бокса (фон, не обучение)
+BACKGROUND_REFS_DIR = "data/background_refs"
+
 # Шаблон разметки / экспорт: 5 признаков на тип (имена из FEATURE_SCHEMA)
 MARKUP_BASE_COLUMNS: list[str] = ["номер", "название"]
 MARKUP_FEATURE_COUNT = 5

@@ -1,5 +1,5 @@
 """
-Бенчмарк сети 2: accuracy, precision, recall, F1 по каждому признаку и по типам объектов.
+Бенчмарк признаков: accuracy / P / R / F1 по признакам и по типам объектов.
 
     python -m app.ml.evaluate_feature_classifier
     python -m app.ml.evaluate_feature_classifier --split test --json-out reports/feature_test.json
@@ -30,16 +30,11 @@ from app.ml.models import FeatureClassifierNet
 from app.ml.splits import DEFAULT_SPLIT_SEED, DEFAULT_TEST_RATIO, DEFAULT_VAL_RATIO
 
 
-def _split_attr_key(attr_key: str) -> tuple[str, str]:
-    class_name, feature_name = attr_key.split(":", 1)
-    return class_name, feature_name
-
-
 def _summarize_by_class(
     per_head_reports: dict[str, BenchmarkReport],
     photos_by_class: dict[str, int],
 ) -> dict[str, dict[str, Any]]:
-    """Сводка по типу объекта: все головы вида «класс:признак»."""
+    """Метрики признаков по каждому типу объекта."""
     by_class: dict[str, dict[str, Any]] = {}
 
     for class_name in OBJECT_CLASSES:

@@ -344,7 +344,7 @@ body.small-screen {
     padding-top: 18px;
 }
 
-/* Сканирование — крупная кнопка старта */
+/* Кнопка «Начать сканирование» */
 .small-screen .scan-start-btn {
     min-height: 96px;
     padding: 24px 20px;

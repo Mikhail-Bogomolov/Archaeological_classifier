@@ -18,6 +18,7 @@ from PIL import Image, ImageOps
 from torchvision import transforms
 
 from app.ml.config import (
+    BACKGROUND_REFS_DIR,
     IMAGENET_MEAN,
     IMAGENET_STD,
     INPUT_SIZE,
@@ -30,6 +31,9 @@ KANSK_BOTTOM_CROP_RATIO = 0.14
 KANSK_RIGHT_CROP_RATIO = 0.08
 # Полный JPEG слишком большой, грузим уменьшенный.
 MAX_LOAD_SIDE = 1600
+
+# Кэш фона пустого бокса.
+_bg_ref_median: np.ndarray | None | bool = False
 
 
 def item_key_from_filename(path: str | Path) -> str:
@@ -254,12 +258,95 @@ def _estimate_bg_level(gray: np.ndarray) -> float:
     return float(np.median(border))
 
 
-def _foreground_mask(pil: Image.Image) -> np.ndarray:
-    """Пиксели предмета: отличаются от фона, без бирки, линейки и LED."""
+def _load_background_ref_median() -> np.ndarray | None:
+    """Средний фон пустого бокса (не для обучения)."""
+    global _bg_ref_median
+    if _bg_ref_median is not False:
+        return _bg_ref_median if isinstance(_bg_ref_median, np.ndarray) else None
+
+    root = Path(BACKGROUND_REFS_DIR)
+    if not root.is_dir():
+        _bg_ref_median = None
+        return None
+
+    stacks: list[np.ndarray] = []
+    for path in sorted(root.glob("empty_box_*.jpg")):
+        try:
+            pil = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
+        except OSError:
+            continue
+        # Уменьшаем, как при обычной загрузке.
+        side = max(pil.size)
+        if side > MAX_LOAD_SIDE:
+            scale = MAX_LOAD_SIDE / side
+            pil = pil.resize(
+                (max(1, int(pil.width * scale)), max(1, int(pil.height * scale))),
+                Image.Resampling.BILINEAR,
+            )
+        gray = np.asarray(pil, dtype=np.float32).mean(axis=2)
+        stacks.append(gray)
+
+    if not stacks:
+        _bg_ref_median = None
+        return None
+
+    # Один размер для всех кадров.
+    h0, w0 = stacks[0].shape
+    aligned = []
+    for g in stacks:
+        if g.shape != (h0, w0):
+            g_img = Image.fromarray(g.astype(np.uint8))
+            g = np.asarray(
+                g_img.resize((w0, h0), Image.Resampling.BILINEAR),
+                dtype=np.float32,
+            )
+        aligned.append(g)
+
+    # Убираем кадры с другим ракурсом.
+    rough = np.median(np.stack(aligned, axis=0), axis=0)
+    kept = []
+    for a in aligned:
+        mae = float(np.mean(np.abs(a - rough)))
+        if mae < 18.0:
+            kept.append(a)
+    if len(kept) < 1:
+        kept = aligned
+    _bg_ref_median = np.median(np.stack(kept, axis=0), axis=0).astype(np.float32)
+    return _bg_ref_median
+
+
+def _bg_ref_for_shape(h: int, w: int) -> np.ndarray | None:
+    ref = _load_background_ref_median()
+    if ref is None:
+        return None
+    if ref.shape == (h, w):
+        return ref
+    ref_img = Image.fromarray(np.clip(ref, 0, 255).astype(np.uint8))
+    return np.asarray(
+        ref_img.resize((w, h), Image.Resampling.BILINEAR),
+        dtype=np.float32,
+    )
+
+
+def _foreground_mask(pil: Image.Image, *, use_bg_ref: bool = False) -> np.ndarray:
+    """Маска предмета (без бирки, линейки и LED).
+
+    use_bg_ref=True — сравниваем с пустым боксом (съёмка в установке).
+    Иначе — оцениваем фон по краю кадра (архив Канск).
+    """
     rgb = np.asarray(pil.convert("RGB"), dtype=np.float32)
     gray = rgb.mean(axis=2)
-    bg = _estimate_bg_level(gray)
-    mask = (np.abs(gray - bg) > 10) | (gray < bg - 16)
+    h, w = gray.shape
+
+    ref = _bg_ref_for_shape(h, w) if use_bg_ref else None
+    if ref is not None:
+        # Сравниваем с пустым боксом.
+        diff = np.abs(gray - ref)
+        mask = (diff > 14) | (gray < ref - 16)
+    else:
+        bg = _estimate_bg_level(gray)
+        mask = (np.abs(gray - bg) > 10) | (gray < bg - 16)
+
     mask &= gray < 228
 
     r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
@@ -275,9 +362,11 @@ def crop_to_foreground_bbox(
     pad_ratio: float = 0.14,
     max_coverage: float = 0.90,
     min_coverage: float = 0.0,
+    *,
+    use_bg_ref: bool = False,
 ) -> Image.Image:
-    """Обрезка по bbox предмета; min_coverage не даёт уйти в сильный перезум."""
-    mask = _foreground_mask(pil)
+    """Обрезка по контуру предмета."""
+    mask = _foreground_mask(pil, use_bg_ref=use_bg_ref)
     if int(mask.sum()) < 60:
         return pil
 
@@ -331,8 +420,10 @@ def _preview_bbox_settings(
     return 0.18, 0.88, 0.16
 
 
-def _content_center_fraction(pil: Image.Image) -> tuple[float, float]:
-    mask = _foreground_mask(pil)
+def _content_center_fraction(
+    pil: Image.Image, *, use_bg_ref: bool = False
+) -> tuple[float, float]:
+    mask = _foreground_mask(pil, use_bg_ref=use_bg_ref)
     if int(mask.sum()) < 80:
         return 0.5, 0.5
     ys, xs = np.where(mask)
@@ -372,12 +463,14 @@ def center_crop_on_content(
     x_bias: float = 0.5,
     y_bias: float = 0.5,
     y_shift: float = 0.0,
+    *,
+    use_bg_ref: bool = False,
 ) -> Image.Image:
-    """Crop вокруг центра масс предмета; иначе — геометрический bias."""
+    """Crop вокруг предмета; если не нашли — по центру кадра."""
     w, h = pil.size
     cw = max(1, min(w, int(w * width_ratio)))
     ch = max(1, min(h, int(h * height_ratio)))
-    cx, cy = _content_center_fraction(pil)
+    cx, cy = _content_center_fraction(pil, use_bg_ref=use_bg_ref)
     if cx == 0.5 and cy == 0.5:
         return center_crop_focus(pil, width_ratio, height_ratio, x_bias, y_bias)
     cx = max(0.0, min(1.0, cx))
@@ -647,7 +740,9 @@ def _build_installation_preview(
         source = pil.crop((0, int(h * 0.28), w, h))
 
     wr, hr, y_shift = _installation_preview_ratios(source, object_class)
-    return center_crop_on_content(source, wr, hr, y_shift=y_shift)
+    return center_crop_on_content(
+        source, wr, hr, y_shift=y_shift, use_bg_ref=True
+    )
 
 
 def _validate_ui_preview(
@@ -664,7 +759,7 @@ def _validate_ui_preview(
         return False, "too_small"
 
     area_ratio = (ow * oh) / max(pw * ph, 1)
-    fg_frac = float(_foreground_mask(cropped).mean())
+    fg_frac = float(_foreground_mask(cropped, use_bg_ref=installation).mean())
     min_area = 0.04 if installation else 0.05
     if area_ratio < min_area and fg_frac < 0.08:
         return False, "crop_too_tight"
@@ -710,7 +805,7 @@ def _validate_ui_preview(
     if fg_frac < 0.03:
         return False, "no_content"
 
-    cx, cy = _content_center_fraction(cropped)
+    cx, cy = _content_center_fraction(cropped, use_bg_ref=installation)
     if fg_frac < 0.12:
         limit_x = 0.36 if installation else 0.32
         limit_y = 0.38 if installation else 0.34
@@ -811,7 +906,7 @@ def load_ui_preview_rgb(
             if _has_led_reflection(pil):
                 w, h = pil.size
                 soft_src = pil.crop((0, int(h * 0.30), w, h))
-            soft_out = center_crop_on_content(soft_src, 0.76, 0.72)
+            soft_out = center_crop_on_content(soft_src, 0.76, 0.72, use_bg_ref=True)
             ok_soft, _ = _validate_ui_preview(
                 pil, soft_out, installation=True, object_class=object_class
             )
@@ -877,6 +972,16 @@ def _prepare_classifier_pil(
         frame_cropped = True
         before = pil.size
         pil = crop_to_artifact(pil)
+        artifact_cropped = pil.size != before
+    else:
+        before = pil.size
+        pil = crop_to_foreground_bbox(
+            pil,
+            pad_ratio=0.16,
+            max_coverage=0.92,
+            min_coverage=0.12,
+            use_bg_ref=True,
+        )
         artifact_cropped = pil.size != before
 
     return pil, {

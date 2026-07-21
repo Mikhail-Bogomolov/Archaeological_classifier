@@ -1,4 +1,4 @@
-"""Поиск смонтированной USB-флешки (Orange Pi / Linux)."""
+"""Поиск USB-флешки (Orange Pi / Linux)."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ _USB_FS = frozenset({
     "fat32",
 })
 
-# Типичные точки монтирования на Armbian / Debian (один USB-A).
+# Куда обычно монтируется флешка.
 _MOUNT_PREFIXES = (
     "/media/",
     "/run/media/",
@@ -26,7 +26,7 @@ _MOUNT_PREFIXES = (
 
 
 def find_usb_mount() -> Path | None:
-    """Возвращает каталог флешки или None, если не найдена."""
+    """Каталог флешки или None."""
     override = os.environ.get("USB_EXPORT_MOUNT", "").strip()
     if override:
         path = Path(override)
@@ -55,7 +55,7 @@ def find_usb_mount() -> Path | None:
             candidates.append(path)
 
     if not candidates:
-        # Запасной обход известных путей (если /proc/mounts недоступен).
+        # Нет /proc/mounts — ищем по путям.
         for pattern in ("/media/*/*", "/run/media/*/*", "/mnt/usb*", "/mnt/USB*"):
             for path in sorted(Path("/").glob(pattern.lstrip("/"))):
                 if path.is_dir() and os.access(path, os.W_OK):
@@ -64,7 +64,7 @@ def find_usb_mount() -> Path | None:
     if not candidates:
         return None
 
-    # Одна флешка — берём самый «глубокий» путь (обычно label внутри /media/user/).
+    # Берём самый длинный путь (часто /media/user/LABEL).
     candidates.sort(key=lambda p: (len(p.parts), str(p)))
     return candidates[-1]
 
