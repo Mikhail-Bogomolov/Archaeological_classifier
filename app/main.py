@@ -15,7 +15,11 @@ from app.export_markup import (
     export_objects_csv_zip,
     export_objects_xlsx,
 )
-from app.camera_capture import CameraCaptureError, capture_jpeg_bytes
+from app.camera_capture import (
+    CameraCaptureError,
+    DIAG_LOG_PATH,
+    capture_jpeg_bytes,
+)
 from app.inference import run_inference
 from app.ml.config import OBJECT_CLASSES
 from app.ml.pipeline import get_pipeline
@@ -39,6 +43,7 @@ templates = Jinja2Templates(directory="app/templates")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 pending_scan = None
+last_camera_error: str | None = None
 
 
 @app.get("/")
@@ -149,6 +154,8 @@ async def scan_page(request: Request, camera_error: int = Query(0)):
             "scan": pending_scan,
             "object_classes": OBJECT_CLASSES,
             "camera_error": bool(camera_error),
+            "camera_error_detail": last_camera_error if camera_error else None,
+            "camera_diag_path": str(DIAG_LOG_PATH) if camera_error else None,
         },
     )
 
@@ -196,7 +203,9 @@ async def perform_scan(
             contents, saved = capture_jpeg_bytes()
             source_path = str(saved) if saved is not None else None
             image_mime = "image/jpeg"
-        except CameraCaptureError:
+        except CameraCaptureError as e:
+            global last_camera_error
+            last_camera_error = str(e)
             return RedirectResponse("/scan?camera_error=1", status_code=303)
 
     result = run_inference(contents, source_path=source_path)

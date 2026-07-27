@@ -141,7 +141,8 @@
         head.className = "mini-cal-head";
         var prev = document.createElement("button");
         prev.type = "button";
-        prev.className = "mini-cal-nav";
+        prev.className = "mini-cal-nav mini-cal-nav--prev";
+        prev.setAttribute("aria-label", "Предыдущий месяц");
         prev.textContent = "‹";
         prev.addEventListener("click", function () {
             viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1);
@@ -152,7 +153,8 @@
         title.textContent = MONTHS[month] + " " + year;
         var next = document.createElement("button");
         next.type = "button";
-        next.className = "mini-cal-nav";
+        next.className = "mini-cal-nav mini-cal-nav--next";
+        next.setAttribute("aria-label", "Следующий месяц");
         next.textContent = "›";
         next.addEventListener("click", function () {
             viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
@@ -274,9 +276,16 @@
         updateFields();
 
         document.querySelectorAll(".export-cal-toggle").forEach(function (btn) {
-            btn.addEventListener("click", function () {
+            function activate() {
                 var field = btn.getAttribute("data-field");
                 openCalendar(field === "start" ? "start" : "end");
+            }
+            btn.addEventListener("click", activate);
+            btn.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    activate();
+                }
             });
         });
 

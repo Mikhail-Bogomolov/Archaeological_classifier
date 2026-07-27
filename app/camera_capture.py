@@ -27,6 +27,7 @@ WARMUP_FRAMES = 8
 MAX_CAPTURE_ATTEMPTS = 25
 MIN_FRAME_MEAN = 8.0
 JPEG_QUALITY = 92
+DIAG_LOG_PATH = PROJECT_ROOT / "data" / "camera_diag.log"
 
 
 class CameraCaptureError(RuntimeError):
@@ -60,18 +61,35 @@ def _run_cmd(cmd: list[str]) -> str:
 # ─── поиск правильного /dev/videoN ─────────────────────────────────────────────
 
 def _sysfs_blob_for_video(name: str) -> str:
-    """Всё из sysfs для /dev/videoN в одну строку."""
+    """Всё из sysfs для /dev/videoN в одну строку.
+
+    Поднимаемся по дереву устройства, пока не найдём idVendor/idProduct —
+    без предположений о фиксированной глубине (она разная при подключении
+    напрямую и через хаб: без хаба на 1 уровень меньше).
+    """
     base = Path("/sys/class/video4linux") / name
-    # Поднимаемся вдоль device/, пока не найдём idVendor или uevent с PRODUCT=.
     parts = [_read_file(base / "name")]
-    dev = base / "device"
-    for _ in range(5):
-        if not dev.is_dir():
-            break
+
+    dev_link = base / "device"
+    if not dev_link.exists():
+        return " ".join(parts)
+
+    try:
+        node = dev_link.resolve()
+    except OSError:
+        return " ".join(parts)
+
+    current = node
+    for _ in range(8):
         for attr in ("idVendor", "idProduct", "uevent", "product"):
-            parts.append(_read_file(dev / attr))
-        dev = dev / ".." / ".." / "device"
-        dev = dev.resolve()
+            parts.append(_read_file(current / attr))
+        if (current / "idVendor").exists():
+            break
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+
     return " ".join(parts)
 
 
@@ -135,7 +153,9 @@ def _all_linux_video_indices() -> list[int]:
 
 def _build_index_order(preferred: int) -> list[int]:
     """Список числовых индексов для перебора: сначала AICAM, потом остальные."""
-    known_aicam = _v4l2ctl_find_aicam() or _sysfs_find_aicam()
+    known_aicam = _v4l2ctl_find_aicam()
+    if not known_aicam:
+        known_aicam = _sysfs_find_aicam()
 
     order: list[int] = []
 
@@ -195,6 +215,54 @@ def _try_open_index(idx: int) -> cv2.VideoCapture | None:
     return None
 
 
+def dump_camera_diagnostics(note: str = "") -> Path | None:
+    """Пишет в файл всё, что нужно для разбора проблемы с поиском камеры.
+
+    Возвращает путь к логу или None, если запись не удалась.
+    """
+    lines: list[str] = []
+    if note:
+        lines.append(f"=== ошибка ===\n{note}")
+
+    lines.append(f"=== lsusb ===\n{_run_cmd(['lsusb'])}")
+    lines.append(f"=== v4l2-ctl --list-devices ===\n{_run_cmd(['v4l2-ctl', '--list-devices'])}")
+
+    root = Path("/sys/class/video4linux")
+    if root.is_dir():
+        for entry in sorted(root.iterdir()):
+            if not entry.name.startswith("video"):
+                continue
+            dev = Path("/dev") / entry.name
+            blob = _sysfs_blob_for_video(entry.name)
+            device_link = entry / "device"
+            resolved = ""
+            if device_link.exists():
+                try:
+                    resolved = str(device_link.resolve())
+                except OSError:
+                    resolved = "<ошибка resolve>"
+            lines.append(
+                f"=== {entry.name} ({dev}) ===\n"
+                f"device path: {resolved}\n"
+                f"blob: {blob}\n"
+                f"matches_aicam: {_video_matches_aicam(dev)}"
+            )
+    else:
+        lines.append("=== /sys/class/video4linux не найден ===")
+
+    lines.append(f"=== CAMERA_DEVICE={CAMERA_DEVICE!r} CAMERA_INDEX={DEFAULT_CAMERA_INDEX} ===")
+    lines.append(f"=== _v4l2ctl_find_aicam() -> {_v4l2ctl_find_aicam()} ===")
+    lines.append(f"=== _sysfs_find_aicam() -> {_sysfs_find_aicam()} ===")
+    lines.append(f"=== _all_linux_video_indices() -> {_all_linux_video_indices()} ===")
+
+    try:
+        DIAG_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        DIAG_LOG_PATH.write_text("\n\n".join(lines), encoding="utf-8")
+        return DIAG_LOG_PATH
+    except OSError:
+        return None
+
+
 def _open_camera(preferred: int) -> cv2.VideoCapture:
     # Если задан явный путь — пробуем только его.
     if CAMERA_DEVICE:
@@ -221,8 +289,7 @@ def _open_camera(preferred: int) -> cv2.VideoCapture:
     raise CameraCaptureError(
         f"Не удалось открыть камеру. "
         f"Пробовали индексы: {', '.join(tried) or '—'}. "
-        "Выполните на Orange Pi: ls /dev/video* && v4l2-ctl --list-devices "
-        "и задайте CAMERA_INDEX=N или CAMERA_DEVICE=/dev/videoN."
+        "Задайте CAMERA_INDEX=N или CAMERA_DEVICE=/dev/videoN."
     )
 
 
@@ -263,25 +330,34 @@ def capture_jpeg_bytes(
     При save=True файл сохраняется в data/photos_from_camera/
     с суффиксом _field_ (полевая съёмка для препроцессинга).
     """
-    idx = DEFAULT_CAMERA_INDEX if camera_index is None else camera_index
-    cap = _open_camera(idx)
     try:
-        frame_bgr = _capture_frame_bgr(cap)
-    finally:
-        cap.release()
+        idx = DEFAULT_CAMERA_INDEX if camera_index is None else camera_index
+        cap = _open_camera(idx)
+        try:
+            frame_bgr = _capture_frame_bgr(cap)
+        finally:
+            cap.release()
 
-    stamp = int(time() * 1000)
-    filename = f"camera_field_{stamp}.jpg"
-    saved_path: Path | None = None
+        stamp = int(time() * 1000)
+        filename = f"camera_field_{stamp}.jpg"
+        saved_path: Path | None = None
 
-    ok_enc, buf = cv2.imencode(".jpg", frame_bgr, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
-    if not ok_enc:
-        raise CameraCaptureError("Не удалось закодировать снимок в JPEG.")
-    jpeg_bytes = buf.tobytes()
+        ok_enc, buf = cv2.imencode(
+            ".jpg", frame_bgr, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY]
+        )
+        if not ok_enc:
+            raise CameraCaptureError("Не удалось закодировать снимок в JPEG.")
+        jpeg_bytes = buf.tobytes()
 
-    if save:
-        saved_path = CAMERA_PHOTOS_DIR / filename
-        saved_path.parent.mkdir(parents=True, exist_ok=True)
-        saved_path.write_bytes(jpeg_bytes)
+        if save:
+            saved_path = CAMERA_PHOTOS_DIR / filename
+            saved_path.parent.mkdir(parents=True, exist_ok=True)
+            saved_path.write_bytes(jpeg_bytes)
 
-    return jpeg_bytes, saved_path
+        return jpeg_bytes, saved_path
+    except CameraCaptureError as e:
+        log_path = dump_camera_diagnostics(note=str(e))
+        detail = str(e)
+        if log_path is not None:
+            detail = f"{detail} Диагностика: {log_path}"
+        raise CameraCaptureError(detail) from e

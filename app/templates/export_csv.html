@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Экспорт CSV</title>
     <link rel="stylesheet" href="/static/small-screen.css?v=5">
-    <link rel="stylesheet" href="/static/home.css?v=4">
+    <link rel="stylesheet" href="/static/home.css?v=5">
 </head>
 <body class="small-screen export-page">
 
@@ -32,24 +32,36 @@
     <div class="export-range-row">
         <div class="export-range-field">
             <label for="display_from">С</label>
-            <div class="export-range-wrap">
-                <input type="text" id="display_from" class="export-range-display" readonly>
-                <button type="button" class="export-cal-toggle" data-field="start" aria-label="Календарь «С»">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <div
+                class="export-range-wrap export-cal-toggle"
+                data-field="start"
+                role="button"
+                tabindex="0"
+                aria-label="Календарь «С»"
+            >
+                <input type="text" id="display_from" class="export-range-display" readonly tabindex="-1">
+                <span class="export-cal-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
                     </svg>
-                </button>
+                </span>
             </div>
         </div>
         <div class="export-range-field">
             <label for="display_to">По</label>
-            <div class="export-range-wrap">
-                <input type="text" id="display_to" class="export-range-display" readonly>
-                <button type="button" class="export-cal-toggle" data-field="end" aria-label="Календарь «По»">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <div
+                class="export-range-wrap export-cal-toggle"
+                data-field="end"
+                role="button"
+                tabindex="0"
+                aria-label="Календарь «По»"
+            >
+                <input type="text" id="display_to" class="export-range-display" readonly tabindex="-1">
+                <span class="export-cal-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
                     </svg>
-                </button>
+                </span>
             </div>
         </div>
     </div>
@@ -91,7 +103,7 @@
         max: {{ export_max_date|tojson }}
     };
 </script>
-<script src="/static/export.js?v=2"></script>
+<script src="/static/export.js?v=3"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>

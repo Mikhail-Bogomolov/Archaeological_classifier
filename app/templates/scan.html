@@ -131,6 +131,12 @@
     {% if camera_error %}
     <p style="font-size:var(--text-sm);color:#b91c1c;margin:0 0 10px">
         Не удалось снять кадр с камеры. Подключите камеру или выберите файл вручную.
+        {% if camera_error_detail %}
+        <br><span style="font-size:var(--text-xs);word-break:break-word">{{ camera_error_detail }}</span>
+        {% endif %}
+        {% if camera_diag_path %}
+        <br><span style="font-size:var(--text-xs);word-break:break-all">Лог: {{ camera_diag_path }}</span>
+        {% endif %}
     </p>
     {% endif %}
     <form

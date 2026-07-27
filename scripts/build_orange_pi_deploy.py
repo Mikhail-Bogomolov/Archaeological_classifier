@@ -84,6 +84,10 @@ IP платы: hostname -I
 - Можно загрузить фото вручную.
 - Или нажать «Начать сканирование» без файла — снимок с USB-камеры.
 - Если камера не та: export CAMERA_INDEX=0  (или 1) перед запуском uvicorn.
+  На прямом USB OPEN AICAM (lsusb: 2b16:6689, Bus 004) смотрите реальный узел:
+    ls -l /dev/video* /dev/v4l/by-id/
+    export CAMERA_DEVICE=/dev/video0
+  (Bus 004 в lsusb — USB-шина, не /dev/video4.)
 - Снимки сохраняются в data/photos_from_camera/ (папка создаётся автоматически).
 
 Примечания:
