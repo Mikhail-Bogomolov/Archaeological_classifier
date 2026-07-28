@@ -36,7 +36,7 @@ class ObjectTrainingConfig:
 @dataclass
 class ModelArchitectureConfig:
     tex_hidden: int = 64
-    feature_hidden_dim: int = 256
+    feature_hidden_dim: int = 384
     texture_size: int = 224
 
     def to_dict(self) -> dict[str, Any]:

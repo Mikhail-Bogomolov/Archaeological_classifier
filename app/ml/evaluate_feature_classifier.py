@@ -22,12 +22,53 @@ from app.ml.augmentations import build_val_transforms
 from app.ml.config import FEATURE_MODEL_FILE, MODELS_DIR, OBJECT_CLASSES
 from app.ml.evaluation_metrics import (
     BenchmarkReport,
+    LOW_SUPPORT_THRESHOLD,
     compute_benchmark_report,
     save_confusion_heatmap,
 )
 from app.ml.feature_dataset import KanskFeatureDataset, collate_features
 from app.ml.models import FeatureClassifierNet
+from app.ml.models.feature_classifier import infer_feature_hidden_dim
 from app.ml.splits import DEFAULT_SPLIT_SEED, DEFAULT_TEST_RATIO, DEFAULT_VAL_RATIO
+
+
+def _low_support_labels(report: BenchmarkReport) -> list[str]:
+    return [
+        row.label
+        for row in report.per_class
+        if row.support > 0 and row.support < LOW_SUPPORT_THRESHOLD
+    ]
+
+
+def _annotate_report_reliability(report: BenchmarkReport) -> BenchmarkReport:
+    low = _low_support_labels(report)
+    if not low:
+        return report
+    extra = dict(report.extra or {})
+    extra["low_support_classes"] = low
+    extra["reliability"] = "unreliable"
+    extra["reliability_note"] = (
+        f"support < {LOW_SUPPORT_THRESHOLD} на test — метрики ненадёжны"
+    )
+    return BenchmarkReport(
+        task=report.task,
+        split=report.split,
+        n_samples=report.n_samples,
+        accuracy=report.accuracy,
+        macro_precision=report.macro_precision,
+        macro_recall=report.macro_recall,
+        macro_f1=report.macro_f1,
+        weighted_precision=report.weighted_precision,
+        weighted_recall=report.weighted_recall,
+        weighted_f1=report.weighted_f1,
+        micro_precision=report.micro_precision,
+        micro_recall=report.micro_recall,
+        micro_f1=report.micro_f1,
+        per_class=report.per_class,
+        confusion=report.confusion,
+        labels=report.labels,
+        extra=extra,
+    )
 
 
 def _summarize_by_class(
@@ -165,8 +206,13 @@ def main() -> None:
     vocab = ckpt["vocab"]
     state = ckpt["state_dict"]
     use_texture = ckpt.get("use_texture", any(k.startswith("texture_mlp") for k in state))
+    arch = ckpt.get("architecture") or {}
+    hidden_dim = int(arch.get("feature_hidden_dim", infer_feature_hidden_dim(state)))
     model = FeatureClassifierNet.from_vocab(
-        vocab, pretrained=False, use_texture=use_texture
+        vocab,
+        pretrained=False,
+        use_texture=use_texture,
+        hidden_dim=hidden_dim,
     ).to(device)
     model.load_state_dict(state, strict=False)
     model.eval()
@@ -235,12 +281,14 @@ def main() -> None:
         if not labels:
             continue
 
-        head_report = compute_benchmark_report(
-            y_true,
-            y_pred,
-            labels,
-            task=f"feature:{key}",
-            split=args.split,
+        head_report = _annotate_report_reliability(
+            compute_benchmark_report(
+                y_true,
+                y_pred,
+                labels,
+                task=f"feature:{key}",
+                split=args.split,
+            )
         )
         per_head_reports[key] = head_report
         macro_f1_values.append(head_report.macro_f1)
@@ -248,6 +296,13 @@ def main() -> None:
         total_labels += len(y_true)
 
         if not args.no_head_detail:
+            low = _low_support_labels(head_report)
+            reliability = ""
+            if low:
+                reliability = (
+                    f"  [!] низкий support (<{LOW_SUPPORT_THRESHOLD}): "
+                    f"{', '.join(low)} — метрики ненадёжны"
+                )
             print(f"\n--- {key} (n={head_report.n_samples}) ---")
             print(
                 f"Acc={head_report.accuracy:.1%}  "
@@ -255,6 +310,8 @@ def main() -> None:
                 f"{head_report.macro_recall:.1%}/{head_report.macro_f1:.1%}  "
                 f"weighted F1={head_report.weighted_f1:.1%}"
             )
+            if reliability:
+                print(reliability)
             print(f"  {'значение':<28} {'sup':>5} {'prec':>7} {'rec':>7} {'f1':>7}")
             for row in head_report.per_class:
                 if row.support == 0 and row.predicted == 0:

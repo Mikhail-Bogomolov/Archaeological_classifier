@@ -23,6 +23,7 @@ from app.ml.encoders import (
     one_hot_from_name,
 )
 from app.ml.models import FeatureClassifierNet, ObjectClassifierNet
+from app.ml.models.feature_classifier import infer_feature_hidden_dim
 from app.ml.preprocess import classifier_preprocess, cv_preprocess
 from app.ml.table_normalization import is_confused_item
 from app.ml.training_config import DEFAULT_INFERENCE, load_state_dict
@@ -80,9 +81,16 @@ class ArchaeologyClassifierPipeline:
                     "use_texture",
                     any(k.startswith("texture_mlp") for k in state),
                 )
+                arch = ckpt.get("architecture") or {}
+                hidden_dim = int(
+                    arch.get("feature_hidden_dim", infer_feature_hidden_dim(state))
+                )
                 self._feature_vocab = vocab
                 self.feature_net = FeatureClassifierNet.from_vocab(
-                    vocab, pretrained=False, use_texture=use_feat_texture
+                    vocab,
+                    pretrained=False,
+                    use_texture=use_feat_texture,
+                    hidden_dim=hidden_dim,
                 ).to(self.device)
                 self.feature_net.load_state_dict(state, strict=False)
                 self._feature_weights_loaded = True

@@ -34,6 +34,8 @@ from collections import Counter
 from app.ml.feature_vocab import scan_tables
 from app.ml.losses import class_weights_from_counts
 from app.ml.models import FeatureClassifierNet
+from app.ml.models.feature_classifier import infer_feature_hidden_dim
+from app.ml.training_config import DEFAULT_MODEL_ARCH, ModelArchitectureConfig
 
 
 def build_head_class_weights(
@@ -132,12 +134,14 @@ def evaluate(
     device: torch.device,
     attr_keys: list[str],
     head_weights: dict[str, torch.Tensor] | None = None,
-) -> tuple[float, float]:
+) -> tuple[float, float, float]:
+    """val_loss, accuracy, mean macro-F1 по головам."""
     model.eval()
     total_loss = 0.0
     correct = 0
     total = 0
     steps = 0
+    macro_f1_values: list[float] = []
 
     for batch in loader:
         logits, targets = _model_forward(model, batch, device)
@@ -158,17 +162,44 @@ def evaluate(
             correct += (preds == y[mask]).sum().item()
             total += mask.sum().item()
 
+            n_classes = logits[key].shape[1]
+            confusion = torch.zeros(n_classes, n_classes, dtype=torch.long)
+            for t, p in zip(y[mask], preds):
+                confusion[t, p] += 1
+            f1s: list[float] = []
+            for c in range(n_classes):
+                tp = confusion[c, c].item()
+                sup = confusion[c].sum().item()
+                pred = confusion[:, c].sum().item()
+                if sup == 0:
+                    continue
+                prec = tp / pred if pred else 0.0
+                rec = tp / sup if sup else 0.0
+                f1 = (2 * prec * rec / (prec + rec)) if (prec + rec) else 0.0
+                f1s.append(f1)
+            if f1s:
+                macro_f1_values.append(sum(f1s) / len(f1s))
+
     avg_loss = total_loss / max(steps, 1)
     acc = correct / max(total, 1)
-    return avg_loss, acc
+    mean_macro_f1 = sum(macro_f1_values) / max(len(macro_f1_values), 1)
+    return avg_loss, acc, mean_macro_f1
 
 
 def save_checkpoint(
     path: Path,
     model: FeatureClassifierNet,
     vocab: dict[str, list[str]],
+    *,
+    architecture: ModelArchitectureConfig | None = None,
+    best_epoch: int | None = None,
+    best_score: float | None = None,
+    selection_metric: str | None = None,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    arch = architecture or ModelArchitectureConfig(
+        feature_hidden_dim=infer_feature_hidden_dim(model.state_dict())
+    )
     torch.save(
         {
             "state_dict": model.state_dict(),
@@ -176,6 +207,10 @@ def save_checkpoint(
             "attribute_specs": model.attribute_specs,
             "attr_keys": model.attr_keys,
             "use_texture": model.use_texture,
+            "architecture": arch.to_dict(),
+            "best_epoch": best_epoch,
+            "best_score": best_score,
+            "selection_metric": selection_metric,
         },
         path,
     )
@@ -229,13 +264,28 @@ def main() -> None:
         action="store_true",
         help="отключить буст редких классов (FEATURE_HEAD_MINORITY_BOOST)",
     )
+    parser.add_argument(
+        "--hidden-dim",
+        type=int,
+        default=DEFAULT_MODEL_ARCH.feature_hidden_dim,
+        help="размер скрытого слоя общего ствола (shared)",
+    )
+    parser.add_argument(
+        "--selection-metric",
+        choices=("acc", "macro_f1"),
+        default="macro_f1",
+        help="метрика early stopping на val (по умолчанию macro_f1)",
+    )
     args = parser.parse_args()
 
     pretrained = not args.no_pretrained
     use_texture = USE_TEXTURE_FEATURES and not args.no_texture
     use_minority_boost = not args.no_boost
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Device: {device}, texture={use_texture}")
+    print(
+        f"Device: {device}, texture={use_texture}, "
+        f"hidden_dim={args.hidden_dim}, selection={args.selection_metric}"
+    )
 
     vocab = KanskFeatureDataset.build_vocab()
     if not vocab:
@@ -271,7 +321,10 @@ def main() -> None:
         print("\nБустинг редких классов: выключен (--no-boost)")
 
     model = FeatureClassifierNet.from_vocab(
-        vocab, pretrained=pretrained, use_texture=use_texture
+        vocab,
+        pretrained=pretrained,
+        use_texture=use_texture,
+        hidden_dim=args.hidden_dim,
     ).to(device)
 
     if args.verify_only:
@@ -316,12 +369,17 @@ def main() -> None:
         head_params += list(model.texture_mlp.parameters())
     optimizer = torch.optim.AdamW(head_params, lr=args.head_lr)
 
-    best_val_acc = 0.0
+    best_val_score = 0.0
     best_epoch = 0
     no_improve = 0
     scheduler = None
     weights_path = Path(MODELS_DIR) / FEATURE_MODEL_FILE
+    arch_cfg = ModelArchitectureConfig(feature_hidden_dim=args.hidden_dim)
+    metric_label = (
+        "val_macro_f1" if args.selection_metric == "macro_f1" else "val_attr_acc"
+    )
 
+    print(f"\nEarly stopping: {metric_label}, patience={args.patience}")
     print("\nОбучение сети 2 началось.\n")
 
     for epoch in range(1, args.epochs + 1):
@@ -346,35 +404,45 @@ def main() -> None:
         train_loss = train_one_epoch(
             model, train_loader, optimizer, device, attr_keys, head_weights
         )
-        val_loss, val_acc = evaluate(
+        val_loss, val_acc, val_macro_f1 = evaluate(
             model, val_loader, device, attr_keys, head_weights
         )
+        val_score = val_macro_f1 if args.selection_metric == "macro_f1" else val_acc
 
         if scheduler is not None:
             scheduler.step()
 
-        improved = val_acc > best_val_acc
+        improved = val_score > best_val_score
         marker = " <- best" if improved else ""
         print(
             f"epoch {epoch:3d}/{args.epochs}"
             f"  train_loss={train_loss:.4f}"
             f"  val_loss={val_loss:.4f}"
-            f"  val_attr_acc={val_acc:.3f}{marker}"
+            f"  val_attr_acc={val_acc:.3f}"
+            f"  val_macro_f1={val_macro_f1:.3f}{marker}"
         )
 
         if improved:
-            best_val_acc = val_acc
+            best_val_score = val_score
             best_epoch = epoch
             no_improve = 0
             if not args.dry_run:
-                save_checkpoint(weights_path, model, vocab)
+                save_checkpoint(
+                    weights_path,
+                    model,
+                    vocab,
+                    architecture=arch_cfg,
+                    best_epoch=best_epoch,
+                    best_score=best_val_score,
+                    selection_metric=args.selection_metric,
+                )
         else:
             no_improve += 1
             if no_improve >= args.patience:
                 print(f"Early stopping: нет улучшения {args.patience} эпох")
                 break
 
-    print(f"\nЛучшая точность по признакам: {best_val_acc:.3f} (эпоха {best_epoch})")
+    print(f"\nЛучший {metric_label}: {best_val_score:.3f} (эпоха {best_epoch})")
     if not args.dry_run:
         print(f"Веса: {weights_path}")
         print(f"Словарь: {weights_path.with_suffix('.vocab.json')}")

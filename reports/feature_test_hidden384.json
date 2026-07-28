@@ -2,57 +2,57 @@
   "task": "feature_classification",
   "split": "test",
   "use_texture": true,
-  "overall_accuracy": 0.7579298831385642,
-  "mean_macro_f1": 0.6527694972620809,
+  "overall_accuracy": 0.7712854757929883,
+  "mean_macro_f1": 0.6708781532084126,
   "total_labels": 599,
   "by_class": {
     "кельты": {
       "n_photos": 52,
       "n_labels": 204,
       "n_heads": 4,
-      "overall_accuracy": 0.8578431372549019,
-      "mean_macro_f1": 0.7198042931417419,
+      "overall_accuracy": 0.8235294117647058,
+      "mean_macro_f1": 0.690102659764171,
       "heads": {
         "орнамент": {
           "task": "feature:кельты:орнамент",
           "split": "test",
           "n_samples": 52,
-          "accuracy": 0.7884615384615384,
-          "macro_precision": 0.6333333333333333,
-          "macro_recall": 0.8854166666666667,
-          "macro_f1": 0.6458204334365325,
-          "weighted_precision": 0.9435897435897437,
-          "weighted_recall": 0.7884615384615384,
-          "weighted_f1": 0.8360085734698738,
-          "micro_precision": 0.7884615384615384,
-          "micro_recall": 0.7884615384615384,
-          "micro_f1": 0.7884615384615384,
+          "accuracy": 0.8269230769230769,
+          "macro_precision": 0.6538461538461539,
+          "macro_recall": 0.90625,
+          "macro_f1": 0.6835699797160244,
+          "weighted_precision": 0.9467455621301776,
+          "weighted_recall": 0.8269230769230769,
+          "weighted_f1": 0.8637853019191761,
+          "micro_precision": 0.8269230769230769,
+          "micro_recall": 0.8269230769230769,
+          "micro_f1": 0.8269230769230769,
           "per_class": [
             {
               "label": "да",
               "index": 0,
               "support": 48,
-              "predicted": 37,
-              "tp": 37,
+              "predicted": 39,
+              "tp": 39,
               "precision": 1.0,
-              "recall": 0.7708333333333334,
-              "f1": 0.8705882352941177
+              "recall": 0.8125,
+              "f1": 0.896551724137931
             },
             {
               "label": "нет",
               "index": 1,
               "support": 4,
-              "predicted": 15,
+              "predicted": 13,
               "tp": 4,
-              "precision": 0.26666666666666666,
+              "precision": 0.3076923076923077,
               "recall": 1.0,
-              "f1": 0.4210526315789474
+              "f1": 0.47058823529411764
             }
           ],
           "confusion": [
             [
-              37,
-              11
+              39,
+              9
             ],
             [
               0,
@@ -63,7 +63,13 @@
             "да",
             "нет"
           ],
-          "extra": null
+          "extra": {
+            "low_support_classes": [
+              "нет"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
         },
         "сохранность": {
           "task": "feature:кельты:сохранность",
@@ -115,38 +121,44 @@
             "целый",
             "сломан"
           ],
-          "extra": null
+          "extra": {
+            "low_support_classes": [
+              "сломан"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
         },
         "тулья": {
           "task": "feature:кельты:тулья",
           "split": "test",
           "n_samples": 48,
-          "accuracy": 0.9166666666666666,
+          "accuracy": 0.8958333333333334,
           "macro_precision": 1.0,
-          "macro_recall": 0.9166666666666666,
-          "macro_f1": 0.9565217391304348,
+          "macro_recall": 0.8958333333333334,
+          "macro_f1": 0.945054945054945,
           "weighted_precision": 1.0,
-          "weighted_recall": 0.9166666666666666,
-          "weighted_f1": 0.9565217391304349,
-          "micro_precision": 0.9166666666666666,
-          "micro_recall": 0.9166666666666666,
-          "micro_f1": 0.9166666666666666,
+          "weighted_recall": 0.8958333333333334,
+          "weighted_f1": 0.9450549450549449,
+          "micro_precision": 0.8958333333333334,
+          "micro_recall": 0.8958333333333334,
+          "micro_f1": 0.8958333333333334,
           "per_class": [
             {
               "label": "прямоугольный",
               "index": 0,
               "support": 48,
-              "predicted": 44,
-              "tp": 44,
+              "predicted": 43,
+              "tp": 43,
               "precision": 1.0,
-              "recall": 0.9166666666666666,
-              "f1": 0.9565217391304348
+              "recall": 0.8958333333333334,
+              "f1": 0.945054945054945
             },
             {
               "label": "овальный",
               "index": 1,
               "support": 0,
-              "predicted": 4,
+              "predicted": 5,
               "tp": 0,
               "precision": 0.0,
               "recall": 0.0,
@@ -155,8 +167,8 @@
           ],
           "confusion": [
             [
-              44,
-              4
+              43,
+              5
             ],
             [
               0,
@@ -173,42 +185,42 @@
           "task": "feature:кельты:ушки",
           "split": "test",
           "n_samples": 52,
-          "accuracy": 0.8076923076923077,
-          "macro_precision": 0.7946428571428572,
-          "macro_recall": 0.84375,
-          "macro_f1": 0.796875,
-          "weighted_precision": 0.8598901098901099,
-          "weighted_recall": 0.8076923076923077,
-          "weighted_f1": 0.8149038461538461,
-          "micro_precision": 0.8076923076923077,
-          "micro_recall": 0.8076923076923077,
-          "micro_f1": 0.8076923076923077,
+          "accuracy": 0.6538461538461539,
+          "macro_precision": 0.709375,
+          "macro_recall": 0.7326388888888888,
+          "macro_f1": 0.6517857142857142,
+          "weighted_precision": 0.8019230769230768,
+          "weighted_recall": 0.6538461538461539,
+          "weighted_f1": 0.6620879120879122,
+          "micro_precision": 0.6538461538461539,
+          "micro_recall": 0.6538461538461539,
+          "micro_f1": 0.6538461538461539,
           "per_class": [
             {
               "label": "нет",
               "index": 0,
               "support": 36,
-              "predicted": 28,
-              "tp": 27,
-              "precision": 0.9642857142857143,
-              "recall": 0.75,
-              "f1": 0.8437499999999999
+              "predicted": 20,
+              "tp": 19,
+              "precision": 0.95,
+              "recall": 0.5277777777777778,
+              "f1": 0.6785714285714285
             },
             {
               "label": "да",
               "index": 1,
               "support": 16,
-              "predicted": 24,
+              "predicted": 32,
               "tp": 15,
-              "precision": 0.625,
+              "precision": 0.46875,
               "recall": 0.9375,
-              "f1": 0.75
+              "f1": 0.625
             }
           ],
           "confusion": [
             [
-              27,
-              9
+              19,
+              17
             ],
             [
               1,
@@ -227,8 +239,8 @@
       "n_photos": 39,
       "n_labels": 184,
       "n_heads": 5,
-      "overall_accuracy": 0.6956521739130435,
-      "mean_macro_f1": 0.6559817463580583,
+      "overall_accuracy": 0.7445652173913043,
+      "mean_macro_f1": 0.7138229019837916,
       "heads": {
         "материал": {
           "task": "feature:ножи:материал",
@@ -286,46 +298,46 @@
           "task": "feature:ножи:орнамент",
           "split": "test",
           "n_samples": 35,
-          "accuracy": 0.34285714285714286,
-          "macro_precision": 0.3666666666666667,
-          "macro_recall": 0.4300699300699301,
-          "macro_f1": 0.30663221360895776,
-          "weighted_precision": 0.3752380952380952,
-          "weighted_recall": 0.34285714285714286,
-          "weighted_f1": 0.26587916820474955,
-          "micro_precision": 0.34285714285714286,
-          "micro_recall": 0.34285714285714286,
-          "micro_f1": 0.34285714285714286,
+          "accuracy": 0.5428571428571428,
+          "macro_precision": 0.5542763157894737,
+          "macro_recall": 0.5576923076923077,
+          "macro_f1": 0.5394736842105263,
+          "weighted_precision": 0.5885338345864661,
+          "weighted_recall": 0.5428571428571428,
+          "weighted_f1": 0.5496240601503759,
+          "micro_precision": 0.5428571428571428,
+          "micro_recall": 0.5428571428571428,
+          "micro_f1": 0.5428571428571428,
           "per_class": [
             {
               "label": "нет",
               "index": 0,
               "support": 22,
-              "predicted": 5,
-              "tp": 2,
-              "precision": 0.4,
-              "recall": 0.09090909090909091,
-              "f1": 0.14814814814814814
+              "predicted": 16,
+              "tp": 11,
+              "precision": 0.6875,
+              "recall": 0.5,
+              "f1": 0.5789473684210527
             },
             {
               "label": "да",
               "index": 1,
               "support": 13,
-              "predicted": 30,
-              "tp": 10,
-              "precision": 0.3333333333333333,
-              "recall": 0.7692307692307693,
-              "f1": 0.4651162790697674
+              "predicted": 19,
+              "tp": 8,
+              "precision": 0.42105263157894735,
+              "recall": 0.6153846153846154,
+              "f1": 0.5
             }
           ],
           "confusion": [
             [
-              2,
-              20
+              11,
+              11
             ],
             [
-              3,
-              10
+              5,
+              8
             ]
           ],
           "labels": [
@@ -390,36 +402,36 @@
           "task": "feature:ножи:сохранность",
           "split": "test",
           "n_samples": 39,
-          "accuracy": 0.6666666666666666,
-          "macro_precision": 0.6587301587301587,
-          "macro_recall": 0.6666666666666666,
-          "macro_f1": 0.6585858585858586,
-          "weighted_precision": 0.6825396825396826,
-          "weighted_recall": 0.6666666666666666,
-          "weighted_f1": 0.6707070707070707,
-          "micro_precision": 0.6666666666666666,
-          "micro_recall": 0.6666666666666666,
-          "micro_f1": 0.6666666666666666,
+          "accuracy": 0.717948717948718,
+          "macro_precision": 0.7210526315789474,
+          "macro_recall": 0.7333333333333334,
+          "macro_f1": 0.7149501661129569,
+          "weighted_precision": 0.7489878542510121,
+          "weighted_recall": 0.717948717948718,
+          "weighted_f1": 0.7216969077434194,
+          "micro_precision": 0.717948717948718,
+          "micro_recall": 0.717948717948718,
+          "micro_f1": 0.717948717948718,
           "per_class": [
             {
               "label": "целый",
               "index": 0,
               "support": 24,
-              "predicted": 21,
+              "predicted": 19,
               "tp": 16,
-              "precision": 0.7619047619047619,
+              "precision": 0.8421052631578947,
               "recall": 0.6666666666666666,
-              "f1": 0.7111111111111111
+              "f1": 0.744186046511628
             },
             {
               "label": "сломан",
               "index": 1,
               "support": 15,
-              "predicted": 18,
-              "tp": 10,
-              "precision": 0.5555555555555556,
-              "recall": 0.6666666666666666,
-              "f1": 0.606060606060606
+              "predicted": 20,
+              "tp": 12,
+              "precision": 0.6,
+              "recall": 0.8,
+              "f1": 0.6857142857142857
             }
           ],
           "confusion": [
@@ -428,8 +440,8 @@
               8
             ],
             [
-              5,
-              10
+              3,
+              12
             ]
           ],
           "labels": [
@@ -496,8 +508,8 @@
       "n_photos": 28,
       "n_labels": 84,
       "n_heads": 3,
-      "overall_accuracy": 0.6428571428571429,
-      "mean_macro_f1": 0.6208333333333333,
+      "overall_accuracy": 0.6904761904761905,
+      "mean_macro_f1": 0.650682261208577,
       "heads": {
         "материал": {
           "task": "feature:удила:материал",
@@ -556,12 +568,12 @@
           "split": "test",
           "n_samples": 28,
           "accuracy": 0.35714285714285715,
-          "macro_precision": 0.4230769230769231,
-          "macro_recall": 0.4777777777777778,
-          "macro_f1": 0.3,
-          "weighted_precision": 0.4450549450549451,
+          "macro_precision": 0.17857142857142858,
+          "macro_recall": 0.5,
+          "macro_f1": 0.2631578947368421,
+          "weighted_precision": 0.12755102040816327,
           "weighted_recall": 0.35714285714285715,
-          "weighted_f1": 0.24285714285714285,
+          "weighted_f1": 0.18796992481203006,
           "micro_precision": 0.35714285714285715,
           "micro_recall": 0.35714285714285715,
           "micro_f1": 0.35714285714285715,
@@ -570,31 +582,31 @@
               "label": "сломан",
               "index": 0,
               "support": 10,
-              "predicted": 26,
-              "tp": 9,
-              "precision": 0.34615384615384615,
-              "recall": 0.9,
-              "f1": 0.5
+              "predicted": 28,
+              "tp": 10,
+              "precision": 0.35714285714285715,
+              "recall": 1.0,
+              "f1": 0.5263157894736842
             },
             {
               "label": "целый",
               "index": 1,
               "support": 18,
-              "predicted": 2,
-              "tp": 1,
-              "precision": 0.5,
-              "recall": 0.05555555555555555,
-              "f1": 0.09999999999999999
+              "predicted": 0,
+              "tp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
             }
           ],
           "confusion": [
             [
-              9,
-              1
+              10,
+              0
             ],
             [
-              17,
-              1
+              18,
+              0
             ]
           ],
           "labels": [
@@ -607,36 +619,36 @@
           "task": "feature:удила:тип_окончания",
           "split": "test",
           "n_samples": 28,
-          "accuracy": 0.5714285714285714,
-          "macro_precision": 0.6041666666666667,
-          "macro_recall": 0.625,
-          "macro_f1": 0.5625,
-          "weighted_precision": 0.7023809523809524,
-          "weighted_recall": 0.5714285714285714,
-          "weighted_f1": 0.5892857142857143,
-          "micro_precision": 0.5714285714285714,
-          "micro_recall": 0.5714285714285714,
-          "micro_f1": 0.5714285714285714,
+          "accuracy": 0.7142857142857143,
+          "macro_precision": 0.6875,
+          "macro_recall": 0.725,
+          "macro_f1": 0.6888888888888889,
+          "weighted_precision": 0.7678571428571429,
+          "weighted_recall": 0.7142857142857143,
+          "weighted_f1": 0.726984126984127,
+          "micro_precision": 0.7142857142857143,
+          "micro_recall": 0.7142857142857143,
+          "micro_f1": 0.7142857142857143,
           "per_class": [
             {
               "label": "кольчато-овальное",
               "index": 0,
               "support": 8,
-              "predicted": 16,
+              "predicted": 12,
               "tp": 6,
-              "precision": 0.375,
+              "precision": 0.5,
               "recall": 0.75,
-              "f1": 0.5
+              "f1": 0.6
             },
             {
               "label": "подтреугольное",
               "index": 1,
               "support": 20,
-              "predicted": 12,
-              "tp": 10,
-              "precision": 0.8333333333333334,
-              "recall": 0.5,
-              "f1": 0.625
+              "predicted": 16,
+              "tp": 14,
+              "precision": 0.875,
+              "recall": 0.7,
+              "f1": 0.7777777777777777
             }
           ],
           "confusion": [
@@ -645,8 +657,8 @@
               2
             ],
             [
-              10,
-              10
+              6,
+              14
             ]
           ],
           "labels": [
@@ -662,42 +674,42 @@
       "n_labels": 85,
       "n_heads": 5,
       "overall_accuracy": 0.7764705882352941,
-      "mean_macro_f1": 0.5347670250896057,
+      "mean_macro_f1": 0.5714929045741058,
       "heads": {
         "материал": {
           "task": "feature:наконечники стрел:материал",
           "split": "test",
           "n_samples": 17,
-          "accuracy": 0.7647058823529411,
-          "macro_precision": 0.38235294117647056,
-          "macro_recall": 0.5,
-          "macro_f1": 0.4333333333333333,
-          "weighted_precision": 0.5847750865051903,
-          "weighted_recall": 0.7647058823529411,
-          "weighted_f1": 0.6627450980392157,
-          "micro_precision": 0.7647058823529411,
-          "micro_recall": 0.7647058823529411,
-          "micro_f1": 0.7647058823529411,
+          "accuracy": 0.8235294117647058,
+          "macro_precision": 0.90625,
+          "macro_recall": 0.625,
+          "macro_f1": 0.6482758620689655,
+          "weighted_precision": 0.8566176470588235,
+          "weighted_recall": 0.8235294117647058,
+          "weighted_f1": 0.7797160243407708,
+          "micro_precision": 0.8235294117647058,
+          "micro_recall": 0.8235294117647058,
+          "micro_f1": 0.8235294117647058,
           "per_class": [
             {
               "label": "железо",
               "index": 0,
               "support": 13,
-              "predicted": 17,
+              "predicted": 16,
               "tp": 13,
-              "precision": 0.7647058823529411,
+              "precision": 0.8125,
               "recall": 1.0,
-              "f1": 0.8666666666666666
+              "f1": 0.896551724137931
             },
             {
               "label": "бронза",
               "index": 1,
               "support": 4,
-              "predicted": 0,
-              "tp": 0,
-              "precision": 0.0,
-              "recall": 0.0,
-              "f1": 0.0
+              "predicted": 1,
+              "tp": 1,
+              "precision": 1.0,
+              "recall": 0.25,
+              "f1": 0.4
             }
           ],
           "confusion": [
@@ -706,15 +718,21 @@
               0
             ],
             [
-              4,
-              0
+              3,
+              1
             ]
           ],
           "labels": [
             "железо",
             "бронза"
           ],
-          "extra": null
+          "extra": {
+            "low_support_classes": [
+              "бронза"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
         },
         "сечение": {
           "task": "feature:наконечники стрел:сечение",
@@ -766,7 +784,13 @@
             "плоское",
             "объемное"
           ],
-          "extra": null
+          "extra": {
+            "low_support_classes": [
+              "объемное"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
         },
         "сохранность": {
           "task": "feature:наконечники стрел:сохранность",
@@ -818,38 +842,44 @@
             "целый",
             "сломан"
           ],
-          "extra": null
+          "extra": {
+            "low_support_classes": [
+              "сломан"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
         },
         "тип_насада": {
           "task": "feature:наконечники стрел:тип_насада",
           "split": "test",
           "n_samples": 17,
-          "accuracy": 1.0,
+          "accuracy": 0.9411764705882353,
           "macro_precision": 1.0,
-          "macro_recall": 1.0,
-          "macro_f1": 1.0,
+          "macro_recall": 0.9411764705882353,
+          "macro_f1": 0.9696969696969697,
           "weighted_precision": 1.0,
-          "weighted_recall": 1.0,
-          "weighted_f1": 1.0,
-          "micro_precision": 1.0,
-          "micro_recall": 1.0,
-          "micro_f1": 1.0,
+          "weighted_recall": 0.9411764705882353,
+          "weighted_f1": 0.9696969696969697,
+          "micro_precision": 0.9411764705882353,
+          "micro_recall": 0.9411764705882353,
+          "micro_f1": 0.9411764705882353,
           "per_class": [
             {
               "label": "черешковый",
               "index": 0,
               "support": 17,
-              "predicted": 17,
-              "tp": 17,
+              "predicted": 16,
+              "tp": 16,
               "precision": 1.0,
-              "recall": 1.0,
-              "f1": 1.0
+              "recall": 0.9411764705882353,
+              "f1": 0.9696969696969697
             },
             {
               "label": "втульчатый",
               "index": 1,
               "support": 0,
-              "predicted": 0,
+              "predicted": 1,
               "tp": 0,
               "precision": 0.0,
               "recall": 0.0,
@@ -858,8 +888,8 @@
           ],
           "confusion": [
             [
-              17,
-              0
+              16,
+              1
             ],
             [
               0,
@@ -877,12 +907,12 @@
           "split": "test",
           "n_samples": 17,
           "accuracy": 0.5294117647058824,
-          "macro_precision": 0.32857142857142857,
+          "macro_precision": 0.34259259259259256,
           "macro_recall": 0.4343434343434343,
-          "macro_f1": 0.35555555555555557,
-          "weighted_precision": 0.5033613445378151,
+          "macro_f1": 0.35454545454545455,
+          "weighted_precision": 0.5473856209150326,
           "weighted_recall": 0.5294117647058824,
-          "weighted_f1": 0.5019607843137255,
+          "weighted_f1": 0.5171122994652407,
           "micro_precision": 0.5294117647058824,
           "micro_recall": 0.5294117647058824,
           "micro_f1": 0.5294117647058824,
@@ -891,21 +921,21 @@
               "label": "расщепленный",
               "index": 0,
               "support": 11,
-              "predicted": 10,
+              "predicted": 9,
               "tp": 7,
-              "precision": 0.7,
+              "precision": 0.7777777777777778,
               "recall": 0.6363636363636364,
-              "f1": 0.6666666666666666
+              "f1": 0.7000000000000001
             },
             {
               "label": "заостренный",
               "index": 1,
               "support": 3,
-              "predicted": 7,
+              "predicted": 8,
               "tp": 2,
-              "precision": 0.2857142857142857,
+              "precision": 0.25,
               "recall": 0.6666666666666666,
-              "f1": 0.4
+              "f1": 0.36363636363636365
             },
             {
               "label": "прямой",
@@ -930,8 +960,8 @@
               0
             ],
             [
-              2,
               1,
+              2,
               0
             ]
           ],
@@ -940,7 +970,14 @@
             "заостренный",
             "прямой"
           ],
-          "extra": null
+          "extra": {
+            "low_support_classes": [
+              "заостренный",
+              "прямой"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
         }
       }
     },
@@ -948,140 +985,36 @@
       "n_photos": 13,
       "n_labels": 42,
       "n_heads": 4,
-      "overall_accuracy": 0.7380952380952381,
-      "mean_macro_f1": 0.7531746031746032,
+      "overall_accuracy": 0.7857142857142857,
+      "mean_macro_f1": 0.7373511904761905,
       "heads": {
         "крепление": {
           "task": "feature:накладки:крепление",
           "split": "test",
           "n_samples": 11,
-          "accuracy": 0.6363636363636364,
-          "macro_precision": 0.6071428571428572,
-          "macro_recall": 0.6071428571428572,
-          "macro_f1": 0.6071428571428572,
-          "weighted_precision": 0.6363636363636364,
-          "weighted_recall": 0.6363636363636364,
-          "weighted_f1": 0.6363636363636364,
-          "micro_precision": 0.6363636363636364,
-          "micro_recall": 0.6363636363636364,
-          "micro_f1": 0.6363636363636364,
+          "accuracy": 0.8181818181818182,
+          "macro_precision": 0.8888888888888888,
+          "macro_recall": 0.75,
+          "macro_f1": 0.7708333333333334,
+          "weighted_precision": 0.8585858585858586,
+          "weighted_recall": 0.8181818181818182,
+          "weighted_f1": 0.7992424242424243,
+          "micro_precision": 0.8181818181818182,
+          "micro_recall": 0.8181818181818182,
+          "micro_f1": 0.8181818181818182,
           "per_class": [
             {
               "label": "внутреннее",
               "index": 0,
               "support": 7,
-              "predicted": 7,
-              "tp": 5,
-              "precision": 0.7142857142857143,
-              "recall": 0.7142857142857143,
-              "f1": 0.7142857142857143
+              "predicted": 9,
+              "tp": 7,
+              "precision": 0.7777777777777778,
+              "recall": 1.0,
+              "f1": 0.8750000000000001
             },
             {
               "label": "внешнее",
-              "index": 1,
-              "support": 4,
-              "predicted": 4,
-              "tp": 2,
-              "precision": 0.5,
-              "recall": 0.5,
-              "f1": 0.5
-            }
-          ],
-          "confusion": [
-            [
-              5,
-              2
-            ],
-            [
-              2,
-              2
-            ]
-          ],
-          "labels": [
-            "внутреннее",
-            "внешнее"
-          ],
-          "extra": null
-        },
-        "орнамент": {
-          "task": "feature:накладки:орнамент",
-          "split": "test",
-          "n_samples": 7,
-          "accuracy": 0.8571428571428571,
-          "macro_precision": 0.8333333333333333,
-          "macro_recall": 0.9,
-          "macro_f1": 0.8444444444444446,
-          "weighted_precision": 0.9047619047619048,
-          "weighted_recall": 0.8571428571428571,
-          "weighted_f1": 0.8634920634920634,
-          "micro_precision": 0.8571428571428571,
-          "micro_recall": 0.8571428571428571,
-          "micro_f1": 0.8571428571428571,
-          "per_class": [
-            {
-              "label": "да",
-              "index": 0,
-              "support": 5,
-              "predicted": 4,
-              "tp": 4,
-              "precision": 1.0,
-              "recall": 0.8,
-              "f1": 0.888888888888889
-            },
-            {
-              "label": "нет",
-              "index": 1,
-              "support": 2,
-              "predicted": 3,
-              "tp": 2,
-              "precision": 0.6666666666666666,
-              "recall": 1.0,
-              "f1": 0.8
-            }
-          ],
-          "confusion": [
-            [
-              4,
-              1
-            ],
-            [
-              0,
-              2
-            ]
-          ],
-          "labels": [
-            "да",
-            "нет"
-          ],
-          "extra": null
-        },
-        "сохранность": {
-          "task": "feature:накладки:сохранность",
-          "split": "test",
-          "n_samples": 13,
-          "accuracy": 0.8461538461538461,
-          "macro_precision": 0.9090909090909092,
-          "macro_recall": 0.75,
-          "macro_f1": 0.7833333333333333,
-          "weighted_precision": 0.8741258741258741,
-          "weighted_recall": 0.8461538461538461,
-          "weighted_f1": 0.8282051282051281,
-          "micro_precision": 0.8461538461538461,
-          "micro_recall": 0.8461538461538461,
-          "micro_f1": 0.8461538461538461,
-          "per_class": [
-            {
-              "label": "целый",
-              "index": 0,
-              "support": 9,
-              "predicted": 11,
-              "tp": 9,
-              "precision": 0.8181818181818182,
-              "recall": 1.0,
-              "f1": 0.9
-            },
-            {
-              "label": "сломан",
               "index": 1,
               "support": 4,
               "predicted": 2,
@@ -1093,7 +1026,7 @@
           ],
           "confusion": [
             [
-              9,
+              7,
               0
             ],
             [
@@ -1102,41 +1035,163 @@
             ]
           ],
           "labels": [
+            "внутреннее",
+            "внешнее"
+          ],
+          "extra": {
+            "low_support_classes": [
+              "внешнее"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
+        },
+        "орнамент": {
+          "task": "feature:накладки:орнамент",
+          "split": "test",
+          "n_samples": 7,
+          "accuracy": 0.7142857142857143,
+          "macro_precision": 0.65,
+          "macro_recall": 0.65,
+          "macro_f1": 0.6500000000000001,
+          "weighted_precision": 0.7142857142857143,
+          "weighted_recall": 0.7142857142857143,
+          "weighted_f1": 0.7142857142857144,
+          "micro_precision": 0.7142857142857143,
+          "micro_recall": 0.7142857142857143,
+          "micro_f1": 0.7142857142857143,
+          "per_class": [
+            {
+              "label": "да",
+              "index": 0,
+              "support": 5,
+              "predicted": 5,
+              "tp": 4,
+              "precision": 0.8,
+              "recall": 0.8,
+              "f1": 0.8000000000000002
+            },
+            {
+              "label": "нет",
+              "index": 1,
+              "support": 2,
+              "predicted": 2,
+              "tp": 1,
+              "precision": 0.5,
+              "recall": 0.5,
+              "f1": 0.5
+            }
+          ],
+          "confusion": [
+            [
+              4,
+              1
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "labels": [
+            "да",
+            "нет"
+          ],
+          "extra": {
+            "low_support_classes": [
+              "нет"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
+        },
+        "сохранность": {
+          "task": "feature:накладки:сохранность",
+          "split": "test",
+          "n_samples": 13,
+          "accuracy": 0.7692307692307693,
+          "macro_precision": 0.875,
+          "macro_recall": 0.625,
+          "macro_f1": 0.6285714285714286,
+          "weighted_precision": 0.8269230769230769,
+          "weighted_recall": 0.7692307692307693,
+          "weighted_f1": 0.7164835164835164,
+          "micro_precision": 0.7692307692307693,
+          "micro_recall": 0.7692307692307693,
+          "micro_f1": 0.7692307692307693,
+          "per_class": [
+            {
+              "label": "целый",
+              "index": 0,
+              "support": 9,
+              "predicted": 12,
+              "tp": 9,
+              "precision": 0.75,
+              "recall": 1.0,
+              "f1": 0.8571428571428571
+            },
+            {
+              "label": "сломан",
+              "index": 1,
+              "support": 4,
+              "predicted": 1,
+              "tp": 1,
+              "precision": 1.0,
+              "recall": 0.25,
+              "f1": 0.4
+            }
+          ],
+          "confusion": [
+            [
+              9,
+              0
+            ],
+            [
+              3,
+              1
+            ]
+          ],
+          "labels": [
             "целый",
             "сломан"
           ],
-          "extra": null
+          "extra": {
+            "low_support_classes": [
+              "сломан"
+            ],
+            "reliability": "unreliable",
+            "reliability_note": "support < 5 на test — метрики ненадёжны"
+          }
         },
         "форма": {
           "task": "feature:накладки:форма",
           "split": "test",
           "n_samples": 11,
-          "accuracy": 0.6363636363636364,
+          "accuracy": 0.8181818181818182,
           "macro_precision": 1.0,
-          "macro_recall": 0.6363636363636364,
-          "macro_f1": 0.7777777777777778,
+          "macro_recall": 0.8181818181818182,
+          "macro_f1": 0.9,
           "weighted_precision": 1.0,
-          "weighted_recall": 0.6363636363636364,
-          "weighted_f1": 0.7777777777777778,
-          "micro_precision": 0.6363636363636364,
-          "micro_recall": 0.6363636363636364,
-          "micro_f1": 0.6363636363636364,
+          "weighted_recall": 0.8181818181818182,
+          "weighted_f1": 0.9,
+          "micro_precision": 0.8181818181818182,
+          "micro_recall": 0.8181818181818182,
+          "micro_f1": 0.8181818181818182,
           "per_class": [
             {
               "label": "округлая",
               "index": 0,
               "support": 11,
-              "predicted": 7,
-              "tp": 7,
+              "predicted": 9,
+              "tp": 9,
               "precision": 1.0,
-              "recall": 0.6363636363636364,
-              "f1": 0.7777777777777778
+              "recall": 0.8181818181818182,
+              "f1": 0.9
             },
             {
               "label": "прямоугольная",
               "index": 1,
               "support": 0,
-              "predicted": 2,
+              "predicted": 0,
               "tp": 0,
               "precision": 0.0,
               "recall": 0.0,
@@ -1155,8 +1210,8 @@
           ],
           "confusion": [
             [
-              7,
-              2,
+              9,
+              0,
               2
             ],
             [
@@ -1185,42 +1240,42 @@
       "task": "feature:кельты:орнамент",
       "split": "test",
       "n_samples": 52,
-      "accuracy": 0.7884615384615384,
-      "macro_precision": 0.6333333333333333,
-      "macro_recall": 0.8854166666666667,
-      "macro_f1": 0.6458204334365325,
-      "weighted_precision": 0.9435897435897437,
-      "weighted_recall": 0.7884615384615384,
-      "weighted_f1": 0.8360085734698738,
-      "micro_precision": 0.7884615384615384,
-      "micro_recall": 0.7884615384615384,
-      "micro_f1": 0.7884615384615384,
+      "accuracy": 0.8269230769230769,
+      "macro_precision": 0.6538461538461539,
+      "macro_recall": 0.90625,
+      "macro_f1": 0.6835699797160244,
+      "weighted_precision": 0.9467455621301776,
+      "weighted_recall": 0.8269230769230769,
+      "weighted_f1": 0.8637853019191761,
+      "micro_precision": 0.8269230769230769,
+      "micro_recall": 0.8269230769230769,
+      "micro_f1": 0.8269230769230769,
       "per_class": [
         {
           "label": "да",
           "index": 0,
           "support": 48,
-          "predicted": 37,
-          "tp": 37,
+          "predicted": 39,
+          "tp": 39,
           "precision": 1.0,
-          "recall": 0.7708333333333334,
-          "f1": 0.8705882352941177
+          "recall": 0.8125,
+          "f1": 0.896551724137931
         },
         {
           "label": "нет",
           "index": 1,
           "support": 4,
-          "predicted": 15,
+          "predicted": 13,
           "tp": 4,
-          "precision": 0.26666666666666666,
+          "precision": 0.3076923076923077,
           "recall": 1.0,
-          "f1": 0.4210526315789474
+          "f1": 0.47058823529411764
         }
       ],
       "confusion": [
         [
-          37,
-          11
+          39,
+          9
         ],
         [
           0,
@@ -1231,7 +1286,13 @@
         "да",
         "нет"
       ],
-      "extra": null
+      "extra": {
+        "low_support_classes": [
+          "нет"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
     },
     "кельты:сохранность": {
       "task": "feature:кельты:сохранность",
@@ -1283,38 +1344,44 @@
         "целый",
         "сломан"
       ],
-      "extra": null
+      "extra": {
+        "low_support_classes": [
+          "сломан"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
     },
     "кельты:тулья": {
       "task": "feature:кельты:тулья",
       "split": "test",
       "n_samples": 48,
-      "accuracy": 0.9166666666666666,
+      "accuracy": 0.8958333333333334,
       "macro_precision": 1.0,
-      "macro_recall": 0.9166666666666666,
-      "macro_f1": 0.9565217391304348,
+      "macro_recall": 0.8958333333333334,
+      "macro_f1": 0.945054945054945,
       "weighted_precision": 1.0,
-      "weighted_recall": 0.9166666666666666,
-      "weighted_f1": 0.9565217391304349,
-      "micro_precision": 0.9166666666666666,
-      "micro_recall": 0.9166666666666666,
-      "micro_f1": 0.9166666666666666,
+      "weighted_recall": 0.8958333333333334,
+      "weighted_f1": 0.9450549450549449,
+      "micro_precision": 0.8958333333333334,
+      "micro_recall": 0.8958333333333334,
+      "micro_f1": 0.8958333333333334,
       "per_class": [
         {
           "label": "прямоугольный",
           "index": 0,
           "support": 48,
-          "predicted": 44,
-          "tp": 44,
+          "predicted": 43,
+          "tp": 43,
           "precision": 1.0,
-          "recall": 0.9166666666666666,
-          "f1": 0.9565217391304348
+          "recall": 0.8958333333333334,
+          "f1": 0.945054945054945
         },
         {
           "label": "овальный",
           "index": 1,
           "support": 0,
-          "predicted": 4,
+          "predicted": 5,
           "tp": 0,
           "precision": 0.0,
           "recall": 0.0,
@@ -1323,8 +1390,8 @@
       ],
       "confusion": [
         [
-          44,
-          4
+          43,
+          5
         ],
         [
           0,
@@ -1341,42 +1408,42 @@
       "task": "feature:кельты:ушки",
       "split": "test",
       "n_samples": 52,
-      "accuracy": 0.8076923076923077,
-      "macro_precision": 0.7946428571428572,
-      "macro_recall": 0.84375,
-      "macro_f1": 0.796875,
-      "weighted_precision": 0.8598901098901099,
-      "weighted_recall": 0.8076923076923077,
-      "weighted_f1": 0.8149038461538461,
-      "micro_precision": 0.8076923076923077,
-      "micro_recall": 0.8076923076923077,
-      "micro_f1": 0.8076923076923077,
+      "accuracy": 0.6538461538461539,
+      "macro_precision": 0.709375,
+      "macro_recall": 0.7326388888888888,
+      "macro_f1": 0.6517857142857142,
+      "weighted_precision": 0.8019230769230768,
+      "weighted_recall": 0.6538461538461539,
+      "weighted_f1": 0.6620879120879122,
+      "micro_precision": 0.6538461538461539,
+      "micro_recall": 0.6538461538461539,
+      "micro_f1": 0.6538461538461539,
       "per_class": [
         {
           "label": "нет",
           "index": 0,
           "support": 36,
-          "predicted": 28,
-          "tp": 27,
-          "precision": 0.9642857142857143,
-          "recall": 0.75,
-          "f1": 0.8437499999999999
+          "predicted": 20,
+          "tp": 19,
+          "precision": 0.95,
+          "recall": 0.5277777777777778,
+          "f1": 0.6785714285714285
         },
         {
           "label": "да",
           "index": 1,
           "support": 16,
-          "predicted": 24,
+          "predicted": 32,
           "tp": 15,
-          "precision": 0.625,
+          "precision": 0.46875,
           "recall": 0.9375,
-          "f1": 0.75
+          "f1": 0.625
         }
       ],
       "confusion": [
         [
-          27,
-          9
+          19,
+          17
         ],
         [
           1,
@@ -1393,133 +1460,29 @@
       "task": "feature:накладки:крепление",
       "split": "test",
       "n_samples": 11,
-      "accuracy": 0.6363636363636364,
-      "macro_precision": 0.6071428571428572,
-      "macro_recall": 0.6071428571428572,
-      "macro_f1": 0.6071428571428572,
-      "weighted_precision": 0.6363636363636364,
-      "weighted_recall": 0.6363636363636364,
-      "weighted_f1": 0.6363636363636364,
-      "micro_precision": 0.6363636363636364,
-      "micro_recall": 0.6363636363636364,
-      "micro_f1": 0.6363636363636364,
+      "accuracy": 0.8181818181818182,
+      "macro_precision": 0.8888888888888888,
+      "macro_recall": 0.75,
+      "macro_f1": 0.7708333333333334,
+      "weighted_precision": 0.8585858585858586,
+      "weighted_recall": 0.8181818181818182,
+      "weighted_f1": 0.7992424242424243,
+      "micro_precision": 0.8181818181818182,
+      "micro_recall": 0.8181818181818182,
+      "micro_f1": 0.8181818181818182,
       "per_class": [
         {
           "label": "внутреннее",
           "index": 0,
           "support": 7,
-          "predicted": 7,
-          "tp": 5,
-          "precision": 0.7142857142857143,
-          "recall": 0.7142857142857143,
-          "f1": 0.7142857142857143
+          "predicted": 9,
+          "tp": 7,
+          "precision": 0.7777777777777778,
+          "recall": 1.0,
+          "f1": 0.8750000000000001
         },
         {
           "label": "внешнее",
-          "index": 1,
-          "support": 4,
-          "predicted": 4,
-          "tp": 2,
-          "precision": 0.5,
-          "recall": 0.5,
-          "f1": 0.5
-        }
-      ],
-      "confusion": [
-        [
-          5,
-          2
-        ],
-        [
-          2,
-          2
-        ]
-      ],
-      "labels": [
-        "внутреннее",
-        "внешнее"
-      ],
-      "extra": null
-    },
-    "накладки:орнамент": {
-      "task": "feature:накладки:орнамент",
-      "split": "test",
-      "n_samples": 7,
-      "accuracy": 0.8571428571428571,
-      "macro_precision": 0.8333333333333333,
-      "macro_recall": 0.9,
-      "macro_f1": 0.8444444444444446,
-      "weighted_precision": 0.9047619047619048,
-      "weighted_recall": 0.8571428571428571,
-      "weighted_f1": 0.8634920634920634,
-      "micro_precision": 0.8571428571428571,
-      "micro_recall": 0.8571428571428571,
-      "micro_f1": 0.8571428571428571,
-      "per_class": [
-        {
-          "label": "да",
-          "index": 0,
-          "support": 5,
-          "predicted": 4,
-          "tp": 4,
-          "precision": 1.0,
-          "recall": 0.8,
-          "f1": 0.888888888888889
-        },
-        {
-          "label": "нет",
-          "index": 1,
-          "support": 2,
-          "predicted": 3,
-          "tp": 2,
-          "precision": 0.6666666666666666,
-          "recall": 1.0,
-          "f1": 0.8
-        }
-      ],
-      "confusion": [
-        [
-          4,
-          1
-        ],
-        [
-          0,
-          2
-        ]
-      ],
-      "labels": [
-        "да",
-        "нет"
-      ],
-      "extra": null
-    },
-    "накладки:сохранность": {
-      "task": "feature:накладки:сохранность",
-      "split": "test",
-      "n_samples": 13,
-      "accuracy": 0.8461538461538461,
-      "macro_precision": 0.9090909090909092,
-      "macro_recall": 0.75,
-      "macro_f1": 0.7833333333333333,
-      "weighted_precision": 0.8741258741258741,
-      "weighted_recall": 0.8461538461538461,
-      "weighted_f1": 0.8282051282051281,
-      "micro_precision": 0.8461538461538461,
-      "micro_recall": 0.8461538461538461,
-      "micro_f1": 0.8461538461538461,
-      "per_class": [
-        {
-          "label": "целый",
-          "index": 0,
-          "support": 9,
-          "predicted": 11,
-          "tp": 9,
-          "precision": 0.8181818181818182,
-          "recall": 1.0,
-          "f1": 0.9
-        },
-        {
-          "label": "сломан",
           "index": 1,
           "support": 4,
           "predicted": 2,
@@ -1531,7 +1494,7 @@
       ],
       "confusion": [
         [
-          9,
+          7,
           0
         ],
         [
@@ -1540,41 +1503,163 @@
         ]
       ],
       "labels": [
+        "внутреннее",
+        "внешнее"
+      ],
+      "extra": {
+        "low_support_classes": [
+          "внешнее"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
+    },
+    "накладки:орнамент": {
+      "task": "feature:накладки:орнамент",
+      "split": "test",
+      "n_samples": 7,
+      "accuracy": 0.7142857142857143,
+      "macro_precision": 0.65,
+      "macro_recall": 0.65,
+      "macro_f1": 0.6500000000000001,
+      "weighted_precision": 0.7142857142857143,
+      "weighted_recall": 0.7142857142857143,
+      "weighted_f1": 0.7142857142857144,
+      "micro_precision": 0.7142857142857143,
+      "micro_recall": 0.7142857142857143,
+      "micro_f1": 0.7142857142857143,
+      "per_class": [
+        {
+          "label": "да",
+          "index": 0,
+          "support": 5,
+          "predicted": 5,
+          "tp": 4,
+          "precision": 0.8,
+          "recall": 0.8,
+          "f1": 0.8000000000000002
+        },
+        {
+          "label": "нет",
+          "index": 1,
+          "support": 2,
+          "predicted": 2,
+          "tp": 1,
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5
+        }
+      ],
+      "confusion": [
+        [
+          4,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "labels": [
+        "да",
+        "нет"
+      ],
+      "extra": {
+        "low_support_classes": [
+          "нет"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
+    },
+    "накладки:сохранность": {
+      "task": "feature:накладки:сохранность",
+      "split": "test",
+      "n_samples": 13,
+      "accuracy": 0.7692307692307693,
+      "macro_precision": 0.875,
+      "macro_recall": 0.625,
+      "macro_f1": 0.6285714285714286,
+      "weighted_precision": 0.8269230769230769,
+      "weighted_recall": 0.7692307692307693,
+      "weighted_f1": 0.7164835164835164,
+      "micro_precision": 0.7692307692307693,
+      "micro_recall": 0.7692307692307693,
+      "micro_f1": 0.7692307692307693,
+      "per_class": [
+        {
+          "label": "целый",
+          "index": 0,
+          "support": 9,
+          "predicted": 12,
+          "tp": 9,
+          "precision": 0.75,
+          "recall": 1.0,
+          "f1": 0.8571428571428571
+        },
+        {
+          "label": "сломан",
+          "index": 1,
+          "support": 4,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1.0,
+          "recall": 0.25,
+          "f1": 0.4
+        }
+      ],
+      "confusion": [
+        [
+          9,
+          0
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "labels": [
         "целый",
         "сломан"
       ],
-      "extra": null
+      "extra": {
+        "low_support_classes": [
+          "сломан"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
     },
     "накладки:форма": {
       "task": "feature:накладки:форма",
       "split": "test",
       "n_samples": 11,
-      "accuracy": 0.6363636363636364,
+      "accuracy": 0.8181818181818182,
       "macro_precision": 1.0,
-      "macro_recall": 0.6363636363636364,
-      "macro_f1": 0.7777777777777778,
+      "macro_recall": 0.8181818181818182,
+      "macro_f1": 0.9,
       "weighted_precision": 1.0,
-      "weighted_recall": 0.6363636363636364,
-      "weighted_f1": 0.7777777777777778,
-      "micro_precision": 0.6363636363636364,
-      "micro_recall": 0.6363636363636364,
-      "micro_f1": 0.6363636363636364,
+      "weighted_recall": 0.8181818181818182,
+      "weighted_f1": 0.9,
+      "micro_precision": 0.8181818181818182,
+      "micro_recall": 0.8181818181818182,
+      "micro_f1": 0.8181818181818182,
       "per_class": [
         {
           "label": "округлая",
           "index": 0,
           "support": 11,
-          "predicted": 7,
-          "tp": 7,
+          "predicted": 9,
+          "tp": 9,
           "precision": 1.0,
-          "recall": 0.6363636363636364,
-          "f1": 0.7777777777777778
+          "recall": 0.8181818181818182,
+          "f1": 0.9
         },
         {
           "label": "прямоугольная",
           "index": 1,
           "support": 0,
-          "predicted": 2,
+          "predicted": 0,
           "tp": 0,
           "precision": 0.0,
           "recall": 0.0,
@@ -1593,8 +1678,8 @@
       ],
       "confusion": [
         [
-          7,
-          2,
+          9,
+          0,
           2
         ],
         [
@@ -1619,36 +1704,36 @@
       "task": "feature:наконечники стрел:материал",
       "split": "test",
       "n_samples": 17,
-      "accuracy": 0.7647058823529411,
-      "macro_precision": 0.38235294117647056,
-      "macro_recall": 0.5,
-      "macro_f1": 0.4333333333333333,
-      "weighted_precision": 0.5847750865051903,
-      "weighted_recall": 0.7647058823529411,
-      "weighted_f1": 0.6627450980392157,
-      "micro_precision": 0.7647058823529411,
-      "micro_recall": 0.7647058823529411,
-      "micro_f1": 0.7647058823529411,
+      "accuracy": 0.8235294117647058,
+      "macro_precision": 0.90625,
+      "macro_recall": 0.625,
+      "macro_f1": 0.6482758620689655,
+      "weighted_precision": 0.8566176470588235,
+      "weighted_recall": 0.8235294117647058,
+      "weighted_f1": 0.7797160243407708,
+      "micro_precision": 0.8235294117647058,
+      "micro_recall": 0.8235294117647058,
+      "micro_f1": 0.8235294117647058,
       "per_class": [
         {
           "label": "железо",
           "index": 0,
           "support": 13,
-          "predicted": 17,
+          "predicted": 16,
           "tp": 13,
-          "precision": 0.7647058823529411,
+          "precision": 0.8125,
           "recall": 1.0,
-          "f1": 0.8666666666666666
+          "f1": 0.896551724137931
         },
         {
           "label": "бронза",
           "index": 1,
           "support": 4,
-          "predicted": 0,
-          "tp": 0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1.0,
+          "recall": 0.25,
+          "f1": 0.4
         }
       ],
       "confusion": [
@@ -1657,15 +1742,21 @@
           0
         ],
         [
-          4,
-          0
+          3,
+          1
         ]
       ],
       "labels": [
         "железо",
         "бронза"
       ],
-      "extra": null
+      "extra": {
+        "low_support_classes": [
+          "бронза"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
     },
     "наконечники стрел:сечение": {
       "task": "feature:наконечники стрел:сечение",
@@ -1717,7 +1808,13 @@
         "плоское",
         "объемное"
       ],
-      "extra": null
+      "extra": {
+        "low_support_classes": [
+          "объемное"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
     },
     "наконечники стрел:сохранность": {
       "task": "feature:наконечники стрел:сохранность",
@@ -1769,38 +1866,44 @@
         "целый",
         "сломан"
       ],
-      "extra": null
+      "extra": {
+        "low_support_classes": [
+          "сломан"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
     },
     "наконечники стрел:тип_насада": {
       "task": "feature:наконечники стрел:тип_насада",
       "split": "test",
       "n_samples": 17,
-      "accuracy": 1.0,
+      "accuracy": 0.9411764705882353,
       "macro_precision": 1.0,
-      "macro_recall": 1.0,
-      "macro_f1": 1.0,
+      "macro_recall": 0.9411764705882353,
+      "macro_f1": 0.9696969696969697,
       "weighted_precision": 1.0,
-      "weighted_recall": 1.0,
-      "weighted_f1": 1.0,
-      "micro_precision": 1.0,
-      "micro_recall": 1.0,
-      "micro_f1": 1.0,
+      "weighted_recall": 0.9411764705882353,
+      "weighted_f1": 0.9696969696969697,
+      "micro_precision": 0.9411764705882353,
+      "micro_recall": 0.9411764705882353,
+      "micro_f1": 0.9411764705882353,
       "per_class": [
         {
           "label": "черешковый",
           "index": 0,
           "support": 17,
-          "predicted": 17,
-          "tp": 17,
+          "predicted": 16,
+          "tp": 16,
           "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
+          "recall": 0.9411764705882353,
+          "f1": 0.9696969696969697
         },
         {
           "label": "втульчатый",
           "index": 1,
           "support": 0,
-          "predicted": 0,
+          "predicted": 1,
           "tp": 0,
           "precision": 0.0,
           "recall": 0.0,
@@ -1809,8 +1912,8 @@
       ],
       "confusion": [
         [
-          17,
-          0
+          16,
+          1
         ],
         [
           0,
@@ -1828,12 +1931,12 @@
       "split": "test",
       "n_samples": 17,
       "accuracy": 0.5294117647058824,
-      "macro_precision": 0.32857142857142857,
+      "macro_precision": 0.34259259259259256,
       "macro_recall": 0.4343434343434343,
-      "macro_f1": 0.35555555555555557,
-      "weighted_precision": 0.5033613445378151,
+      "macro_f1": 0.35454545454545455,
+      "weighted_precision": 0.5473856209150326,
       "weighted_recall": 0.5294117647058824,
-      "weighted_f1": 0.5019607843137255,
+      "weighted_f1": 0.5171122994652407,
       "micro_precision": 0.5294117647058824,
       "micro_recall": 0.5294117647058824,
       "micro_f1": 0.5294117647058824,
@@ -1842,21 +1945,21 @@
           "label": "расщепленный",
           "index": 0,
           "support": 11,
-          "predicted": 10,
+          "predicted": 9,
           "tp": 7,
-          "precision": 0.7,
+          "precision": 0.7777777777777778,
           "recall": 0.6363636363636364,
-          "f1": 0.6666666666666666
+          "f1": 0.7000000000000001
         },
         {
           "label": "заостренный",
           "index": 1,
           "support": 3,
-          "predicted": 7,
+          "predicted": 8,
           "tp": 2,
-          "precision": 0.2857142857142857,
+          "precision": 0.25,
           "recall": 0.6666666666666666,
-          "f1": 0.4
+          "f1": 0.36363636363636365
         },
         {
           "label": "прямой",
@@ -1881,8 +1984,8 @@
           0
         ],
         [
-          2,
           1,
+          2,
           0
         ]
       ],
@@ -1891,7 +1994,14 @@
         "заостренный",
         "прямой"
       ],
-      "extra": null
+      "extra": {
+        "low_support_classes": [
+          "заостренный",
+          "прямой"
+        ],
+        "reliability": "unreliable",
+        "reliability_note": "support < 5 на test — метрики ненадёжны"
+      }
     },
     "ножи:материал": {
       "task": "feature:ножи:материал",
@@ -1949,46 +2059,46 @@
       "task": "feature:ножи:орнамент",
       "split": "test",
       "n_samples": 35,
-      "accuracy": 0.34285714285714286,
-      "macro_precision": 0.3666666666666667,
-      "macro_recall": 0.4300699300699301,
-      "macro_f1": 0.30663221360895776,
-      "weighted_precision": 0.3752380952380952,
-      "weighted_recall": 0.34285714285714286,
-      "weighted_f1": 0.26587916820474955,
-      "micro_precision": 0.34285714285714286,
-      "micro_recall": 0.34285714285714286,
-      "micro_f1": 0.34285714285714286,
+      "accuracy": 0.5428571428571428,
+      "macro_precision": 0.5542763157894737,
+      "macro_recall": 0.5576923076923077,
+      "macro_f1": 0.5394736842105263,
+      "weighted_precision": 0.5885338345864661,
+      "weighted_recall": 0.5428571428571428,
+      "weighted_f1": 0.5496240601503759,
+      "micro_precision": 0.5428571428571428,
+      "micro_recall": 0.5428571428571428,
+      "micro_f1": 0.5428571428571428,
       "per_class": [
         {
           "label": "нет",
           "index": 0,
           "support": 22,
-          "predicted": 5,
-          "tp": 2,
-          "precision": 0.4,
-          "recall": 0.09090909090909091,
-          "f1": 0.14814814814814814
+          "predicted": 16,
+          "tp": 11,
+          "precision": 0.6875,
+          "recall": 0.5,
+          "f1": 0.5789473684210527
         },
         {
           "label": "да",
           "index": 1,
           "support": 13,
-          "predicted": 30,
-          "tp": 10,
-          "precision": 0.3333333333333333,
-          "recall": 0.7692307692307693,
-          "f1": 0.4651162790697674
+          "predicted": 19,
+          "tp": 8,
+          "precision": 0.42105263157894735,
+          "recall": 0.6153846153846154,
+          "f1": 0.5
         }
       ],
       "confusion": [
         [
-          2,
-          20
+          11,
+          11
         ],
         [
-          3,
-          10
+          5,
+          8
         ]
       ],
       "labels": [
@@ -2053,36 +2163,36 @@
       "task": "feature:ножи:сохранность",
       "split": "test",
       "n_samples": 39,
-      "accuracy": 0.6666666666666666,
-      "macro_precision": 0.6587301587301587,
-      "macro_recall": 0.6666666666666666,
-      "macro_f1": 0.6585858585858586,
-      "weighted_precision": 0.6825396825396826,
-      "weighted_recall": 0.6666666666666666,
-      "weighted_f1": 0.6707070707070707,
-      "micro_precision": 0.6666666666666666,
-      "micro_recall": 0.6666666666666666,
-      "micro_f1": 0.6666666666666666,
+      "accuracy": 0.717948717948718,
+      "macro_precision": 0.7210526315789474,
+      "macro_recall": 0.7333333333333334,
+      "macro_f1": 0.7149501661129569,
+      "weighted_precision": 0.7489878542510121,
+      "weighted_recall": 0.717948717948718,
+      "weighted_f1": 0.7216969077434194,
+      "micro_precision": 0.717948717948718,
+      "micro_recall": 0.717948717948718,
+      "micro_f1": 0.717948717948718,
       "per_class": [
         {
           "label": "целый",
           "index": 0,
           "support": 24,
-          "predicted": 21,
+          "predicted": 19,
           "tp": 16,
-          "precision": 0.7619047619047619,
+          "precision": 0.8421052631578947,
           "recall": 0.6666666666666666,
-          "f1": 0.7111111111111111
+          "f1": 0.744186046511628
         },
         {
           "label": "сломан",
           "index": 1,
           "support": 15,
-          "predicted": 18,
-          "tp": 10,
-          "precision": 0.5555555555555556,
-          "recall": 0.6666666666666666,
-          "f1": 0.606060606060606
+          "predicted": 20,
+          "tp": 12,
+          "precision": 0.6,
+          "recall": 0.8,
+          "f1": 0.6857142857142857
         }
       ],
       "confusion": [
@@ -2091,8 +2201,8 @@
           8
         ],
         [
-          5,
-          10
+          3,
+          12
         ]
       ],
       "labels": [
@@ -2210,12 +2320,12 @@
       "split": "test",
       "n_samples": 28,
       "accuracy": 0.35714285714285715,
-      "macro_precision": 0.4230769230769231,
-      "macro_recall": 0.4777777777777778,
-      "macro_f1": 0.3,
-      "weighted_precision": 0.4450549450549451,
+      "macro_precision": 0.17857142857142858,
+      "macro_recall": 0.5,
+      "macro_f1": 0.2631578947368421,
+      "weighted_precision": 0.12755102040816327,
       "weighted_recall": 0.35714285714285715,
-      "weighted_f1": 0.24285714285714285,
+      "weighted_f1": 0.18796992481203006,
       "micro_precision": 0.35714285714285715,
       "micro_recall": 0.35714285714285715,
       "micro_f1": 0.35714285714285715,
@@ -2224,31 +2334,31 @@
           "label": "сломан",
           "index": 0,
           "support": 10,
-          "predicted": 26,
-          "tp": 9,
-          "precision": 0.34615384615384615,
-          "recall": 0.9,
-          "f1": 0.5
+          "predicted": 28,
+          "tp": 10,
+          "precision": 0.35714285714285715,
+          "recall": 1.0,
+          "f1": 0.5263157894736842
         },
         {
           "label": "целый",
           "index": 1,
           "support": 18,
-          "predicted": 2,
-          "tp": 1,
-          "precision": 0.5,
-          "recall": 0.05555555555555555,
-          "f1": 0.09999999999999999
+          "predicted": 0,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
         }
       ],
       "confusion": [
         [
-          9,
-          1
+          10,
+          0
         ],
         [
-          17,
-          1
+          18,
+          0
         ]
       ],
       "labels": [
@@ -2261,36 +2371,36 @@
       "task": "feature:удила:тип_окончания",
       "split": "test",
       "n_samples": 28,
-      "accuracy": 0.5714285714285714,
-      "macro_precision": 0.6041666666666667,
-      "macro_recall": 0.625,
-      "macro_f1": 0.5625,
-      "weighted_precision": 0.7023809523809524,
-      "weighted_recall": 0.5714285714285714,
-      "weighted_f1": 0.5892857142857143,
-      "micro_precision": 0.5714285714285714,
-      "micro_recall": 0.5714285714285714,
-      "micro_f1": 0.5714285714285714,
+      "accuracy": 0.7142857142857143,
+      "macro_precision": 0.6875,
+      "macro_recall": 0.725,
+      "macro_f1": 0.6888888888888889,
+      "weighted_precision": 0.7678571428571429,
+      "weighted_recall": 0.7142857142857143,
+      "weighted_f1": 0.726984126984127,
+      "micro_precision": 0.7142857142857143,
+      "micro_recall": 0.7142857142857143,
+      "micro_f1": 0.7142857142857143,
       "per_class": [
         {
           "label": "кольчато-овальное",
           "index": 0,
           "support": 8,
-          "predicted": 16,
+          "predicted": 12,
           "tp": 6,
-          "precision": 0.375,
+          "precision": 0.5,
           "recall": 0.75,
-          "f1": 0.5
+          "f1": 0.6
         },
         {
           "label": "подтреугольное",
           "index": 1,
           "support": 20,
-          "predicted": 12,
-          "tp": 10,
-          "precision": 0.8333333333333334,
-          "recall": 0.5,
-          "f1": 0.625
+          "predicted": 16,
+          "tp": 14,
+          "precision": 0.875,
+          "recall": 0.7,
+          "f1": 0.7777777777777777
         }
       ],
       "confusion": [
@@ -2299,8 +2409,8 @@
           2
         ],
         [
-          10,
-          10
+          6,
+          14
         ]
       ],
       "labels": [

@@ -7,6 +7,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+LOW_SUPPORT_THRESHOLD = 5
+
 
 @dataclass(frozen=True)
 class PerClassMetrics:

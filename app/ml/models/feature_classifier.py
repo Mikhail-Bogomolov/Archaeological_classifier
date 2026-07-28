@@ -9,6 +9,15 @@ from app.ml.config import NUM_OBJECT_CLASSES
 from app.ml.feature_vocab import head_key
 from app.ml.models.backbone import create_mobilenet_backbone
 from app.ml.texture_features import texture_dim
+from app.ml.training_config import DEFAULT_MODEL_ARCH
+
+
+def infer_feature_hidden_dim(state_dict: dict[str, torch.Tensor]) -> int:
+    """hidden_dim из весов shared.0 (out_features)."""
+    w = state_dict.get("shared.0.weight")
+    if w is not None:
+        return int(w.shape[0])
+    return DEFAULT_MODEL_ARCH.feature_hidden_dim
 
 
 class FeatureClassifierNet(nn.Module):
