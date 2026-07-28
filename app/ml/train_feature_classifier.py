@@ -5,6 +5,7 @@
     python -m app.ml.train_feature_classifier --verify-only
     python -m app.ml.train_feature_classifier --epochs 30 --batch-size 16
     python -m app.ml.train_feature_classifier --no-texture
+    python -m app.ml.train_feature_classifier --no-boost --epochs 40
 """
 
 from __future__ import annotations
@@ -39,15 +40,17 @@ def build_head_class_weights(
     vocab: dict[str, list[str]],
     attr_keys: list[str],
     device: torch.device,
+    *,
+    use_minority_boost: bool = True,
 ) -> dict[str, torch.Tensor]:
-    """Веса CE по головам: inverse-freq + буст редких классов (маппинг признаков)."""
+    """Веса CE по головам: inverse-freq + опциональный буст редких классов."""
     table_counts = scan_tables()
     weights: dict[str, torch.Tensor] = {}
     for key in attr_keys:
         labels = vocab[key]
         counts = [table_counts.get(key, Counter()).get(lab, 0) for lab in labels]
         w = class_weights_from_counts(counts, device)
-        if key in FEATURE_HEAD_MINORITY_BOOST:
+        if use_minority_boost and key in FEATURE_HEAD_MINORITY_BOOST:
             positive = [c for c in counts if c > 0]
             if positive:
                 mean = sum(positive) / len(positive)
@@ -183,14 +186,20 @@ def save_checkpoint(
     )
 
 
-def print_vocab_summary(vocab: dict[str, list[str]]) -> None:
+def print_vocab_summary(
+    vocab: dict[str, list[str]], *, use_minority_boost: bool = True
+) -> None:
     print(f"\nПризнаков для обучения: {len(vocab)}")
     for key in sorted(vocab):
         labels = vocab[key]
         preview = ", ".join(labels[:6])
         if len(labels) > 6:
             preview += ", …"
-        boost = " [boost]" if key in FEATURE_HEAD_MINORITY_BOOST else ""
+        boost = (
+            " [boost]"
+            if use_minority_boost and key in FEATURE_HEAD_MINORITY_BOOST
+            else ""
+        )
         print(f"  {key}: {len(labels)} знач. — {preview}{boost}")
 
     expected = sum(len(FEATURE_SCHEMA.get(c, [])) for c in OBJECT_CLASSES)
@@ -215,10 +224,16 @@ def main() -> None:
     parser.add_argument("--no-texture", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--verify-only", action="store_true")
+    parser.add_argument(
+        "--no-boost",
+        action="store_true",
+        help="отключить буст редких классов (FEATURE_HEAD_MINORITY_BOOST)",
+    )
     args = parser.parse_args()
 
     pretrained = not args.no_pretrained
     use_texture = USE_TEXTURE_FEATURES and not args.no_texture
+    use_minority_boost = not args.no_boost
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}, texture={use_texture}")
 
@@ -228,7 +243,7 @@ def main() -> None:
             "Не удалось построить словарь признаков. "
             "Проверьте data/dataset/tables/*.xlsx"
         )
-    print_vocab_summary(vocab)
+    print_vocab_summary(vocab, use_minority_boost=use_minority_boost)
 
     train_ds = KanskFeatureDataset(
         vocab=vocab,
@@ -243,12 +258,17 @@ def main() -> None:
         use_texture=use_texture,
     )
     attr_keys = train_ds.attr_keys
-    head_weights = build_head_class_weights(vocab, attr_keys, device)
-    boost_count = sum(1 for k in attr_keys if k in FEATURE_HEAD_MINORITY_BOOST)
-    print(
-        f"\nБустинг редких классов: {boost_count} голов, "
-        f"множитель={FEATURE_MINORITY_BOOST_FACTOR}"
+    head_weights = build_head_class_weights(
+        vocab, attr_keys, device, use_minority_boost=use_minority_boost
     )
+    if use_minority_boost:
+        boost_count = sum(1 for k in attr_keys if k in FEATURE_HEAD_MINORITY_BOOST)
+        print(
+            f"\nБустинг редких классов: {boost_count} голов, "
+            f"множитель={FEATURE_MINORITY_BOOST_FACTOR}"
+        )
+    else:
+        print("\nБустинг редких классов: выключен (--no-boost)")
 
     model = FeatureClassifierNet.from_vocab(
         vocab, pretrained=pretrained, use_texture=use_texture
