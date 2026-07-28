@@ -12,7 +12,9 @@ app/data.sqlite3
 
 # Source datasets (not for repo)
 General_data/
-data/dataset/
+data/dataset/**
+!data/dataset/tables/
+!data/dataset/tables/**
 siberiana-hakaton/
 
 # Camera captures / local artifacts
