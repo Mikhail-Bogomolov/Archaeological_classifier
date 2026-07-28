@@ -114,6 +114,35 @@ def build_vocab(
     return vocab
 
 
+def _labels_should_not_merge(a: str, b: str) -> bool:
+    """Не сливать разные классы маппинга (ложные дубликаты difflib)."""
+    if a == b:
+        return False
+    if a.startswith("не") and a[2:] == b:
+        return True
+    if b.startswith("не") and b[2:] == a:
+        return True
+    distinct = {
+        frozenset({"целый", "сломан"}),
+        frozenset({"прямой", "изогнутый"}),
+        frozenset({"плоское", "объемное"}),
+        frozenset({"внутреннее", "внешнее"}),
+        frozenset({"да", "нет"}),
+        frozenset({"втульчатый", "черешковый"}),
+        frozenset({"овальный", "прямоугольный"}),
+        frozenset({"кольчато-овальное", "подтреугольное"}),
+        frozenset({"бронза", "железо"}),
+        frozenset({"заостренный", "расщепленный"}),
+        frozenset({"заостренный", "прямой"}),
+        frozenset({"прямой", "расщепленный"}),
+        frozenset({"округлая", "прямоугольная"}),
+        frozenset({"округлая", "фигурная"}),
+        frozenset({"прямоугольная", "фигурная"}),
+        frozenset({"выделенная", "невыделенная"}),
+    }
+    return frozenset({a, b}) in distinct
+
+
 def _merge_near_duplicate_labels(
     counter: Counter,
     *,
@@ -128,6 +157,8 @@ def _merge_near_duplicate_labels(
     for label in labels:
         matched = None
         for canon in canonical:
+            if _labels_should_not_merge(label, canon):
+                continue
             if SequenceMatcher(None, label, canon).ratio() >= cutoff:
                 matched = canon
                 break

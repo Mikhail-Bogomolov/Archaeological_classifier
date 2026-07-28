@@ -18,15 +18,51 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 from app.ml.augmentations import build_train_transforms_mild, build_val_transforms
-from app.ml.config import FEATURE_MODEL_FILE, MODELS_DIR, USE_TEXTURE_FEATURES
+from app.ml.config import (
+    FEATURE_HEAD_MINORITY_BOOST,
+    FEATURE_MINORITY_BOOST_FACTOR,
+    FEATURE_MODEL_FILE,
+    FEATURE_SCHEMA,
+    MODELS_DIR,
+    OBJECT_CLASSES,
+    USE_TEXTURE_FEATURES,
+)
 from app.ml.feature_dataset import KanskFeatureDataset, collate_features
+from collections import Counter
+
+from app.ml.feature_vocab import scan_tables
+from app.ml.losses import class_weights_from_counts
 from app.ml.models import FeatureClassifierNet
+
+
+def build_head_class_weights(
+    vocab: dict[str, list[str]],
+    attr_keys: list[str],
+    device: torch.device,
+) -> dict[str, torch.Tensor]:
+    """Веса CE по головам: inverse-freq + буст редких классов (маппинг признаков)."""
+    table_counts = scan_tables()
+    weights: dict[str, torch.Tensor] = {}
+    for key in attr_keys:
+        labels = vocab[key]
+        counts = [table_counts.get(key, Counter()).get(lab, 0) for lab in labels]
+        w = class_weights_from_counts(counts, device)
+        if key in FEATURE_HEAD_MINORITY_BOOST:
+            positive = [c for c in counts if c > 0]
+            if positive:
+                mean = sum(positive) / len(positive)
+                for i, c in enumerate(counts):
+                    if 0 < c < mean * 0.75:
+                        w[i] *= FEATURE_MINORITY_BOOST_FACTOR
+        weights[key] = w
+    return weights
 
 
 def compute_loss(
     logits: dict[str, torch.Tensor],
     targets: torch.Tensor,
     attr_keys: list[str],
+    head_weights: dict[str, torch.Tensor] | None = None,
 ) -> tuple[torch.Tensor, int]:
     total = torch.tensor(0.0, device=targets.device)
     n_heads = 0
@@ -36,7 +72,8 @@ def compute_loss(
         mask = y >= 0
         if mask.sum() == 0:
             continue
-        total = total + F.cross_entropy(head_logits[mask], y[mask])
+        weight = head_weights.get(key) if head_weights else None
+        total = total + F.cross_entropy(head_logits[mask], y[mask], weight=weight)
         n_heads += 1
     if n_heads == 0:
         return total, 0
@@ -65,6 +102,7 @@ def train_one_epoch(
     optimizer: torch.optim.Optimizer,
     device: torch.device,
     attr_keys: list[str],
+    head_weights: dict[str, torch.Tensor] | None = None,
 ) -> float:
     model.train()
     total_loss = 0.0
@@ -72,7 +110,9 @@ def train_one_epoch(
     for batch in loader:
         optimizer.zero_grad()
         logits, targets = _model_forward(model, batch, device)
-        loss, n_heads = compute_loss(logits, targets, attr_keys)
+        loss, n_heads = compute_loss(
+            logits, targets, attr_keys, head_weights=head_weights
+        )
         if n_heads == 0:
             continue
         loss.backward()
@@ -88,6 +128,7 @@ def evaluate(
     loader: DataLoader,
     device: torch.device,
     attr_keys: list[str],
+    head_weights: dict[str, torch.Tensor] | None = None,
 ) -> tuple[float, float]:
     model.eval()
     total_loss = 0.0
@@ -97,7 +138,9 @@ def evaluate(
 
     for batch in loader:
         logits, targets = _model_forward(model, batch, device)
-        loss, n_heads = compute_loss(logits, targets, attr_keys)
+        loss, n_heads = compute_loss(
+            logits, targets, attr_keys, head_weights=head_weights
+        )
         if n_heads == 0:
             continue
         total_loss += loss.item()
@@ -147,7 +190,18 @@ def print_vocab_summary(vocab: dict[str, list[str]]) -> None:
         preview = ", ".join(labels[:6])
         if len(labels) > 6:
             preview += ", …"
-        print(f"  {key}: {len(labels)} знач. — {preview}")
+        boost = " [boost]" if key in FEATURE_HEAD_MINORITY_BOOST else ""
+        print(f"  {key}: {len(labels)} знач. — {preview}{boost}")
+
+    expected = sum(len(FEATURE_SCHEMA.get(c, [])) for c in OBJECT_CLASSES)
+    missing = [
+        f"{c}:{f}"
+        for c in OBJECT_CLASSES
+        for f in FEATURE_SCHEMA.get(c, [])
+        if f"{c}:{f}" not in vocab
+    ]
+    if missing:
+        print(f"\nПредупреждение: не в vocab ({len(missing)}): {', '.join(missing)}")
 
 
 def main() -> None:
@@ -189,6 +243,12 @@ def main() -> None:
         use_texture=use_texture,
     )
     attr_keys = train_ds.attr_keys
+    head_weights = build_head_class_weights(vocab, attr_keys, device)
+    boost_count = sum(1 for k in attr_keys if k in FEATURE_HEAD_MINORITY_BOOST)
+    print(
+        f"\nБустинг редких классов: {boost_count} голов, "
+        f"множитель={FEATURE_MINORITY_BOOST_FACTOR}"
+    )
 
     model = FeatureClassifierNet.from_vocab(
         vocab, pretrained=pretrained, use_texture=use_texture
@@ -263,8 +323,12 @@ def main() -> None:
             )
             print(f"  [epoch {epoch}] Разморозка backbone, lr={args.lr}")
 
-        train_loss = train_one_epoch(model, train_loader, optimizer, device, attr_keys)
-        val_loss, val_acc = evaluate(model, val_loader, device, attr_keys)
+        train_loss = train_one_epoch(
+            model, train_loader, optimizer, device, attr_keys, head_weights
+        )
+        val_loss, val_acc = evaluate(
+            model, val_loader, device, attr_keys, head_weights
+        )
 
         if scheduler is not None:
             scheduler.step()

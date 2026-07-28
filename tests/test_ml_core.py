@@ -99,8 +99,10 @@ class TestSohrannostNormalize(unittest.TestCase):
             "целый",
         )
         self.assertEqual(coarse_sohrannost("целые"), "целый")
-        self.assertEqual(coarse_sohrannost("обломки"), "фрагмент")
-        self.assertEqual(coarse_sohrannost("целые и сломаны"), "смешанный")
+        self.assertEqual(coarse_sohrannost("обломки"), "сломан")
+        self.assertEqual(coarse_sohrannost("целые и сломаны"), "сломан")
+        self.assertEqual(coarse_sohrannost("Фрагмент"), "сломан")
+        self.assertEqual(coarse_sohrannost("половина"), "сломан")
         self.assertEqual(
             normalize_cell_value("кельты", "сохранность", "Целая"),
             "целый",
@@ -111,6 +113,8 @@ class TestSohrannostNormalize(unittest.TestCase):
             coarse_kreplenie,
             coarse_nakladka_forma,
             coarse_tip_okonchania,
+            coarse_knife_tip,
+            coarse_knife_rukoyat,
             normalize_cell_value,
         )
 
@@ -118,13 +122,36 @@ class TestSohrannostNormalize(unittest.TestCase):
             coarse_tip_okonchania("подтреугольно-кольчатое с округлым отверстием"),
             "подтреугольное",
         )
-        self.assertEqual(coarse_tip_okonchania("овально-кольчатое"), "кольчатое")
-        self.assertEqual(coarse_kreplenie("шпенек"), "шпеньки")
-        self.assertEqual(coarse_kreplenie("петелька"), "прочее")
-        self.assertEqual(coarse_nakladka_forma("круглая с зубчатым краем"), "круглая")
+        self.assertEqual(coarse_tip_okonchania("овально-кольчатое"), "кольчато-овальное")
+        self.assertEqual(coarse_tip_okonchania("стремечковидные"), "кольчато-овальное")
+        self.assertEqual(coarse_tip_okonchania("трапециевидное кольчатое"), "подтреугольное")
+        self.assertEqual(coarse_kreplenie("шпенек"), "внутреннее")
+        self.assertEqual(coarse_kreplenie("петелька"), "внешнее")
+        self.assertEqual(coarse_nakladka_forma("круглая с зубчатым краем"), "прямоугольная")
+        self.assertIsNone(coarse_nakladka_forma("ажурная"))
+        self.assertEqual(coarse_knife_tip("выпуклообушковый"), "изогнутый")
+        self.assertEqual(coarse_knife_tip("прямолезвийный"), "прямой")
+        self.assertEqual(coarse_knife_rukoyat("петельчатая рукоять"), "выделенная")
         self.assertEqual(
             normalize_cell_value("удила", "тип_окончания", "кольчатое"),
-            "кольчатое",
+            "кольчато-овальное",
+        )
+        self.assertIsNone(
+            normalize_cell_value(
+                "ножи",
+                "материал",
+                "Железо, латунь, медь, алюминий, свинец, пластмасса",
+            )
+        )
+
+    def test_vocab_includes_knife_rukoyat(self):
+        from app.ml.feature_vocab import build_vocab
+
+        vocab = build_vocab()
+        self.assertIn("ножи:рукоять", vocab)
+        self.assertEqual(
+            set(vocab["ножи:рукоять"]),
+            {"выделенная", "невыделенная"},
         )
 
 
