@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Сканирование</title>
-    <link rel="stylesheet" href="/static/small-screen.css?v=5">
+    <link rel="stylesheet" href="/static/small-screen.css?v=8">
     {% if not scan %}
     <style>
         body.scan-page--start { padding-top: 36px !important; }
@@ -32,7 +32,7 @@
     </style>
     {% endif %}
 </head>
-<body class="small-screen bg-gray-50 min-h-screen{% if not scan %} scan-page--start{% endif %}">
+<body class="small-screen bg-gray-50 min-h-screen{% if not scan %} scan-page--start{% endif %}{% if scan and scan.class_confirmed %} scan-page--confirmed{% endif %}">
 
 <header class="scan-header page-pad bg-white border-b border-gray-200{% if not scan %} scan-header--start{% endif %}">
     <div class="scan-header-main">
@@ -47,9 +47,9 @@
 </header>
 
 {% if scan %}
-<div class="page-pad" style="display:flex;flex-direction:column;gap:8px">
-    <div class="card page-pad">
-        <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 6px">
+<div class="page-pad scan-results">
+    <div class="card page-pad scan-card scan-card-preview">
+        <p class="scan-preview-label">
             {% if scan.preview_meta and scan.preview_meta.fallback %}
             Объект (полный кадр — автообрезка ненадёжна)
             {% elif scan.preview_meta and scan.preview_meta.preview_mode == 'cropped' %}
@@ -58,29 +58,29 @@
             Объект (центр кадра)
             {% endif %}
         </p>
-        <div style="width:100%;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:#e5e7eb">
-            <img src="{{ scan.image_url }}" alt="" style="width:100%;height:100%;object-fit:contain;display:block">
+        <div class="scan-preview-box">
+            <img src="{{ scan.image_url }}" alt="" class="scan-preview-img">
         </div>
     </div>
 
-    <div class="card page-pad">
-        <p style="font-size:var(--text-sm);color:#6b7280;margin:0 0 4px">Нейросеть</p>
-        <p style="margin:8px 0 0;font-size:var(--text-base)">
+    <div class="card page-pad scan-card scan-card-network">
+        <p class="scan-section-label">Нейросеть</p>
+        <p class="scan-prediction">
             Предсказание: <b>{{ scan.predicted_category }}</b> · {{ scan.predicted_confidence }}%
         </p>
         {% if scan.warning %}
-        <p style="margin:10px 0 0;padding:8px 10px;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;font-size:var(--text-sm);color:#9a3412">
+        <p class="scan-warning">
             {{ scan.warning }}
         </p>
         {% endif %}
 
         {% if scan.class_confirmed %}
-        <p style="margin:10px 0 0;font-size:var(--text-base);color:#166534">
+        <p class="scan-confirmed-class">
             Подтверждённый класс: <b>{{ scan.category }}</b>
         </p>
-        <p style="margin:8px 0 0;font-size:var(--text-sm)">{{ scan.description }}</p>
+        <p class="scan-description">{{ scan.description }}</p>
         {% if scan.features %}
-        <ul style="margin:10px 0 0;padding-left:18px;font-size:var(--text-sm)">
+        <ul class="scan-features">
             {% for feature in scan.features %}
             <li>{{ feature }}</li>
             {% endfor %}
@@ -117,8 +117,8 @@
     </div>
 
     {% if scan.class_confirmed %}
-    <form action="/scan/add" method="POST">
-        <button type="submit" class="btn-primary" style="border:none;width:100%">Добавить</button>
+    <form action="/scan/add" method="POST" class="scan-add-form">
+        <button type="submit" class="btn-primary scan-add-btn">Добавить</button>
     </form>
     {% endif %}
 </div>

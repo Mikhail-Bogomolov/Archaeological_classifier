@@ -25,7 +25,8 @@ _AICAM_HINTS = ("2b16", "6689", "aicam", "sunplusit", "open aicam", "sunplus")
 _FALLBACK_INDICES = (1, 4, 0, 2, 3, 5, 6, 7, 8, 9, 10)
 WARMUP_FRAMES = 8
 MAX_CAPTURE_ATTEMPTS = 25
-MIN_FRAME_MEAN = 8.0
+# Средняя яркость кадра (0–255): ниже — недоэкспонированный/без подсветки, не для превью.
+MIN_FRAME_MEAN = 40.0
 JPEG_QUALITY = 92
 DIAG_LOG_PATH = PROJECT_ROOT / "data" / "camera_diag.log"
 
