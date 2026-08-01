@@ -365,16 +365,31 @@ def crop_to_foreground_bbox(
     *,
     use_bg_ref: bool = False,
 ) -> Image.Image:
-    """Обрезка по контуру предмета."""
+    """Обрезка по контуру предмета (крупнейшая связная область маски)."""
     mask = _foreground_mask(pil, use_bg_ref=use_bg_ref)
     if int(mask.sum()) < 60:
         return pil
 
-    ys, xs = np.where(mask)
-    y0, y1 = int(ys.min()), int(ys.max())
-    x0, x1 = int(xs.min()), int(xs.max())
+    # Глобальный min/max по всей маске растягивает bbox на весь кадр из-за
+    # бликов у краёв (глянцевый фон установки). Берём только крупнейший blob.
+    import cv2
+
+    num_labels, _labels, stats, _centroids = cv2.connectedComponentsWithStats(
+        mask.astype(np.uint8), connectivity=8
+    )
+    if num_labels <= 1:
+        return pil
+    # stats[0] — фон
+    areas = stats[1:, cv2.CC_STAT_AREA]
+    biggest = int(np.argmax(areas)) + 1
+    x0 = int(stats[biggest, cv2.CC_STAT_LEFT])
+    y0 = int(stats[biggest, cv2.CC_STAT_TOP])
+    bw = int(stats[biggest, cv2.CC_STAT_WIDTH])
+    bh = int(stats[biggest, cv2.CC_STAT_HEIGHT])
+    x1 = x0 + bw - 1
+    y1 = y0 + bh - 1
+
     h, w = mask.shape
-    bw, bh = x1 - x0 + 1, y1 - y0 + 1
     elong = bh / max(bw, 1)
     if elong > 2.2:
         pad_ratio = max(pad_ratio, 0.22)
