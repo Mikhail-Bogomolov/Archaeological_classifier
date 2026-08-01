@@ -425,6 +425,7 @@ body.small-screen {
 
 .small-screen .scan-btn-touch {
     min-height: 56px;
+    padding: 10px 10px;
     font-size: 18px;
     border-radius: 10px;
 }
@@ -438,40 +439,40 @@ body.small-screen {
     margin-bottom: 6px;
 }
 
-/* После подтверждения класса — чуть меньше отступы, превью не трогаем */
-.small-screen.scan-page--confirmed .scan-header {
+/* Результаты скана (до и после подтверждения класса) — компактные отступы, превью не трогаем */
+.small-screen.scan-page--compact .scan-header {
     padding: 6px var(--pad);
 }
 
-.small-screen.scan-page--confirmed .scan-title {
+.small-screen.scan-page--compact .scan-title {
     margin-top: 4px;
 }
 
-.small-screen.scan-page--confirmed .scan-results {
+.small-screen.scan-page--compact .scan-results {
     gap: 4px;
     padding-top: 2px;
     padding-bottom: 4px;
 }
 
-.small-screen.scan-page--confirmed .scan-card {
+.small-screen.scan-page--compact .scan-card {
     margin-bottom: 4px;
 }
 
-.small-screen.scan-page--confirmed .scan-preview-label,
-.small-screen.scan-page--confirmed .scan-section-label {
+.small-screen.scan-page--compact .scan-preview-label,
+.small-screen.scan-page--compact .scan-section-label {
     margin-bottom: 4px;
 }
 
-.small-screen.scan-page--confirmed .scan-confirmed-class {
+.small-screen.scan-page--compact .scan-confirmed-class {
     margin-top: 4px;
 }
 
-.small-screen.scan-page--confirmed .scan-description {
+.small-screen.scan-page--compact .scan-description {
     margin-top: 2px;
     line-height: 1.35;
 }
 
-.small-screen.scan-page--confirmed .scan-features {
+.small-screen.scan-page--compact .scan-features {
     margin-top: 4px;
     line-height: 1.35;
 }

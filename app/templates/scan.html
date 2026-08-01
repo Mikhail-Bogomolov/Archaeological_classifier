@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Сканирование</title>
-    <link rel="stylesheet" href="/static/small-screen.css?v=9">
+    <link rel="stylesheet" href="/static/small-screen.css?v=11">
     {% if not scan %}
     <style>
         body.scan-page--start { padding-top: 36px !important; }
@@ -32,7 +32,7 @@
     </style>
     {% endif %}
 </head>
-<body class="small-screen bg-gray-50 min-h-screen{% if not scan %} scan-page--start{% endif %}{% if scan and scan.class_confirmed %} scan-page--confirmed{% endif %}">
+<body class="small-screen bg-gray-50 min-h-screen{% if not scan %} scan-page--start{% endif %}{% if scan %} scan-page--compact{% endif %}{% if scan and scan.class_confirmed %} scan-page--confirmed{% endif %}">
 
 <header class="scan-header page-pad bg-white border-b border-gray-200{% if not scan %} scan-header--start{% endif %}">
     <div class="scan-header-main">
@@ -60,14 +60,14 @@
             <button type="submit" id="btn-class-approve" class="btn-primary scan-btn-touch" style="border:none;width:100%">Класс верный</button>
         </form>
 
-        <form action="/scan/confirm-class" method="POST" style="margin-top:10px" id="class-correct-form">
+        <form action="/scan/confirm-class" method="POST" style="margin-top:6px" id="class-correct-form">
             <input type="hidden" name="approved" value="no">
-            <label style="font-size:var(--text-base);display:block;margin-bottom:6px">Исправить класс</label>
+            <label style="font-size:var(--text-base);display:block;margin-bottom:3px">Исправить класс</label>
             <select
                 name="category"
                 id="class-select"
                 class="input-search scan-select-touch"
-                style="margin-bottom:10px;font-size:var(--text-base)"
+                style="margin-bottom:6px;font-size:var(--text-base)"
                 required
                 data-predicted="{{ scan.predicted_category }}"
             >
@@ -75,11 +75,11 @@
                 <option value="{{ cls }}" {% if cls == scan.predicted_category %}selected{% endif %}>{{ cls }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" id="btn-class-save" class="btn-secondary scan-btn-touch" style="border:none;width:100%">Сохранить класс</button>
+            <button type="submit" id="btn-class-save" class="btn-secondary scan-btn-touch" style="width:100%">Сохранить класс</button>
         </form>
 
-        <form action="/scan/rescan" method="POST" style="margin-top:10px">
-            <button type="submit" class="btn-secondary scan-btn-touch" style="border:none;width:100%">Повторное сканирование</button>
+        <form action="/scan/rescan" method="POST" style="margin-top:6px">
+            <button type="submit" class="btn-secondary scan-btn-touch" style="width:100%">Повторное сканирование</button>
         </form>
         {% endif %}
     </div>
