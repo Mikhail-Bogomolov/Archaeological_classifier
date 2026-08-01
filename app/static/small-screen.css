@@ -415,12 +415,27 @@ body.small-screen {
 }
 
 .small-screen .scan-add-form {
-    margin: 0 var(--pad);
+    margin: 0;
 }
 
 .small-screen .scan-add-btn {
     border: none;
     width: 100%;
+}
+
+.small-screen .scan-btn-touch {
+    min-height: 56px;
+    font-size: 18px;
+    border-radius: 10px;
+}
+
+.small-screen .scan-select-touch {
+    min-height: 48px;
+    font-size: 16px;
+}
+
+.small-screen .scan-card-actions {
+    margin-bottom: 6px;
 }
 
 /* После подтверждения класса — чуть меньше отступы, превью не трогаем */
@@ -459,8 +474,4 @@ body.small-screen {
 .small-screen.scan-page--confirmed .scan-features {
     margin-top: 4px;
     line-height: 1.35;
-}
-
-.small-screen.scan-page--confirmed .scan-add-form {
-    margin-top: 0;
 }

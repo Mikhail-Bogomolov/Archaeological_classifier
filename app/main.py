@@ -12,7 +12,7 @@ from app import db
 from app.export_markup import (
     ensure_markup_csv_template_on_disk,
     ensure_markup_template_on_disk,
-    export_objects_csv_zip,
+    export_objects_csv_zip_with_photos,
     export_objects_xlsx,
 )
 from app.camera_capture import (
@@ -24,7 +24,7 @@ from app.inference import run_inference
 from app.ml.config import OBJECT_CLASSES
 from app.ml.pipeline import get_pipeline
 from app.usb_export import find_usb_mount, safe_export_filename
-from app.ml.preprocess import load_ui_preview_rgb, pil_to_jpeg_bytes
+from app.ml.preprocess import load_ui_preview_rgb, make_display_thumbnail, pil_to_jpeg_bytes
 
 
 app = FastAPI()
@@ -281,6 +281,18 @@ async def add_scanned_object():
     date_str = scanned_at.strftime("%d.%m.%Y %H:%M")
     category = str(pending_scan["category"])
     object_name = f"{category} {date_str}"
+
+    full_bytes = bytes(pending_scan["image_bytes"])
+    full_mime = str(pending_scan.get("image_mime") or "image/jpeg")
+    preview_src = bytes(
+        pending_scan.get("preview_image_bytes") or pending_scan["image_bytes"]
+    )
+    try:
+        preview_pil = Image.open(io.BytesIO(preview_src)).convert("RGB")
+        thumb_bytes = make_display_thumbnail(preview_pil)
+    except Exception:
+        thumb_bytes = preview_src
+
     db.add_object(
         name=object_name,
         description=str(pending_scan["description"]),
@@ -288,14 +300,10 @@ async def add_scanned_object():
         confidence=int(pending_scan["confidence"]),
         date=date_str,
         features=list(pending_scan.get("features") or []),
-        image_bytes=bytes(
-            pending_scan.get("preview_image_bytes") or pending_scan["image_bytes"]
-        ),
-        image_mime=(
-            "image/jpeg"
-            if pending_scan.get("preview_image_bytes")
-            else str(pending_scan.get("image_mime") or "application/octet-stream")
-        ),
+        image_bytes=thumb_bytes,
+        image_mime="image/jpeg",
+        image_full_bytes=full_bytes,
+        image_full_mime=full_mime,
     )
     pending_scan = None
     return RedirectResponse("/", status_code=303)
@@ -329,9 +337,9 @@ async def pending_scan_image():
 
 
 @app.get("/object/{object_id}/image")
-async def object_image(object_id: int):
+async def object_image(object_id: int, full: bool = Query(False)):
     db.init_db()
-    data = db.get_object_image(object_id)
+    data = db.get_object_image(object_id, full=full)
     if data is None:
         return RedirectResponse("/", status_code=303)
     image_bytes, image_mime = data
@@ -359,7 +367,7 @@ async def export_csv(
     if parsed_from and parsed_to and parsed_from > parsed_to:
         parsed_from, parsed_to = parsed_to, parsed_from
     objects = db.list_objects_for_export(date_from=parsed_from, date_to=parsed_to)
-    data = export_objects_csv_zip(objects)
+    data = export_objects_csv_zip_with_photos(objects)
     suffix = ""
     if parsed_from or parsed_to:
         from_part = parsed_from.isoformat() if parsed_from else "start"
@@ -378,7 +386,7 @@ def _build_export_zip(date_from: str | None, date_to: str | None) -> tuple[bytes
     if parsed_from and parsed_to and parsed_from > parsed_to:
         parsed_from, parsed_to = parsed_to, parsed_from
     objects = db.list_objects_for_export(date_from=parsed_from, date_to=parsed_to)
-    data = export_objects_csv_zip(objects)
+    data = export_objects_csv_zip_with_photos(objects)
     suffix = ""
     if parsed_from or parsed_to:
         from_part = parsed_from.isoformat() if parsed_from else "start"

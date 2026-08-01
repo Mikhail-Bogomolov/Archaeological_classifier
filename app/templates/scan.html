@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Сканирование</title>
-    <link rel="stylesheet" href="/static/small-screen.css?v=8">
+    <link rel="stylesheet" href="/static/small-screen.css?v=9">
     {% if not scan %}
     <style>
         body.scan-page--start { padding-top: 36px !important; }
@@ -48,19 +48,40 @@
 
 {% if scan %}
 <div class="page-pad scan-results">
-    <div class="card page-pad scan-card scan-card-preview">
-        <p class="scan-preview-label">
-            {% if scan.preview_meta and scan.preview_meta.fallback %}
-            Объект (полный кадр — автообрезка ненадёжна)
-            {% elif scan.preview_meta and scan.preview_meta.preview_mode == 'cropped' %}
-            Объект (автообрезка{% if scan.preview_meta.preset %}, {{ scan.preview_meta.preset }}{% endif %})
-            {% else %}
-            Объект (центр кадра)
-            {% endif %}
-        </p>
-        <div class="scan-preview-box">
-            <img src="{{ scan.image_url }}" alt="" class="scan-preview-img">
-        </div>
+
+    <div class="card page-pad scan-card scan-card-actions">
+        {% if scan.class_confirmed %}
+        <form action="/scan/add" method="POST" class="scan-add-form">
+            <button type="submit" class="btn-primary scan-add-btn scan-btn-touch">Добавить</button>
+        </form>
+        {% else %}
+        <form action="/scan/confirm-class" method="POST" id="class-approve-form">
+            <input type="hidden" name="approved" value="yes">
+            <button type="submit" id="btn-class-approve" class="btn-primary scan-btn-touch" style="border:none;width:100%">Класс верный</button>
+        </form>
+
+        <form action="/scan/confirm-class" method="POST" style="margin-top:10px" id="class-correct-form">
+            <input type="hidden" name="approved" value="no">
+            <label style="font-size:var(--text-base);display:block;margin-bottom:6px">Исправить класс</label>
+            <select
+                name="category"
+                id="class-select"
+                class="input-search scan-select-touch"
+                style="margin-bottom:10px;font-size:var(--text-base)"
+                required
+                data-predicted="{{ scan.predicted_category }}"
+            >
+                {% for cls in object_classes %}
+                <option value="{{ cls }}" {% if cls == scan.predicted_category %}selected{% endif %}>{{ cls }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" id="btn-class-save" class="btn-secondary scan-btn-touch" style="border:none;width:100%">Сохранить класс</button>
+        </form>
+
+        <form action="/scan/rescan" method="POST" style="margin-top:10px">
+            <button type="submit" class="btn-secondary scan-btn-touch" style="border:none;width:100%">Повторное сканирование</button>
+        </form>
+        {% endif %}
     </div>
 
     <div class="card page-pad scan-card scan-card-network">
@@ -69,11 +90,8 @@
             Предсказание: <b>{{ scan.predicted_category }}</b> · {{ scan.predicted_confidence }}%
         </p>
         {% if scan.warning %}
-        <p class="scan-warning">
-            {{ scan.warning }}
-        </p>
+        <p class="scan-warning">{{ scan.warning }}</p>
         {% endif %}
-
         {% if scan.class_confirmed %}
         <p class="scan-confirmed-class">
             Подтверждённый класс: <b>{{ scan.category }}</b>
@@ -86,41 +104,24 @@
             {% endfor %}
         </ul>
         {% endif %}
-        {% else %}
-        <form action="/scan/confirm-class" method="POST" style="margin-top:12px" id="class-approve-form">
-            <input type="hidden" name="approved" value="yes">
-            <button type="submit" id="btn-class-approve" class="btn-primary" style="border:none;width:100%">Класс верный</button>
-        </form>
-
-        <form action="/scan/confirm-class" method="POST" style="margin-top:10px" id="class-correct-form">
-            <input type="hidden" name="approved" value="no">
-            <label style="font-size:var(--text-base);display:block;margin-bottom:6px">Исправить класс</label>
-            <select
-                name="category"
-                id="class-select"
-                class="input-search"
-                style="margin-bottom:10px;font-size:var(--text-base)"
-                required
-                data-predicted="{{ scan.predicted_category }}"
-            >
-                {% for cls in object_classes %}
-                <option value="{{ cls }}" {% if cls == scan.predicted_category %}selected{% endif %}>{{ cls }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" id="btn-class-save" class="btn-secondary" style="border:none;width:100%">Сохранить класс</button>
-        </form>
-
-        <form action="/scan/rescan" method="POST" style="margin-top:10px">
-            <button type="submit" class="btn-secondary" style="border:none;width:100%">Повторное сканирование</button>
-        </form>
         {% endif %}
     </div>
 
-    {% if scan.class_confirmed %}
-    <form action="/scan/add" method="POST" class="scan-add-form">
-        <button type="submit" class="btn-primary scan-add-btn">Добавить</button>
-    </form>
-    {% endif %}
+    <div class="card page-pad scan-card scan-card-preview">
+        <p class="scan-preview-label">
+            {% if scan.preview_meta and scan.preview_meta.fallback %}
+            Объект (полный кадр — автообрезка ненадёжна)
+            {% elif scan.preview_meta and scan.preview_meta.preview_mode == 'cropped' %}
+            Объект (автообрезка{% if scan.preview_meta.preset %}, {{ scan.preview_meta.preset }}{% endif %})
+            {% else %}
+            Объект (центр кадра)
+            {% endif %}
+        </p>
+        <div class="scan-preview-box">
+            <img src="{{ scan.image_url }}" alt="" class="scan-preview-img" loading="lazy">
+        </div>
+    </div>
+
 </div>
 
 {% else %}
@@ -171,8 +172,8 @@
 
     function syncClassButtons() {
         var changed = select.value !== predicted;
-        btnApprove.className = changed ? "btn-secondary" : "btn-primary";
-        btnSave.className = changed ? "btn-primary" : "btn-secondary";
+        btnApprove.className = changed ? "btn-secondary scan-btn-touch" : "btn-primary scan-btn-touch";
+        btnSave.className = changed ? "btn-primary scan-btn-touch" : "btn-secondary scan-btn-touch";
         btnApprove.style.cssText = "border:none;width:100%";
         btnSave.style.cssText = "border:none;width:100%";
     }

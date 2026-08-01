@@ -151,3 +151,47 @@ def export_objects_csv_zip(objects: list[dict[str, Any]]) -> bytes:
             safe_name = _safe_sheet_filename(sheet_name)
             zf.writestr(f"{safe_name}.csv", csv_buf.getvalue().encode("utf-8-sig"))
     return buf.getvalue()
+
+
+def _mime_to_ext(mime: str | None) -> str:
+    m = (mime or "").lower()
+    if "png" in m:
+        return "png"
+    if "webp" in m:
+        return "webp"
+    return "jpg"
+
+
+def export_objects_csv_zip_with_photos(
+    objects: list[dict[str, Any]],
+    photo_rows: list[tuple[int, str, bytes, str]] | None = None,
+) -> bytes:
+    """ZIP: CSV по типам + photos/{класс}/{id}.jpg (оригиналы)."""
+    from app import db as app_db
+
+    grouped = _group_objects_by_class(objects)
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for sheet_name, rows in grouped.items():
+            csv_buf = io.StringIO()
+            writer = csv.writer(csv_buf, lineterminator="\n")
+            writer.writerow(markup_columns_for_class(sheet_name))
+            for obj in rows:
+                writer.writerow(_row_from_object(obj))
+            safe_name = _safe_sheet_filename(sheet_name)
+            zf.writestr(f"{safe_name}.csv", csv_buf.getvalue().encode("utf-8-sig"))
+
+        if photo_rows is None:
+            ids = [int(o["id"]) for o in objects if o.get("id") is not None]
+            photo_iter = app_db.iter_object_photos(ids)
+        else:
+            photo_iter = photo_rows
+
+        for oid, category, photo_bytes, mime in photo_iter:
+            if not photo_bytes:
+                continue
+            safe_cat = _safe_sheet_filename(str(category or "unknown"))
+            ext = _mime_to_ext(mime)
+            zf.writestr(f"photos/{safe_cat}/{oid}.{ext}", photo_bytes)
+
+    return buf.getvalue()

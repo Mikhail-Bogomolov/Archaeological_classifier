@@ -945,6 +945,21 @@ def pil_to_jpeg_bytes(pil: Image.Image, quality: int = 85) -> bytes:
     return buf.getvalue()
 
 
+def make_display_thumbnail(
+    pil: Image.Image,
+    max_side: int = 480,
+    quality: int = 70,
+) -> bytes:
+    """Маленькая быстрая копия для списка и карточки в UI."""
+    img = pil.copy()
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+    img.thumbnail((max_side, max_side), Image.Resampling.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=quality)
+    return buf.getvalue()
+
+
 def _load_rgb_base(
     image_bytes: bytes | None = None,
     path: str | Path | None = None,

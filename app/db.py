@@ -3,7 +3,7 @@ import math
 import sqlite3
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 PAGE_SIZE = 10
 
@@ -15,6 +15,13 @@ def _connect() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def _ensure_column(conn: sqlite3.Connection, table: str, column: str, decl: str) -> None:
+    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    names = {str(r["name"]) for r in rows}
+    if column not in names:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
 
 
 def init_db() -> None:
@@ -31,10 +38,14 @@ def init_db() -> None:
                 date TEXT NOT NULL,
                 features_json TEXT,
                 image_bytes BLOB NOT NULL,
-                image_mime TEXT NOT NULL
+                image_mime TEXT NOT NULL,
+                image_full_bytes BLOB,
+                image_full_mime TEXT
             )
             """
         )
+        _ensure_column(conn, "objects", "image_full_bytes", "BLOB")
+        _ensure_column(conn, "objects", "image_full_mime", "TEXT")
         conn.commit()
 
 
@@ -48,12 +59,17 @@ def add_object(
     features: list[str] | None,
     image_bytes: bytes,
     image_mime: str,
+    image_full_bytes: bytes | None = None,
+    image_full_mime: str | None = None,
 ) -> int:
     with _connect() as conn:
         cur = conn.execute(
             """
-            INSERT INTO objects (name, description, category, confidence, date, features_json, image_bytes, image_mime)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO objects (
+                name, description, category, confidence, date, features_json,
+                image_bytes, image_mime, image_full_bytes, image_full_mime
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 name,
@@ -64,6 +80,8 @@ def add_object(
                 json.dumps(features or [], ensure_ascii=False),
                 sqlite3.Binary(image_bytes),
                 image_mime,
+                sqlite3.Binary(image_full_bytes) if image_full_bytes else None,
+                image_full_mime,
             ),
         )
         conn.commit()
@@ -185,6 +203,40 @@ def list_objects_for_export(
         return result
 
 
+def iter_object_photos(
+    object_ids: list[int],
+) -> Iterator[tuple[int, str, bytes, str]]:
+    """По одному фото за раз (полный кадр, иначе превью) — для ZIP-экспорта."""
+    with _connect() as conn:
+        for oid in object_ids:
+            row = conn.execute(
+                """
+                SELECT id, category, image_bytes, image_mime,
+                       image_full_bytes, image_full_mime
+                FROM objects
+                WHERE id = ?
+                """,
+                (oid,),
+            ).fetchone()
+            if row is None:
+                continue
+            full = row["image_full_bytes"]
+            if full:
+                yield (
+                    int(row["id"]),
+                    str(row["category"] or "unknown"),
+                    bytes(full),
+                    str(row["image_full_mime"] or "image/jpeg"),
+                )
+            elif row["image_bytes"]:
+                yield (
+                    int(row["id"]),
+                    str(row["category"] or "unknown"),
+                    bytes(row["image_bytes"]),
+                    str(row["image_mime"] or "image/jpeg"),
+                )
+
+
 def get_export_date_bounds() -> dict[str, str | None]:
     """Минимальная и максимальная дата объектов в формате YYYY-MM-DD для полей ввода."""
     with _connect() as conn:
@@ -244,11 +296,15 @@ def get_object(object_id: int) -> dict[str, Any] | None:
         return obj
 
 
-def get_object_image(object_id: int) -> tuple[bytes, str] | None:
+def get_object_image(
+    object_id: int,
+    *,
+    full: bool = False,
+) -> tuple[bytes, str] | None:
     with _connect() as conn:
         row = conn.execute(
             """
-            SELECT image_bytes, image_mime
+            SELECT image_bytes, image_mime, image_full_bytes, image_full_mime
             FROM objects
             WHERE id = ?
             """,
@@ -256,5 +312,9 @@ def get_object_image(object_id: int) -> tuple[bytes, str] | None:
         ).fetchone()
         if row is None:
             return None
+        if full and row["image_full_bytes"]:
+            return (
+                bytes(row["image_full_bytes"]),
+                str(row["image_full_mime"] or "image/jpeg"),
+            )
         return (bytes(row["image_bytes"]), str(row["image_mime"]))
-
