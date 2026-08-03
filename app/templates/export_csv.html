@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Экспорт CSV</title>
     <link rel="stylesheet" href="/static/small-screen.css?v=5">
-    <link rel="stylesheet" href="/static/home.css?v=5">
+    <link rel="stylesheet" href="/static/home.css?v=6">
 </head>
 <body class="small-screen export-page">
 
@@ -72,25 +72,25 @@
 
     <div class="export-summary" id="export-summary">Выберите период</div>
     <button type="button" id="clear-range" class="export-clear-btn">Сбросить период (все объекты)</button>
-</main>
 
-<form
-    class="export-footer"
-    id="export-form"
-    action="/export/usb"
-    method="POST"
-    data-show-loader
-    data-loader-message="Экспорт на флешку…"
->
-    <input type="hidden" name="date_from" id="date_from">
-    <input type="hidden" name="date_to" id="date_to">
-    <button type="submit" class="ui-btn-download">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 21h16"/>
-        </svg>
-        ЭКСПОРТ НА ФЛЕШКУ
-    </button>
-</form>
+    <form
+        class="export-submit"
+        id="export-form"
+        action="/export/usb"
+        method="POST"
+        data-show-loader
+        data-loader-message="Экспорт на флешку…"
+    >
+        <input type="hidden" name="date_from" id="date_from">
+        <input type="hidden" name="date_to" id="date_to">
+        <button type="submit" class="ui-btn-download">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 21h16"/>
+            </svg>
+            ЭКСПОРТ НА ФЛЕШКУ
+        </button>
+    </form>
+</main>
 
 <div id="app-loader" class="loader-overlay" hidden>
     <div class="loader-spinner" aria-hidden="true"></div>
@@ -104,6 +104,6 @@
     };
 </script>
 <script src="/static/export.js?v=3"></script>
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=2"></script>
 </body>
 </html>

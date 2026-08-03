@@ -300,7 +300,9 @@ body.small-screen {
 }
 
 .small-screen .loader-overlay[hidden] {
-    display: none;
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
 }
 
 .small-screen .loader-spinner {
@@ -424,55 +426,75 @@ body.small-screen {
 }
 
 .small-screen .scan-btn-touch {
-    min-height: 56px;
-    padding: 10px 10px;
-    font-size: 18px;
+    min-height: 48px;
+    padding: 8px 10px;
+    font-size: 17px;
     border-radius: 10px;
 }
 
 .small-screen .scan-select-touch {
-    min-height: 48px;
+    min-height: 40px;
     font-size: 16px;
 }
 
 .small-screen .scan-card-actions {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+}
+
+.small-screen .scan-form-gap {
+    margin-top: 4px;
+}
+
+.small-screen .scan-fix-label {
+    display: block;
+    font-size: var(--text-base);
+    margin: 0 0 2px;
+}
+
+.small-screen .scan-class-select {
+    margin-bottom: 4px;
+    font-size: var(--text-base);
 }
 
 /* Результаты скана (до и после подтверждения класса) — компактные отступы, превью не трогаем */
 .small-screen.scan-page--compact .scan-header {
-    padding: 6px var(--pad);
+    padding: 4px var(--pad);
 }
 
 .small-screen.scan-page--compact .scan-title {
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 .small-screen.scan-page--compact .scan-results {
-    gap: 4px;
+    gap: 2px;
     padding-top: 2px;
-    padding-bottom: 4px;
+    padding-bottom: 2px;
 }
 
 .small-screen.scan-page--compact .scan-card {
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    padding: 6px 8px;
 }
 
 .small-screen.scan-page--compact .scan-preview-label,
 .small-screen.scan-page--compact .scan-section-label {
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+}
+
+.small-screen.scan-page--compact .scan-prediction {
+    margin-top: 2px;
 }
 
 .small-screen.scan-page--compact .scan-confirmed-class {
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 .small-screen.scan-page--compact .scan-description {
     margin-top: 2px;
-    line-height: 1.35;
+    line-height: 1.3;
 }
 
 .small-screen.scan-page--compact .scan-features {
-    margin-top: 4px;
-    line-height: 1.35;
+    margin-top: 2px;
+    line-height: 1.3;
 }

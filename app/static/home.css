@@ -380,7 +380,7 @@ body.export-page {
 /* Экспорт */
 .export-main {
     flex: 1;
-    padding: 12px 12px 90px;
+    padding: 12px;
 }
 
 .export-range-row {
@@ -626,6 +626,10 @@ body.export-page {
     font-size: 13px;
     text-decoration: underline;
     cursor: pointer;
+}
+
+.export-submit {
+    margin-top: 12px;
 }
 
 .export-footer {
