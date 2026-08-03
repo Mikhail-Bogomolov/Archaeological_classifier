@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Экспорт CSV</title>
     <link rel="stylesheet" href="/static/small-screen.css?v=5">
-    <link rel="stylesheet" href="/static/home.css?v=6">
+    <link rel="stylesheet" href="/static/home.css?v=7">
 </head>
 <body class="small-screen export-page">
 
@@ -104,6 +104,16 @@
     };
 </script>
 <script src="/static/export.js?v=3"></script>
-<script src="/static/app.js?v=2"></script>
+<script src="/static/app.js?v=3"></script>
+<script>
+/* На случай bfcache / залипшего оверлея после ошибки флешки */
+(function () {
+    var overlay = document.getElementById("app-loader");
+    if (!overlay) return;
+    overlay.hidden = true;
+    overlay.style.setProperty("display", "none", "important");
+    overlay.style.setProperty("pointer-events", "none", "important");
+})();
+</script>
 </body>
 </html>

@@ -433,8 +433,8 @@ body.small-screen {
 }
 
 .small-screen .scan-select-touch {
-    min-height: 40px;
-    font-size: 16px;
+    min-height: 48px;
+    font-size: 18px;
 }
 
 .small-screen .scan-card-actions {
@@ -454,6 +454,40 @@ body.small-screen {
 .small-screen .scan-class-select {
     margin-bottom: 4px;
     font-size: var(--text-base);
+}
+
+.small-screen .scan-class-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0 0 6px;
+}
+
+.small-screen .scan-class-option {
+    display: block;
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 14px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: left;
+    color: #0f172a;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.small-screen .scan-class-option.is-selected {
+    border-color: #0f172a;
+    background: #f1f5f9;
+}
+
+.small-screen .scan-class-option:active {
+    background: #e2e8f0;
 }
 
 /* Результаты скана (до и после подтверждения класса) — компактные отступы, превью не трогаем */

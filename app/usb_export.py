@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 from pathlib import Path
 
 _USB_FS = frozenset({
@@ -15,6 +16,7 @@ _USB_FS = frozenset({
     "msdos",
     "fat",
     "fat32",
+    "ext4",
 })
 
 # Куда обычно монтируется флешка.
@@ -23,6 +25,46 @@ _MOUNT_PREFIXES = (
     "/run/media/",
     "/mnt/",
 )
+
+
+def _try_automount_usb() -> Path | None:
+    """Если флешка вставлена, но не смонтирована — смонтировать через udisksctl."""
+    try:
+        out = subprocess.check_output(
+            ["lsblk", "-o", "NAME,TYPE,FSTYPE,MOUNTPOINT", "-P"],
+            stderr=subprocess.DEVNULL,
+            timeout=3,
+        ).decode()
+    except Exception:
+        return None
+
+    for line in out.splitlines():
+        fields = dict(re.findall(r'(\w+)="([^"]*)"', line))
+        if fields.get("TYPE") != "part":
+            continue
+        if fields.get("MOUNTPOINT"):
+            continue
+        name = fields.get("NAME")
+        if not name or name.startswith("mmcblk"):
+            continue
+        if not fields.get("FSTYPE"):
+            continue
+        try:
+            result = subprocess.run(
+                ["udisksctl", "mount", "-b", f"/dev/{name}"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            m = re.search(r"at (/[\S]+)", result.stdout or "")
+            if not m:
+                continue
+            path = Path(m.group(1).rstrip("."))
+            if path.is_dir() and os.access(path, os.W_OK):
+                return path
+        except Exception:
+            continue
+    return None
 
 
 def find_usb_mount() -> Path | None:
@@ -62,6 +104,9 @@ def find_usb_mount() -> Path | None:
                     candidates.append(path)
 
     if not candidates:
+        auto = _try_automount_usb()
+        if auto is not None:
+            return auto
         return None
 
     # Берём самый длинный путь (часто /media/user/LABEL).

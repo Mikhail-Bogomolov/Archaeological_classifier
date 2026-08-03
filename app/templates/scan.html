@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Сканирование</title>
-    <link rel="stylesheet" href="/static/small-screen.css?v=13">
+    <link rel="stylesheet" href="/static/small-screen.css?v=14">
     {% if not scan %}
     <style>
         body.scan-page--start { padding-top: 36px !important; }
@@ -55,25 +55,39 @@
             <button type="submit" class="btn-primary scan-add-btn scan-btn-touch">Добавить</button>
         </form>
         {% else %}
-        <form action="/scan/confirm-class" method="POST" id="class-approve-form">
+        <form
+            action="/scan/confirm-class"
+            method="POST"
+            id="class-approve-form"
+            data-show-loader
+            data-loader-message="Подтверждение класса…"
+        >
             <input type="hidden" name="approved" value="yes">
             <button type="submit" id="btn-class-approve" class="btn-primary scan-btn-touch" style="border:none;width:100%">Класс верный</button>
         </form>
 
-        <form action="/scan/confirm-class" method="POST" class="scan-form-gap" id="class-correct-form">
+        <form
+            action="/scan/confirm-class"
+            method="POST"
+            class="scan-form-gap"
+            id="class-correct-form"
+            data-show-loader
+            data-loader-message="Сохранение класса…"
+        >
             <input type="hidden" name="approved" value="no">
             <label class="scan-fix-label">Исправить класс</label>
-            <select
-                name="category"
-                id="class-select"
-                class="input-search scan-select-touch scan-class-select"
-                required
-                data-predicted="{{ scan.predicted_category }}"
-            >
+            <input type="hidden" name="category" id="class-select" value="{{ scan.predicted_category }}" data-predicted="{{ scan.predicted_category }}">
+            <div class="scan-class-list" role="listbox" aria-label="Класс объекта">
                 {% for cls in object_classes %}
-                <option value="{{ cls }}" {% if cls == scan.predicted_category %}selected{% endif %}>{{ cls }}</option>
+                <button
+                    type="button"
+                    class="scan-class-option{% if cls == scan.predicted_category %} is-selected{% endif %}"
+                    data-value="{{ cls }}"
+                    role="option"
+                    aria-selected="{% if cls == scan.predicted_category %}true{% else %}false{% endif %}"
+                >{{ cls }}</button>
                 {% endfor %}
-            </select>
+            </div>
             <button type="submit" id="btn-class-save" class="btn-secondary scan-btn-touch" style="width:100%">Сохранить класс</button>
         </form>
 
@@ -157,14 +171,15 @@
     <div class="loader-spinner" aria-hidden="true"></div>
     <p class="loader-text">Обработка изображения…</p>
 </div>
-<script src="/static/app.js?v=2"></script>
+<script src="/static/app.js?v=3"></script>
 {% if scan and not scan.class_confirmed %}
 <script>
 (function () {
     var select = document.getElementById("class-select");
     var btnApprove = document.getElementById("btn-class-approve");
     var btnSave = document.getElementById("btn-class-save");
-    if (!select || !btnApprove || !btnSave) {
+    var options = document.querySelectorAll(".scan-class-option");
+    if (!select || !btnApprove || !btnSave || !options.length) {
         return;
     }
     var predicted = select.getAttribute("data-predicted") || "";
@@ -174,10 +189,24 @@
         btnApprove.className = changed ? "btn-secondary scan-btn-touch" : "btn-primary scan-btn-touch";
         btnSave.className = changed ? "btn-primary scan-btn-touch" : "btn-secondary scan-btn-touch";
         btnApprove.style.cssText = "border:none;width:100%";
-        btnSave.style.cssText = "border:none;width:100%";
+        btnSave.style.cssText = "width:100%";
     }
 
-    select.addEventListener("change", syncClassButtons);
+    function selectClass(value) {
+        select.value = value;
+        options.forEach(function (btn) {
+            var on = btn.getAttribute("data-value") === value;
+            btn.classList.toggle("is-selected", on);
+            btn.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        syncClassButtons();
+    }
+
+    options.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            selectClass(btn.getAttribute("data-value") || "");
+        });
+    });
     syncClassButtons();
 })();
 </script>

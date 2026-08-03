@@ -10,6 +10,10 @@
         }
         overlay.hidden = true;
         overlay.setAttribute("aria-hidden", "true");
+        // Жёстко снимаем перехват кликов (редирект / bfcache / долгий USB).
+        overlay.style.setProperty("display", "none", "important");
+        overlay.style.setProperty("pointer-events", "none", "important");
+        overlay.style.setProperty("visibility", "hidden", "important");
     }
 
     function showLoader(message) {
@@ -21,16 +25,15 @@
         if (text && message) {
             text.textContent = message;
         }
+        overlay.style.removeProperty("display");
+        overlay.style.removeProperty("pointer-events");
+        overlay.style.removeProperty("visibility");
         overlay.hidden = false;
         overlay.setAttribute("aria-hidden", "false");
     }
 
-    // После редиректа (ошибка камеры и т.п.) и при bfcache оверлей
-    // мог остаться видимым и перехватывать клики.
     hideLoader();
-    window.addEventListener("pageshow", function () {
-        hideLoader();
-    });
+    window.addEventListener("pageshow", hideLoader);
 
     document.querySelectorAll("[data-show-loader]").forEach(function (form) {
         form.addEventListener("submit", function () {
