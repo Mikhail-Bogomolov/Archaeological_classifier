@@ -164,11 +164,11 @@ def _build_index_order(preferred: int) -> list[int]:
         if n not in order:
             order.append(n)
 
-    # Сначала явный preferred
-    _add(preferred)
-    # Потом обнаруженные по USB id
+    # Сначала — надёжно опознанные по USB ID индексы камеры
     for n in known_aicam:
         _add(n)
+    # Потом явный preferred (может быть не связан с реальной камерой)
+    _add(preferred)
     # Потом фиксированные fallback
     for n in _FALLBACK_INDICES:
         _add(n)
