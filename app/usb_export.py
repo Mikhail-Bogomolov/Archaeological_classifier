@@ -1,25 +1,19 @@
-"""Поиск USB-флешки (Orange Pi / Linux)."""
+"""Поиск USB-флешки (Orange Pi / Linux / Windows / macOS)."""
 
 from __future__ import annotations
 
 import os
+import platform
 import re
 import subprocess
 from pathlib import Path
 
 _USB_FS = frozenset({
-    "vfat",
-    "exfat",
-    "ntfs",
-    "ntfs-3g",
-    "fuseblk",
-    "msdos",
-    "fat",
-    "fat32",
-    "ext4",
+    "vfat", "exfat", "ntfs", "ntfs-3g", "fuseblk",
+    "msdos", "fat", "fat32", "ext4", "ext3", "ext2",
+    "btrfs", "xfs", "drvfs", "9p", "hfs", "apfs",
 })
 
-# Куда обычно монтируется флешка.
 _MOUNT_PREFIXES = (
     "/media/",
     "/run/media/",
@@ -27,54 +21,53 @@ _MOUNT_PREFIXES = (
 )
 
 
-def _try_automount_usb() -> Path | None:
-    """Если флешка вставлена, но не смонтирована — смонтировать через udisksctl."""
+def _windows_removable_drives() -> list[Path]:
+    """Ищет съёмные диски на Windows."""
+    candidates: list[Path] = []
     try:
         out = subprocess.check_output(
-            ["lsblk", "-o", "NAME,TYPE,FSTYPE,MOUNTPOINT", "-P"],
-            stderr=subprocess.DEVNULL,
-            timeout=3,
-        ).decode()
+            [
+                "powershell",
+                "-Command",
+                "Get-CimInstance Win32_LogicalDisk | Where-Object {$_.DriveType -eq 2} | ForEach-Object {$_.DeviceID}",
+            ],
+            text=True,
+            timeout=10,
+        )
+        for line in out.strip().splitlines():
+            d = line.strip().rstrip("\\") + "\\"
+            p = Path(d)
+            if p.exists() and os.access(p, os.W_OK):
+                candidates.append(p)
     except Exception:
-        return None
-
-    for line in out.splitlines():
-        fields = dict(re.findall(r'(\w+)="([^"]*)"', line))
-        if fields.get("TYPE") != "part":
-            continue
-        if fields.get("MOUNTPOINT"):
-            continue
-        name = fields.get("NAME")
-        if not name or name.startswith("mmcblk"):
-            continue
-        if not fields.get("FSTYPE"):
-            continue
-        try:
-            result = subprocess.run(
-                ["udisksctl", "mount", "-b", f"/dev/{name}"],
-                capture_output=True,
-                text=True,
-                timeout=3,
-            )
-            m = re.search(r"at (/[\S]+)", result.stdout or "")
-            if not m:
-                continue
-            path = Path(m.group(1).rstrip("."))
-            if path.is_dir() and os.access(path, os.W_OK):
-                return path
-        except Exception:
-            continue
-    return None
+        pass
+    return candidates
 
 
 def find_usb_mount() -> Path | None:
     """Каталог флешки или None."""
+    # 1. Переменная окружения — приоритет №1
     override = os.environ.get("USB_EXPORT_MOUNT", "").strip()
     if override:
         path = Path(override)
         if path.is_dir() and os.access(path, os.W_OK):
             return path
+        print(f"[USB] WARNING: USB_EXPORT_MOUNT={override} недоступен для записи")
 
+    # 2. Windows
+    if platform.system() == "Windows":
+        candidates = _windows_removable_drives()
+        if candidates:
+            return candidates[0]
+        # Fallback: любой несистемный диск
+        for letter in "DEFGHIJKLMNOPQRSTUVWXYZ":
+            p = Path(f"{letter}:\\")
+            if p.exists() and os.access(p, os.W_OK):
+                if not (p / "Windows").exists():
+                    return p
+        return None
+
+    # 3. Linux / macOS — /proc/mounts
     candidates: list[Path] = []
     try:
         mounts_text = Path("/proc/mounts").read_text(encoding="utf-8", errors="ignore")
@@ -97,19 +90,16 @@ def find_usb_mount() -> Path | None:
             candidates.append(path)
 
     if not candidates:
-        # Нет /proc/mounts — ищем по путям.
+        # Fallback на glob, если /proc/mounts недоступен
         for pattern in ("/media/*/*", "/run/media/*/*", "/mnt/usb*", "/mnt/USB*"):
             for path in sorted(Path("/").glob(pattern.lstrip("/"))):
                 if path.is_dir() and os.access(path, os.W_OK):
                     candidates.append(path)
 
     if not candidates:
-        auto = _try_automount_usb()
-        if auto is not None:
-            return auto
         return None
 
-    # Берём самый длинный путь (часто /media/user/LABEL).
+    # Берём самый длинный путь (обычно /media/user/LABEL)
     candidates.sort(key=lambda p: (len(p.parts), str(p)))
     return candidates[-1]
 
