@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Сканирование</title>
-    <link rel="stylesheet" href="/static/small-screen.css?v=14">
+    <link rel="stylesheet" href="/static/small-screen.css?v=15">
     {% if not scan %}
     <style>
         body.scan-page--start { padding-top: 36px !important; }
@@ -77,16 +77,28 @@
             <input type="hidden" name="approved" value="no">
             <label class="scan-fix-label">Исправить класс</label>
             <input type="hidden" name="category" id="class-select" value="{{ scan.predicted_category }}" data-predicted="{{ scan.predicted_category }}">
-            <div class="scan-class-list" role="listbox" aria-label="Класс объекта">
-                {% for cls in object_classes %}
+            <div class="scan-class-dropdown" id="class-dropdown">
                 <button
                     type="button"
-                    class="scan-class-option{% if cls == scan.predicted_category %} is-selected{% endif %}"
-                    data-value="{{ cls }}"
-                    role="option"
-                    aria-selected="{% if cls == scan.predicted_category %}true{% else %}false{% endif %}"
-                >{{ cls }}</button>
-                {% endfor %}
+                    class="scan-class-trigger"
+                    id="class-dropdown-trigger"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                >
+                    <span id="class-dropdown-label">{{ scan.predicted_category }}</span>
+                    <span class="scan-class-chevron" aria-hidden="true">▾</span>
+                </button>
+                <div class="scan-class-list" id="class-dropdown-list" role="listbox" aria-label="Класс объекта" hidden>
+                    {% for cls in object_classes %}
+                    <button
+                        type="button"
+                        class="scan-class-option{% if cls == scan.predicted_category %} is-selected{% endif %}"
+                        data-value="{{ cls }}"
+                        role="option"
+                        aria-selected="{% if cls == scan.predicted_category %}true{% else %}false{% endif %}"
+                    >{{ cls }}</button>
+                    {% endfor %}
+                </div>
             </div>
             <button type="submit" id="btn-class-save" class="btn-secondary scan-btn-touch" style="width:100%">Сохранить класс</button>
         </form>
@@ -178,8 +190,11 @@
     var select = document.getElementById("class-select");
     var btnApprove = document.getElementById("btn-class-approve");
     var btnSave = document.getElementById("btn-class-save");
+    var trigger = document.getElementById("class-dropdown-trigger");
+    var list = document.getElementById("class-dropdown-list");
+    var label = document.getElementById("class-dropdown-label");
     var options = document.querySelectorAll(".scan-class-option");
-    if (!select || !btnApprove || !btnSave || !options.length) {
+    if (!select || !btnApprove || !btnSave || !trigger || !list || !options.length) {
         return;
     }
     var predicted = select.getAttribute("data-predicted") || "";
@@ -192,21 +207,44 @@
         btnSave.style.cssText = "width:100%";
     }
 
+    function setOpen(open) {
+        list.hidden = !open;
+        trigger.setAttribute("aria-expanded", open ? "true" : "false");
+        trigger.classList.toggle("is-open", open);
+    }
+
     function selectClass(value) {
         select.value = value;
+        if (label) {
+            label.textContent = value;
+        }
         options.forEach(function (btn) {
             var on = btn.getAttribute("data-value") === value;
             btn.classList.toggle("is-selected", on);
             btn.setAttribute("aria-selected", on ? "true" : "false");
         });
+        setOpen(false);
         syncClassButtons();
     }
+
+    trigger.addEventListener("click", function (e) {
+        e.preventDefault();
+        setOpen(list.hidden);
+    });
 
     options.forEach(function (btn) {
         btn.addEventListener("click", function () {
             selectClass(btn.getAttribute("data-value") || "");
         });
     });
+
+    document.addEventListener("click", function (e) {
+        var dropdown = document.getElementById("class-dropdown");
+        if (dropdown && !dropdown.contains(e.target)) {
+            setOpen(false);
+        }
+    });
+
     syncClassButtons();
 })();
 </script>

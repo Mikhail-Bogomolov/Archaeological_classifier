@@ -456,11 +456,59 @@ body.small-screen {
     font-size: var(--text-base);
 }
 
+.small-screen .scan-class-dropdown {
+    position: relative;
+    margin-bottom: 6px;
+}
+
+.small-screen .scan-class-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 14px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: left;
+    color: #0f172a;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.small-screen .scan-class-trigger.is-open {
+    border-color: #0f172a;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.small-screen .scan-class-chevron {
+    flex-shrink: 0;
+    font-size: 16px;
+    color: #6b7280;
+}
+
 .small-screen .scan-class-list {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin: 0 0 6px;
+    margin: 0;
+    padding: 6px;
+    background: #fff;
+    border: 2px solid #0f172a;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    box-sizing: border-box;
+}
+
+.small-screen .scan-class-list[hidden] {
+    display: none !important;
 }
 
 .small-screen .scan-class-option {
